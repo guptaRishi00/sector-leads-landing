@@ -214,9 +214,9 @@ export function WaitlistForm({ token, source, className }: { token: string; sour
         )}
       </div>
 
-      <Button type="submit" size="lg" loading={pending} className="w-full sm:w-auto sm:self-start">
+      <Button type="submit" size="lg" loading={pending} className="group/cta w-full sm:w-auto sm:self-start">
         Join the waitlist
-        {!pending && <Icons.ArrowRight aria-hidden="true" />}
+        {!pending && <Icons.ArrowRight aria-hidden="true" className="transition-transform duration-200 group-hover/cta:translate-x-0.5" />}
       </Button>
     </form>
   );

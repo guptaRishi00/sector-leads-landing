@@ -1,9 +1,11 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { Icons, ThemeToggle, cn } from '@sl/ui';
+import { Button, Icons, ThemeToggle, cn } from '@sl/ui';
 import { BRAND_NAME, BRAND_TAGLINE } from '@/lib/marketing/brand';
+import { MobileNav } from './mobile-nav';
+import { SmoothScroll } from './smooth-scroll';
 
-export const CONTAINER = 'mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8';
+export const CONTAINER = 'mx-auto w-full max-w-6xl px-3 sm:px-6 lg:px-8';
 
 const FOCUS =
   'rounded-sm outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid focus-visible:outline-ring';
@@ -29,8 +31,8 @@ export function BrandMark({ className }: { className?: string }) {
 
 function SiteHeader({ showNav }: { showNav: boolean }) {
   return (
-    <header className="sticky top-0 z-40 border-b border-border/70 bg-glass backdrop-blur-md supports-[backdrop-filter]:bg-glass">
-      <div className={cn(CONTAINER, 'flex h-16 items-center justify-between gap-6')}>
+    <header className="glass sticky top-0 z-40 border-b border-border/70">
+      <div className={cn(CONTAINER, 'flex h-16 items-center justify-between gap-3 sm:gap-6')}>
         <BrandMark />
         {showNav && (
           <nav aria-label="Page sections" className="hidden lg:block">
@@ -45,18 +47,19 @@ function SiteHeader({ showNav }: { showNav: boolean }) {
             </ul>
           </nav>
         )}
-        <div className="flex items-center gap-3">
-          <Link href="/sign-in" className={cn('text-sm font-medium text-foreground/80 transition-colors hover:text-foreground', FOCUS)}>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Link href="/sign-in" className={cn('text-sm font-medium text-foreground/80 transition-colors hover:text-foreground', showNav && 'hidden sm:inline', FOCUS)}>
             Sign in
           </Link>
           {showNav && (
-            <a
-              href="#join"
-              className="hidden h-8 items-center gap-1.5 rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground shadow-xs transition-colors outline-none hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid focus-visible:outline-ring sm:inline-flex"
-            >
-              Join the waitlist
-            </a>
+            <Button asChild size="sm" className="group/cta">
+              <a href="#join">
+                Join the waitlist
+                <Icons.ArrowRight aria-hidden="true" className="transition-transform duration-200 group-hover/cta:translate-x-0.5" />
+              </a>
+            </Button>
           )}
+          {showNav && <MobileNav items={NAV} />}
         </div>
       </div>
     </header>
@@ -114,6 +117,11 @@ export function MarketingShell({ children, showNav = false }: { children: ReactN
       >
         Skip to content
       </a>
+      {/* Motion starts hidden (GSAP hero intro, Framer reveals); without JavaScript, show it all. */}
+      <noscript>
+        <style>{'[data-intro],[data-reveal]{opacity:1!important;visibility:visible!important;transform:none!important}'}</style>
+      </noscript>
+      <SmoothScroll />
       <SiteHeader showNav={showNav} />
       <main id="main" tabIndex={-1} className="flex-1 outline-none">
         {children}
