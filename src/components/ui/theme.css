@@ -1,0 +1,350 @@
+/*
+ * sector-leads theme. Load it from the app's Tailwind entry, after `@import 'tailwindcss'`.
+ *
+ * Token names follow shadcn/ui (--background, --primary, --sidebar-*, ...) so the vendored
+ * component source works unchanged.
+ *
+ * Neutrals: hue 265-268 with chroma <= 0.016, a faint cool bias (zinc/slate family),
+ * never pure grey and never visibly blue.
+ * Accent: one deep indigo (hue 274-276). It appears only on the primary action,
+ * focus rings, selected rows and progress. Success / warning / destructive sit on their
+ * own hues (155 / 62-85 / 24-26) so status never reads as "brand".
+ *
+ * Dark mode is its own palette: surfaces step up in lightness
+ * (sidebar 0.132 < background 0.158 < card 0.188 < popover 0.205 < muted 0.225), and
+ * the accent flips to a light indigo with dark text so it stays AA on dark surfaces.
+ *
+ * --input and --control are the edges of form controls: both keep 3:1 against the
+ * page, card and popover surfaces in each theme (WCAG 1.4.11).
+ */
+
+/* Dark follows data-theme on <html> (set by themeScript and setThemePreference); with no
+   explicit choice it follows the OS. */
+@custom-variant dark {
+  &:where([data-theme='dark'], [data-theme='dark'] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:not([data-theme='light'], [data-theme='light'] *)) {
+      @slot;
+    }
+  }
+}
+
+:root {
+  color-scheme: light;
+  --radius: 0.5rem;
+
+  --background: oklch(0.993 0.0015 265);
+  --foreground: oklch(0.205 0.012 268);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.205 0.012 268);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.205 0.012 268);
+
+  --primary: oklch(0.475 0.165 274);
+  --primary-foreground: oklch(0.99 0.004 274);
+  --secondary: oklch(0.967 0.004 265);
+  --secondary-foreground: oklch(0.205 0.012 268);
+  --muted: oklch(0.967 0.004 265);
+  --muted-foreground: oklch(0.505 0.016 266);
+  /* shadcn's "accent" is the neutral hover surface, not the brand accent. */
+  --accent: oklch(0.955 0.005 265);
+  --accent-foreground: oklch(0.205 0.012 268);
+
+  --destructive: oklch(0.525 0.19 26);
+  --destructive-foreground: oklch(0.99 0.004 26);
+  --border: oklch(0.915 0.005 265);
+  --input: oklch(0.64 0.012 266);
+  --ring: oklch(0.475 0.165 274);
+
+  /* Extensions beyond shadcn's set. */
+  --control: oklch(0.64 0.012 266);
+  --selected: oklch(0.965 0.022 274);
+  --selected-border: oklch(0.86 0.06 274);
+  --progress-track: oklch(0.93 0.006 265);
+  --success: oklch(0.49 0.11 155);
+  --success-soft: oklch(0.97 0.025 155);
+  --warning: oklch(0.52 0.11 68);
+  --warning-foreground: oklch(0.44 0.095 62);
+  --warning-soft: oklch(0.978 0.028 85);
+  --warning-border: oklch(0.88 0.07 80);
+  --critical-soft: oklch(0.97 0.018 26);
+  --glass: oklch(0.993 0.0015 265 / 0.78);
+  --shadow-color: oklch(0.2 0.02 268 / 0.06);
+
+  --sidebar: oklch(0.978 0.003 265);
+  --sidebar-foreground: oklch(0.205 0.012 268);
+  --sidebar-primary: oklch(0.475 0.165 274);
+  --sidebar-primary-foreground: oklch(0.99 0.004 274);
+  --sidebar-accent: oklch(0.945 0.005 265);
+  --sidebar-accent-foreground: oklch(0.205 0.012 268);
+  --sidebar-border: oklch(0.915 0.005 265);
+  --sidebar-ring: oklch(0.475 0.165 274);
+
+  @variant dark {
+    color-scheme: dark;
+
+    --background: oklch(0.158 0.006 268);
+    --foreground: oklch(0.955 0.004 265);
+    --card: oklch(0.188 0.007 268);
+    --card-foreground: oklch(0.955 0.004 265);
+    --popover: oklch(0.205 0.008 268);
+    --popover-foreground: oklch(0.955 0.004 265);
+
+    --primary: oklch(0.735 0.12 276);
+    --primary-foreground: oklch(0.185 0.035 276);
+    --secondary: oklch(0.225 0.008 268);
+    --secondary-foreground: oklch(0.955 0.004 265);
+    --muted: oklch(0.225 0.008 268);
+    --muted-foreground: oklch(0.715 0.013 266);
+    --accent: oklch(0.245 0.009 268);
+    --accent-foreground: oklch(0.955 0.004 265);
+
+    --destructive: oklch(0.705 0.165 24);
+    --destructive-foreground: oklch(0.18 0.04 24);
+    --border: oklch(1 0 0 / 0.09);
+    --input: oklch(1 0 0 / 0.36);
+    --ring: oklch(0.735 0.12 276);
+
+    --control: oklch(0.56 0.012 266);
+    --selected: oklch(0.225 0.035 276);
+    --selected-border: oklch(0.4 0.08 276);
+    --progress-track: oklch(1 0 0 / 0.1);
+    --success: oklch(0.76 0.13 155);
+    --success-soft: oklch(0.24 0.04 155);
+    --warning: oklch(0.82 0.12 78);
+    --warning-foreground: oklch(0.85 0.1 80);
+    --warning-soft: oklch(0.235 0.035 70);
+    --warning-border: oklch(0.38 0.07 72);
+    --critical-soft: oklch(0.24 0.05 24);
+    --glass: oklch(0.158 0.006 268 / 0.72);
+    --shadow-color: oklch(0 0 0 / 0.35);
+
+    --sidebar: oklch(0.132 0.005 268);
+    --sidebar-foreground: oklch(0.955 0.004 265);
+    --sidebar-primary: oklch(0.735 0.12 276);
+    --sidebar-primary-foreground: oklch(0.185 0.035 276);
+    --sidebar-accent: oklch(0.205 0.008 268);
+    --sidebar-accent-foreground: oklch(0.955 0.004 265);
+    --sidebar-border: oklch(1 0 0 / 0.07);
+    --sidebar-ring: oklch(0.735 0.12 276);
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-control: var(--control);
+  --color-selected: var(--selected);
+  --color-selected-border: var(--selected-border);
+  --color-progress-track: var(--progress-track);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-border: var(--warning-border);
+  --color-critical-soft: var(--critical-soft);
+  --color-glass: var(--glass);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* next/font variables, set on <html> by the root layout. */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, 'SFMono-Regular', monospace;
+
+  --shadow-xs: 0 1px 2px 0 var(--shadow-color);
+  --shadow-sm: 0 1px 2px 0 var(--shadow-color), 0 1px 3px 0 var(--shadow-color);
+  --shadow-md: 0 2px 4px -1px var(--shadow-color), 0 8px 16px -4px var(--shadow-color);
+  --shadow-lg: 0 4px 8px -2px var(--shadow-color), 0 16px 32px -8px var(--shadow-color);
+}
+
+/*
+ * Enter/exit animations: the subset of tw-animate-css the shadcn source uses
+ * (animate-in/out, fade-*, zoom-*, slide-in-from-* / slide-out-to-*), rebuilt here
+ * rather than adding a dependency.
+ */
+@keyframes sl-enter {
+  from {
+    opacity: var(--tw-enter-opacity, 1);
+    transform: translate3d(var(--tw-enter-translate-x, 0), var(--tw-enter-translate-y, 0), 0)
+      scale3d(var(--tw-enter-scale, 1), var(--tw-enter-scale, 1), var(--tw-enter-scale, 1));
+  }
+}
+@keyframes sl-exit {
+  to {
+    opacity: var(--tw-exit-opacity, 1);
+    transform: translate3d(var(--tw-exit-translate-x, 0), var(--tw-exit-translate-y, 0), 0)
+      scale3d(var(--tw-exit-scale, 1), var(--tw-exit-scale, 1), var(--tw-exit-scale, 1));
+  }
+}
+
+@utility animate-in {
+  animation: sl-enter var(--tw-duration, 150ms) var(--tw-ease, cubic-bezier(0.2, 0.8, 0.2, 1));
+}
+@utility animate-out {
+  animation: sl-exit var(--tw-duration, 120ms) var(--tw-ease, ease-in) forwards;
+}
+@utility fade-in-* {
+  --tw-enter-opacity: calc(--value(number) / 100);
+}
+@utility fade-out-* {
+  --tw-exit-opacity: calc(--value(number) / 100);
+}
+@utility zoom-in-* {
+  --tw-enter-scale: calc(--value(number) / 100);
+}
+@utility zoom-out-* {
+  --tw-exit-scale: calc(--value(number) / 100);
+}
+@utility slide-in-from-top-* {
+  --tw-enter-translate-y: calc(var(--spacing) * --value(number) * -1);
+}
+@utility slide-in-from-bottom-* {
+  --tw-enter-translate-y: calc(var(--spacing) * --value(number));
+}
+@utility slide-in-from-left-* {
+  --tw-enter-translate-x: calc(var(--spacing) * --value(number) * -1);
+}
+@utility slide-in-from-right-* {
+  --tw-enter-translate-x: calc(var(--spacing) * --value(number));
+}
+@utility slide-in-from-left {
+  --tw-enter-translate-x: -100%;
+}
+@utility slide-in-from-right {
+  --tw-enter-translate-x: 100%;
+}
+@utility slide-in-from-top {
+  --tw-enter-translate-y: -100%;
+}
+@utility slide-in-from-bottom {
+  --tw-enter-translate-y: 100%;
+}
+@utility slide-out-to-left {
+  --tw-exit-translate-x: -100%;
+}
+@utility slide-out-to-right {
+  --tw-exit-translate-x: 100%;
+}
+@utility slide-out-to-top {
+  --tw-exit-translate-y: -100%;
+}
+@utility slide-out-to-bottom {
+  --tw-exit-translate-y: 100%;
+}
+
+/* Glass: chrome only (top bar, menus, popovers, the save bar). Falls back to a solid surface. */
+@utility glass {
+  background-color: var(--glass);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    background-color: var(--background);
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    background-color: var(--background);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@layer base {
+  *,
+  ::before,
+  ::after,
+  ::backdrop {
+    border-color: var(--border);
+  }
+
+  html {
+    background-color: var(--background);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--font-mono);
+  }
+
+  ::selection {
+    background-color: var(--selected);
+    color: var(--foreground);
+  }
+
+  /* Anything without its own focus style (links, scroll regions) still shows focus. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* setThemePreference sets this for one frame so colours swap without transitions. */
+  [data-theme-switching],
+  [data-theme-switching] *,
+  [data-theme-switching] ::before,
+  [data-theme-switching] ::after {
+    transition: none !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

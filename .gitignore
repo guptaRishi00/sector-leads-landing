@@ -1,0 +1,21 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# next.js
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# env files (none are needed; never commit one)
+.env
+.env*
+
+# logs and OS noise
+*.log
+npm-debug.log*
+pnpm-debug.log*
+.DS_Store
+.vercel/
+coverage/

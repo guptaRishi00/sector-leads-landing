@@ -1,0 +1,3 @@
+@import 'tailwindcss';
+/* In the main app this line is `@import '@sl/ui/theme.css';` (the shared UI package). */
+@import '../components/ui/theme.css';

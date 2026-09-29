@@ -1,0 +1,667 @@
+{
+  "generatedAt": "2026-09-29",
+  "packs": [
+    {
+      "id": "b2b-saas",
+      "name": "B2B SaaS",
+      "sectors": [
+        {
+          "id": "b2b-saas",
+          "label": "B2B SaaS"
+        }
+      ],
+      "defaultSignals": [
+        {
+          "id": "new-buying-leader",
+          "label": "New leader in the buying team"
+        },
+        {
+          "id": "funding-round",
+          "label": "Funding round"
+        },
+        {
+          "id": "hiring-surge",
+          "label": "Hiring surge"
+        }
+      ],
+      "sources": [
+        {
+          "id": "companies-house",
+          "label": "UK Companies House"
+        },
+        {
+          "id": "edgar",
+          "label": "SEC EDGAR"
+        },
+        {
+          "id": "gdelt",
+          "label": "GDELT news"
+        },
+        {
+          "id": "greenhouse",
+          "label": "Greenhouse job boards"
+        },
+        {
+          "id": "lever",
+          "label": "Lever job postings"
+        }
+      ]
+    },
+    {
+      "id": "commercial-insurance",
+      "name": "Commercial insurance brokers",
+      "sectors": [
+        {
+          "id": "commercial-insurance",
+          "label": "Commercial insurance brokers"
+        }
+      ],
+      "defaultSignals": [
+        {
+          "id": "funding-round",
+          "label": "Funding round"
+        }
+      ],
+      "sources": [
+        {
+          "id": "edgar",
+          "label": "SEC EDGAR"
+        },
+        {
+          "id": "companies-house",
+          "label": "UK Companies House"
+        },
+        {
+          "id": "gdelt",
+          "label": "GDELT news"
+        }
+      ]
+    },
+    {
+      "id": "commercial-lending",
+      "name": "Commercial lending",
+      "sectors": [
+        {
+          "id": "commercial-lending",
+          "label": "Commercial lending & working capital"
+        }
+      ],
+      "defaultSignals": [
+        {
+          "id": "secured-loan-filing",
+          "label": "Loan registered or cleared"
+        }
+      ],
+      "sources": [
+        {
+          "id": "companies-house",
+          "label": "UK Companies House"
+        },
+        {
+          "id": "companies-house-stream",
+          "label": "UK Companies House streaming"
+        }
+      ]
+    },
+    {
+      "id": "commercial-real-estate",
+      "name": "Commercial real estate",
+      "sectors": [
+        {
+          "id": "commercial-real-estate",
+          "label": "Commercial real estate & office leasing"
+        }
+      ],
+      "defaultSignals": [
+        {
+          "id": "hiring-surge",
+          "label": "Hiring surge"
+        },
+        {
+          "id": "funding-round",
+          "label": "Funding round"
+        }
+      ],
+      "sources": [
+        {
+          "id": "greenhouse",
+          "label": "Greenhouse job boards"
+        },
+        {
+          "id": "lever",
+          "label": "Lever job postings"
+        },
+        {
+          "id": "edgar",
+          "label": "SEC EDGAR"
+        },
+        {
+          "id": "companies-house",
+          "label": "UK Companies House"
+        },
+        {
+          "id": "gdelt",
+          "label": "GDELT news"
+        }
+      ]
+    },
+    {
+      "id": "commercial-solar-ev",
+      "name": "Commercial solar and EV charging",
+      "sectors": [
+        {
+          "id": "commercial-solar-ev",
+          "label": "Commercial solar, EV charging & energy efficiency"
+        }
+      ],
+      "defaultSignals": [
+        {
+          "id": "tender-notice",
+          "label": "New tender published"
+        }
+      ],
+      "sources": [
+        {
+          "id": "sam-gov",
+          "label": "SAM.gov"
+        },
+        {
+          "id": "ted",
+          "label": "TED (EU tenders)"
+        },
+        {
+          "id": "find-a-tender",
+          "label": "Find a Tender"
+        },
+        {
+          "id": "gdelt",
+          "label": "GDELT news"
+        }
+      ]
+    },
+    {
+      "id": "construction-contractors",
+      "name": "Construction and contractors",
+      "sectors": [
+        {
+          "id": "construction-contractors",
+          "label": "Construction & contractors"
+        }
+      ],
+      "defaultSignals": [
+        {
+          "id": "tender-notice",
+          "label": "New tender published"
+        },
+        {
+          "id": "tender-award",
+          "label": "Tender awarded"
+        }
+      ],
+      "sources": [
+        {
+          "id": "sam-gov",
+          "label": "SAM.gov"
+        },
+        {
+          "id": "ted",
+          "label": "TED (EU tenders)"
+        },
+        {
+          "id": "find-a-tender",
+          "label": "Find a Tender"
+        }
+      ]
+    },
+    {
+      "id": "cybersecurity-compliance",
+      "name": "Cybersecurity and compliance",
+      "sectors": [
+        {
+          "id": "cybersecurity-compliance",
+          "label": "Cybersecurity & compliance consulting"
+        }
+      ],
+      "defaultSignals": [
+        {
+          "id": "tender-notice",
+          "label": "New tender published"
+        },
+        {
+          "id": "new-buying-leader",
+          "label": "New leader in the buying team"
+        },
+        {
+          "id": "funding-round",
+          "label": "Funding round"
+        },
+        {
+          "id": "key-role-open",
+          "label": "Key role still open"
+        },
+        {
+          "id": "hiring-surge",
+          "label": "Hiring surge"
+        }
+      ],
+      "sources": [
+        {
+          "id": "sam-gov",
+          "label": "SAM.gov"
+        },
+        {
+          "id": "ted",
+          "label": "TED (EU tenders)"
+        },
+        {
+          "id": "find-a-tender",
+          "label": "Find a Tender"
+        },
+        {
+          "id": "companies-house",
+          "label": "UK Companies House"
+        },
+        {
+          "id": "edgar",
+          "label": "SEC EDGAR"
+        },
+        {
+          "id": "greenhouse",
+          "label": "Greenhouse job boards"
+        },
+        {
+          "id": "lever",
+          "label": "Lever job postings"
+        },
+        {
+          "id": "gdelt",
+          "label": "GDELT news"
+        },
+        {
+          "id": "rss",
+          "label": "RSS / Atom feeds"
+        }
+      ]
+    },
+    {
+      "id": "digital-marketing-agencies",
+      "name": "Digital marketing agencies",
+      "sectors": [
+        {
+          "id": "digital-marketing-agencies",
+          "label": "Digital marketing & performance agencies"
+        }
+      ],
+      "defaultSignals": [
+        {
+          "id": "new-buying-leader",
+          "label": "New leader in the buying team"
+        },
+        {
+          "id": "funding-round",
+          "label": "Funding round"
+        },
+        {
+          "id": "key-role-open",
+          "label": "Key role still open"
+        }
+      ],
+      "sources": [
+        {
+          "id": "companies-house",
+          "label": "UK Companies House"
+        },
+        {
+          "id": "edgar",
+          "label": "SEC EDGAR"
+        },
+        {
+          "id": "gdelt",
+          "label": "GDELT news"
+        },
+        {
+          "id": "greenhouse",
+          "label": "Greenhouse job boards"
+        },
+        {
+          "id": "lever",
+          "label": "Lever job postings"
+        }
+      ]
+    },
+    {
+      "id": "fractional-cfo",
+      "name": "Fractional CFO",
+      "sectors": [
+        {
+          "id": "fractional-cfo",
+          "label": "Fractional CFO"
+        }
+      ],
+      "defaultSignals": [
+        {
+          "id": "funding-round",
+          "label": "Funding round"
+        },
+        {
+          "id": "executive-departure",
+          "label": "Senior leader left"
+        },
+        {
+          "id": "key-role-open",
+          "label": "Key role still open"
+        }
+      ],
+      "sources": [
+        {
+          "id": "edgar",
+          "label": "SEC EDGAR"
+        },
+        {
+          "id": "companies-house",
+          "label": "UK Companies House"
+        },
+        {
+          "id": "gdelt",
+          "label": "GDELT news"
+        },
+        {
+          "id": "greenhouse",
+          "label": "Greenhouse job boards"
+        },
+        {
+          "id": "lever",
+          "label": "Lever job postings"
+        }
+      ]
+    },
+    {
+      "id": "government-tenders",
+      "name": "Government tenders",
+      "sectors": [
+        {
+          "id": "government-tenders",
+          "label": "Government tenders (any vendor)"
+        }
+      ],
+      "defaultSignals": [
+        {
+          "id": "tender-notice",
+          "label": "New tender published"
+        },
+        {
+          "id": "tender-award",
+          "label": "Tender awarded"
+        }
+      ],
+      "sources": [
+        {
+          "id": "sam-gov",
+          "label": "SAM.gov"
+        },
+        {
+          "id": "ted",
+          "label": "TED (EU tenders)"
+        },
+        {
+          "id": "find-a-tender",
+          "label": "Find a Tender"
+        }
+      ]
+    },
+    {
+      "id": "healthcare-b2b",
+      "name": "Healthcare B2B",
+      "sectors": [
+        {
+          "id": "healthcare-b2b",
+          "label": "Healthcare B2B (devices & hospital suppliers)"
+        }
+      ],
+      "defaultSignals": [
+        {
+          "id": "tender-notice",
+          "label": "New tender published"
+        }
+      ],
+      "sources": [
+        {
+          "id": "sam-gov",
+          "label": "SAM.gov"
+        },
+        {
+          "id": "ted",
+          "label": "TED (EU tenders)"
+        },
+        {
+          "id": "find-a-tender",
+          "label": "Find a Tender"
+        },
+        {
+          "id": "gdelt",
+          "label": "GDELT news"
+        }
+      ]
+    },
+    {
+      "id": "logistics-freight",
+      "name": "Logistics, freight and 3PL",
+      "sectors": [
+        {
+          "id": "logistics-freight",
+          "label": "Logistics, freight & 3PL"
+        }
+      ],
+      "defaultSignals": [
+        {
+          "id": "tender-notice",
+          "label": "New tender published"
+        }
+      ],
+      "sources": [
+        {
+          "id": "sam-gov",
+          "label": "SAM.gov"
+        },
+        {
+          "id": "ted",
+          "label": "TED (EU tenders)"
+        },
+        {
+          "id": "find-a-tender",
+          "label": "Find a Tender"
+        },
+        {
+          "id": "gdelt",
+          "label": "GDELT news"
+        }
+      ]
+    },
+    {
+      "id": "recruitment-staffing",
+      "name": "Recruitment and staffing",
+      "sectors": [
+        {
+          "id": "recruitment-staffing",
+          "label": "Recruitment & staffing"
+        }
+      ],
+      "defaultSignals": [
+        {
+          "id": "hiring-surge",
+          "label": "Hiring surge"
+        },
+        {
+          "id": "key-role-open",
+          "label": "Key role still open"
+        },
+        {
+          "id": "new-buying-leader",
+          "label": "New leader in the buying team"
+        },
+        {
+          "id": "executive-departure",
+          "label": "Senior leader left"
+        },
+        {
+          "id": "funding-round",
+          "label": "Funding round"
+        },
+        {
+          "id": "new-company-registered",
+          "label": "New company registered"
+        },
+        {
+          "id": "tender-notice",
+          "label": "New tender published"
+        },
+        {
+          "id": "tender-award",
+          "label": "Tender awarded"
+        }
+      ],
+      "sources": [
+        {
+          "id": "greenhouse",
+          "label": "Greenhouse job boards"
+        },
+        {
+          "id": "lever",
+          "label": "Lever job postings"
+        },
+        {
+          "id": "companies-house",
+          "label": "UK Companies House"
+        },
+        {
+          "id": "edgar",
+          "label": "SEC EDGAR"
+        },
+        {
+          "id": "gdelt",
+          "label": "GDELT news"
+        },
+        {
+          "id": "sam-gov",
+          "label": "SAM.gov"
+        },
+        {
+          "id": "ted",
+          "label": "TED (EU tenders)"
+        },
+        {
+          "id": "find-a-tender",
+          "label": "Find a Tender"
+        }
+      ]
+    },
+    {
+      "id": "software-it-services",
+      "name": "Software and IT services",
+      "sectors": [
+        {
+          "id": "software-it-services",
+          "label": "Software & IT services"
+        }
+      ],
+      "defaultSignals": [
+        {
+          "id": "tender-notice",
+          "label": "New tender published"
+        },
+        {
+          "id": "tender-award",
+          "label": "Tender awarded"
+        },
+        {
+          "id": "new-buying-leader",
+          "label": "New leader in the buying team"
+        },
+        {
+          "id": "funding-round",
+          "label": "Funding round"
+        },
+        {
+          "id": "hiring-surge",
+          "label": "Hiring surge"
+        },
+        {
+          "id": "key-role-open",
+          "label": "Key role still open"
+        }
+      ],
+      "sources": [
+        {
+          "id": "sam-gov",
+          "label": "SAM.gov"
+        },
+        {
+          "id": "ted",
+          "label": "TED (EU tenders)"
+        },
+        {
+          "id": "find-a-tender",
+          "label": "Find a Tender"
+        },
+        {
+          "id": "companies-house",
+          "label": "UK Companies House"
+        },
+        {
+          "id": "edgar",
+          "label": "SEC EDGAR"
+        },
+        {
+          "id": "greenhouse",
+          "label": "Greenhouse job boards"
+        },
+        {
+          "id": "lever",
+          "label": "Lever job postings"
+        },
+        {
+          "id": "gdelt",
+          "label": "GDELT news"
+        },
+        {
+          "id": "github",
+          "label": "GitHub (organisations only)"
+        }
+      ]
+    },
+    {
+      "id": "vc-pe-deal-sourcing",
+      "name": "VC, PE and angel deal sourcing",
+      "sectors": [
+        {
+          "id": "vc-pe-deal-sourcing",
+          "label": "VC, PE & angel deal sourcing"
+        }
+      ],
+      "defaultSignals": [
+        {
+          "id": "hiring-surge",
+          "label": "Hiring surge"
+        }
+      ],
+      "sources": [
+        {
+          "id": "greenhouse",
+          "label": "Greenhouse job boards"
+        },
+        {
+          "id": "lever",
+          "label": "Lever job postings"
+        },
+        {
+          "id": "edgar",
+          "label": "SEC EDGAR"
+        },
+        {
+          "id": "github",
+          "label": "GitHub (organisations only)"
+        }
+      ]
+    }
+  ]
+}
