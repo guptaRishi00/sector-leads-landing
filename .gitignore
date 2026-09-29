@@ -19,3 +19,7 @@ pnpm-debug.log*
 .DS_Store
 .vercel/
 coverage/
+
+# local tooling: Claude notes, and npm's lockfile (this project uses pnpm)
+/.claude/
+package-lock.json
