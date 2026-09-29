@@ -60,7 +60,12 @@ function Optional({ children }: { children: string }) {
   );
 }
 
-export function WaitlistForm({ token, source, className }: { token: string; source: WaitlistSource; className?: string }) {
+/**
+ * The waitlist form. `compact` (the hero) tucks the optional name, company and role fields into a
+ * disclosure so the form reads email-first; the fields, their names and the JSON body are identical
+ * either way, and the disclosure opens itself when one of them has an error.
+ */
+export function WaitlistForm({ token, source, compact = false, className }: { token: string; source: WaitlistSource; compact?: boolean; className?: string }) {
   const id = useId();
   const formRef = useRef<HTMLFormElement>(null);
   const errorRef = useRef<HTMLDivElement>(null);
@@ -71,11 +76,13 @@ export function WaitlistForm({ token, source, className }: { token: string; sour
   const [reload, setReload] = useState(false);
   const [pending, setPending] = useState(false);
   const [done, setDone] = useState<'joined' | 'already' | null>(null);
+  const [moreOpen, setMoreOpen] = useState(false);
   const fieldId = (name: WaitlistField) => `${id}-${name}`;
 
   function show(next: FieldErrors, message: string) {
     setErrors(next);
     setFormError(message);
+    if (next.name !== undefined || next.company !== undefined || next.role !== undefined) setMoreOpen(true);
     const first = WAITLIST_FIELDS.find((name) => next[name] !== undefined);
     requestAnimationFrame(() => {
       (first === undefined ? errorRef.current : document.getElementById(fieldId(first)))?.focus();
@@ -148,6 +155,33 @@ export function WaitlistForm({ token, source, className }: { token: string; sour
 
   const consentErrorId = `${fieldId('consent')}-error`;
 
+  const emailField = (
+    <Field label="Work email" required error={errors.email} id={fieldId('email')}>
+      <Input name="email" type="email" autoComplete="email" inputMode="email" maxLength={WAITLIST_EMAIL_MAX} className={cn('bg-card', compact ? 'h-11' : 'h-10')} />
+    </Field>
+  );
+
+  const submitButton = (
+    <Button type="submit" size="lg" loading={pending} className={cn('group/cta w-full sm:w-auto sm:self-start', compact && 'h-11 px-6 sm:mt-[calc(1.625rem+1px)]')}>
+      Join the waitlist
+      {!pending && <Icons.ArrowRight aria-hidden="true" className="transition-transform duration-200 group-hover/cta:translate-x-0.5" />}
+    </Button>
+  );
+
+  const optional = (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <Field label={<Optional>Name</Optional>} error={errors.name} id={fieldId('name')}>
+        <Input name="name" autoComplete="name" maxLength={WAITLIST_NAME_MAX} className="bg-card" />
+      </Field>
+      <Field label={<Optional>Company</Optional>} error={errors.company} id={fieldId('company')}>
+        <Input name="company" autoComplete="organization" maxLength={WAITLIST_COMPANY_MAX} className="bg-card" />
+      </Field>
+      <Field label={<Optional>Role</Optional>} error={errors.role} id={fieldId('role')}>
+        <Input name="role" autoComplete="organization-title" maxLength={WAITLIST_ROLE_MAX} className="bg-card" />
+      </Field>
+    </div>
+  );
+
   return (
     <form ref={formRef} noValidate onSubmit={(event) => void submit(event)} data-testid={`waitlist-form-${source}`} className={cn('relative flex flex-col gap-4', className)}>
       <div
@@ -171,20 +205,27 @@ export function WaitlistForm({ token, source, className }: { token: string; sour
         )}
       </div>
 
-      <Field label="Work email" required error={errors.email} id={fieldId('email')}>
-        <Input name="email" type="email" autoComplete="email" inputMode="email" maxLength={WAITLIST_EMAIL_MAX} className="h-10 bg-card" />
-      </Field>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Field label={<Optional>Name</Optional>} error={errors.name} id={fieldId('name')}>
-          <Input name="name" autoComplete="name" maxLength={WAITLIST_NAME_MAX} className="bg-card" />
-        </Field>
-        <Field label={<Optional>Company</Optional>} error={errors.company} id={fieldId('company')}>
-          <Input name="company" autoComplete="organization" maxLength={WAITLIST_COMPANY_MAX} className="bg-card" />
-        </Field>
-        <Field label={<Optional>Role</Optional>} error={errors.role} id={fieldId('role')}>
-          <Input name="role" autoComplete="organization-title" maxLength={WAITLIST_ROLE_MAX} className="bg-card" />
-        </Field>
-      </div>
+      {compact ? (
+        // Email and the button on one line from sm (the button drops by the label's 15px line plus
+        // the field's 12px gap, measured, so it lines up with the input); stacked on phones.
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:gap-2">
+          {emailField}
+          {submitButton}
+        </div>
+      ) : (
+        emailField
+      )}
+      {compact ? (
+        <details open={moreOpen} onToggle={(event) => setMoreOpen(event.currentTarget.open)} className="group -mt-1">
+          <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 rounded-sm text-[13px] font-medium text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid focus-visible:outline-ring [&::-webkit-details-marker]:hidden">
+            <Icons.Plus aria-hidden="true" className="size-3.5 transition-transform duration-200 group-open:rotate-45 motion-reduce:transition-none" />
+            Add your name, company and role (optional)
+          </summary>
+          <div className="mt-3">{optional}</div>
+        </details>
+      ) : (
+        optional
+      )}
 
       <div aria-hidden="true" className="absolute top-auto -left-[10000px] size-px overflow-hidden">
         <label htmlFor={`${id}-hp`}>Leave this field empty</label>
@@ -214,10 +255,7 @@ export function WaitlistForm({ token, source, className }: { token: string; sour
         )}
       </div>
 
-      <Button type="submit" size="lg" loading={pending} className="group/cta w-full sm:w-auto sm:self-start">
-        Join the waitlist
-        {!pending && <Icons.ArrowRight aria-hidden="true" className="transition-transform duration-200 group-hover/cta:translate-x-0.5" />}
-      </Button>
+      {!compact && submitButton}
     </form>
   );
 }

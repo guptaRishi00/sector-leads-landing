@@ -15,6 +15,7 @@ import {
   STEPS,
 } from '@/lib/marketing/content';
 import { CONTAINER } from './marketing-shell';
+import { HeroGradient } from './hero-gradient';
 import { HeroIntro } from './hero-intro';
 import { Reveal } from './reveal';
 import { SourcesMarquee } from './sources-marquee';
@@ -24,9 +25,9 @@ import { WaitlistForm } from './waitlist-form';
 // One design language for every section: eyebrow → h2 → lead, the same gap from that header to the
 // content, product "screens" in a Frame (see below) and one icon tile. The accent (primary) is kept
 // to eyebrows, icon tiles, numbers and the call to action.
-const H2 = 'text-[2rem] leading-[1.08] font-semibold tracking-[-0.035em] text-balance text-foreground sm:text-[2.625rem]';
-const LEAD = 'max-w-[62ch] text-base leading-7 text-pretty text-muted-foreground sm:text-lg sm:leading-8';
-const CONTENT_GAP = 'mt-12 sm:mt-14';
+const H2 = 'text-[1.75rem] leading-[1.1] font-semibold tracking-[-0.035em] text-balance text-foreground sm:text-[2.625rem] sm:leading-[1.08]';
+const LEAD = 'max-w-[62ch] text-[15px] leading-6.5 text-pretty text-muted-foreground sm:text-lg sm:leading-8';
+const CONTENT_GAP = 'mt-9 sm:mt-14';
 /** A hero piece GSAP brings in (see HeroIntro): hidden until the timeline starts, unless motion is reduced. */
 const INTRO = 'motion-safe:opacity-0';
 const ICON_TILE = 'inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-selected text-primary ring-1 ring-selected-border';
@@ -49,7 +50,7 @@ function TrustRow({ className }: { className?: string }) {
 
 function Section({ id, labelledBy, band = false, className, children }: { id: string; labelledBy: string; band?: boolean; className?: string; children: ReactNode }) {
   return (
-    <section id={id} aria-labelledby={labelledBy} className={cn('scroll-mt-20 py-20 sm:py-28', band && 'border-y bg-muted/40', className)}>
+    <section id={id} aria-labelledby={labelledBy} className={cn('scroll-mt-20 py-14 sm:py-28', band && 'border-y bg-muted/40', className)}>
       <div className={CONTAINER}>{children}</div>
     </section>
   );
@@ -83,9 +84,8 @@ const QUEUE_TABS: readonly string[] = SIGNAL_TYPES.filter((signal) => signal.id 
 function LeadWindow() {
   return (
     <section
-      data-intro=""
       aria-labelledby="example-lead-title"
-      className={cn('flex flex-col overflow-hidden rounded-2xl border bg-card shadow-[0_24px_60px_-24px_var(--shadow-color),0_2px_6px_var(--shadow-color)] ring-1 ring-foreground/[0.03]', INTRO)}
+      className="flex flex-col overflow-hidden rounded-2xl border bg-card shadow-[0_32px_80px_-32px_var(--shadow-color),0_2px_6px_var(--shadow-color)] ring-1 ring-foreground/[0.03]"
     >
       <div className="flex h-10 shrink-0 items-center gap-3 border-b bg-muted/50 px-4">
         <span aria-hidden="true" className="flex gap-1.5">
@@ -94,7 +94,7 @@ function LeadWindow() {
           <span className="size-2.5 rounded-full bg-foreground/15" />
         </span>
         <h2 id="example-lead-title" className="text-xs font-medium text-muted-foreground">
-          Approval queue <span className="text-muted-foreground/70">· example lead</span>
+          Approval queue
         </h2>
       </div>
       <ul
@@ -138,45 +138,68 @@ function LeadWindow() {
   );
 }
 
+/** The product window with a "sent" toast layered on it, the way Stripe stacks product UI. From lg only. */
+function HeroVisual() {
+  return (
+    <div data-intro="" className={cn('relative hidden lg:ml-4 lg:block', INTRO)}>
+      <LeadWindow />
+      <div
+        aria-hidden="true"
+        className="absolute -top-5 -right-3 flex items-center gap-2.5 rounded-xl border bg-card/95 py-2 pr-3.5 pl-2 shadow-[0_12px_32px_-12px_var(--shadow-color)] backdrop-blur-sm xl:-right-5"
+      >
+        <span className="inline-flex size-7 items-center justify-center rounded-lg bg-success-soft text-success">
+          <Icons.Send className="size-3.5" />
+        </span>
+        <span className="flex flex-col">
+          <span className="text-xs font-medium text-foreground">All {SEND_GATES.length} gates passed</span>
+          <span className="text-[11px] text-muted-foreground">Sent from your own mailbox</span>
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export function Hero({ token }: { token: string }) {
   return (
-    <section aria-labelledby="hero-title" className="relative isolate overflow-x-clip border-b">
-      {/* A faint grid and an accent glow behind the card; both fade out well before the edges. The
-          layer reaches up under the floating header's strip (pt-2 + h-14, sm: pt-3 + h-14) so the
-          page doesn't show a plain band above the hero; overflow-x-clip (not hidden) lets it. */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 -top-16 bottom-0 -z-10 sm:-top-[4.25rem]">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] opacity-60 [mask-image:radial-gradient(ellipse_75%_65%_at_50%_0%,black,transparent)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_55%_60%_at_85%_10%,color-mix(in_oklch,var(--primary)_14%,transparent),transparent_70%)]" />
-      </div>
-      <HeroIntro className={cn(CONTAINER, 'grid items-start gap-12 pt-12 pb-16 sm:pt-20 sm:pb-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,25rem)] lg:items-stretch lg:gap-14 lg:pt-24 lg:pb-24 xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]')}>
-        <div id="join" className="flex scroll-mt-28 flex-col gap-8">
-          <div className="flex flex-col gap-5">
-            <p data-intro="" className={cn('inline-flex h-7 items-center gap-2 self-start rounded-full border bg-card/70 px-3 text-xs font-medium text-muted-foreground', INTRO)}>
-              <span aria-hidden="true" className="relative flex size-1.5">
-                <span className="absolute inline-flex size-full rounded-full bg-primary opacity-60 motion-safe:animate-ping" />
-                <span className="relative inline-flex size-1.5 rounded-full bg-primary" />
-              </span>
-              Early access waitlist is open
-            </p>
-            <h1
-              data-intro=""
-              id="hero-title"
-              className={cn('text-[2.25rem] leading-[1.08] font-semibold tracking-[-0.035em] text-balance text-foreground sm:text-5xl sm:leading-[1.05]', INTRO)}
-            >
-              Leads from public events, with the proof attached.
-            </h1>
-            <p data-intro="" className={cn(LEAD, INTRO)}>
-              {BRAND_NAME} turns tenders, filings, new directors, hiring and funding into leads you can check, and sends only what you approve.
-            </p>
-            <div data-intro="" className={INTRO}>
-              <TrustRow />
-            </div>
-          </div>
-          <div data-intro="" className={INTRO}>
-            <WaitlistForm token={token} source="landing-hero" className="max-w-xl" />
+    // One screen, no more: at least the viewport minus the header strip (4rem, sm: 4.25rem), with
+    // the content centred in it. From lg the headline and the gaps scale with the viewport's
+    // height, so it still fits a 1280x720 screen; the product window only shows from lg.
+    <section aria-labelledby="hero-title" className="relative isolate flex min-h-[calc(100svh-4rem)] overflow-x-clip border-b sm:min-h-[calc(100svh-4.25rem)]">
+      {/* The colour band starts under the floating header's strip so the top of the page is one
+          continuous surface; overflow-x-clip (not hidden) lets it. */}
+      <HeroGradient className="pointer-events-none absolute inset-x-0 -top-16 -z-10 h-[26rem] sm:-top-[4.25rem] sm:h-[38rem] lg:h-[44rem]" />
+      <HeroIntro
+        className={cn(
+          CONTAINER,
+          'my-auto grid grid-cols-1 items-center gap-10 py-6 sm:py-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-8 lg:py-[5svh]',
+        )}
+      >
+        <div id="join" className="flex scroll-mt-28 flex-col gap-5 sm:gap-6 lg:gap-[clamp(1rem,2.6svh,1.75rem)]">
+          <p data-intro="" className={cn('inline-flex h-7 items-center gap-2 self-start rounded-full border bg-card/80 px-3 text-xs font-medium text-muted-foreground backdrop-blur-sm', INTRO)}>
+            <span aria-hidden="true" className="relative flex size-1.5">
+              <span className="absolute inline-flex size-full rounded-full bg-primary opacity-60 motion-safe:animate-ping" />
+              <span className="relative inline-flex size-1.5 rounded-full bg-primary" />
+            </span>
+            Early access waitlist is open
+          </p>
+          <h1
+            data-intro=""
+            id="hero-title"
+            className={cn(
+              'max-w-[15ch] text-[2.375rem] leading-[1.04] font-semibold tracking-[-0.045em] text-balance text-foreground sm:text-6xl lg:text-[clamp(2.75rem,6.6svh,4.25rem)] lg:leading-[1.02]',
+              INTRO,
+            )}
+          >
+            Leads from public events, with the proof attached.
+          </h1>
+          <p data-intro="" className={cn('max-w-[34rem] text-base leading-7 text-pretty text-muted-foreground sm:text-lg sm:leading-8', INTRO)}>
+            {BRAND_NAME} turns tenders, filings, new directors, hiring and funding into leads you can check, and sends only what you approve.
+          </p>
+          <div data-intro="" className={cn('pt-1', INTRO)}>
+            <WaitlistForm token={token} source="landing-hero" compact className="max-w-lg" />
           </div>
         </div>
-        <LeadWindow />
+        <HeroVisual />
       </HeroIntro>
     </section>
   );
@@ -196,7 +219,7 @@ const SOURCES: readonly string[] = [...new Set(SIGNAL_TYPES.flatMap((signal) => 
 /** The strip under the hero: the product in four numbers, and the public record it reads. */
 export function ProofBar() {
   return (
-    <section aria-labelledby="proof-bar-title" className="border-b bg-muted/40 py-12 sm:py-16">
+    <section aria-labelledby="proof-bar-title" className="border-b bg-muted/40 py-10 sm:py-16">
       <div className={cn(CONTAINER, 'flex flex-col gap-10 sm:gap-12')}>
         <h2 id="proof-bar-title" className="sr-only">
           {BRAND_NAME} at a glance
@@ -205,7 +228,7 @@ export function ProofBar() {
           {STATS.map((stat, index) => (
             <Reveal key={stat.label} delay={index * 0.08} className="flex flex-col gap-1.5 border-l pl-4 sm:pl-5">
               <dt className="order-2 text-sm text-pretty text-muted-foreground">{stat.label}</dt>
-              <dd className="order-1 font-mono text-3xl font-semibold tracking-tight text-foreground tabular-nums sm:text-4xl">{stat.value}</dd>
+              <dd className="order-1 font-mono text-2xl font-semibold tracking-tight text-foreground tabular-nums sm:text-4xl">{stat.value}</dd>
             </Reveal>
           ))}
         </dl>
@@ -217,6 +240,40 @@ export function ProofBar() {
     </section>
   );
 }
+
+// Stripe's signature image: product UI floating on a soft field of colour. The colours are mixes of
+// the theme's own tokens (no raw colours, no image files), so they follow dark mode.
+const CANVAS_TONES = {
+  violet: [
+    'radial-gradient(60% 75% at 12% 18%, color-mix(in oklch, var(--primary) 55%, transparent), transparent 70%)',
+    'radial-gradient(55% 70% at 88% 25%, color-mix(in oklch, var(--primary) 45%, var(--destructive)), transparent 70%)',
+    'radial-gradient(65% 70% at 55% 105%, color-mix(in oklch, var(--primary) 40%, var(--success)), transparent 70%)',
+  ],
+  teal: [
+    'radial-gradient(60% 75% at 10% 80%, color-mix(in oklch, var(--primary) 40%, var(--success)), transparent 70%)',
+    'radial-gradient(55% 70% at 90% 15%, color-mix(in oklch, var(--primary) 60%, transparent), transparent 70%)',
+    'radial-gradient(50% 60% at 60% 50%, color-mix(in oklch, var(--success) 35%, transparent), transparent 70%)',
+  ],
+  sunset: [
+    'radial-gradient(60% 70% at 85% 85%, color-mix(in oklch, var(--warning) 70%, var(--destructive)), transparent 70%)',
+    'radial-gradient(55% 70% at 15% 20%, color-mix(in oklch, var(--primary) 50%, var(--destructive)), transparent 70%)',
+    'radial-gradient(50% 60% at 70% 10%, color-mix(in oklch, var(--primary) 55%, transparent), transparent 70%)',
+  ],
+} as const;
+type CanvasTone = keyof typeof CANVAS_TONES;
+const CANVAS_ORDER: readonly CanvasTone[] = ['violet', 'teal', 'sunset'];
+
+function Canvas({ tone, className, children }: { tone: CanvasTone; className?: string; children: ReactNode }) {
+  return (
+    <div className={cn('relative isolate overflow-hidden rounded-3xl bg-muted/50 p-3 sm:p-6 lg:p-10', className)}>
+      <div aria-hidden="true" className="absolute inset-0 -z-10 opacity-70 dark:opacity-40" style={{ backgroundImage: CANVAS_TONES[tone].join(', ') }} />
+      {children}
+    </div>
+  );
+}
+
+/** A Frame's card alone, lifted off a Canvas. */
+const FLOATING = 'shadow-[0_24px_60px_-24px_var(--shadow-color),0_2px_6px_var(--shadow-color)]';
 
 /**
  * A product "screen": a muted outer frame around a card, the way Infrantic frames its workflow
@@ -443,6 +500,7 @@ export function HowItWorks() {
       <Reveal className={CONTENT_GAP}>
         <Tabs
           label="How it works, step by step"
+          autoAdvance={6500}
           tabs={STEPS.map((step, index) => (
             <span key={step.id} className="inline-flex items-center gap-2">
               <span className="font-mono text-xs text-muted-foreground tabular-nums">{String(index + 1).padStart(2, '0')}</span>
@@ -452,8 +510,8 @@ export function HowItWorks() {
           panels={STEPS.map((step, index) => {
             const Icon = STEP_ICONS[step.icon];
             return (
-              <Frame key={step.id} innerClassName="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
-                <div className="flex flex-col gap-4 p-5 sm:p-8">
+              <Frame key={step.id} innerClassName="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+                <div className="flex flex-col gap-4 p-4 sm:p-8">
                   <span className="inline-flex w-fit items-center gap-2 rounded-full border px-2.5 py-0.5 text-[13px] text-muted-foreground">
                     <Icon aria-hidden="true" className="size-3.5 text-primary" />
                     Step {index + 1} of {STEPS.length}
@@ -461,11 +519,11 @@ export function HowItWorks() {
                   <h3 className="text-2xl font-semibold tracking-[-0.03em] text-balance text-foreground sm:text-[1.75rem]">{step.title}</h3>
                   <p className="max-w-md text-[15px] leading-7 text-pretty text-muted-foreground lg:mt-auto">{step.body}</p>
                 </div>
-                <div className="border-t bg-muted/30 p-3 sm:p-4 lg:border-t-0 lg:border-l">
-                  <div className="h-full overflow-hidden rounded-lg border bg-card shadow-sm">
+                <Canvas tone={CANVAS_ORDER[index % CANVAS_ORDER.length] ?? 'violet'} className="rounded-none border-t p-4 sm:p-6 lg:border-t-0 lg:border-l lg:p-8">
+                  <div className={cn('h-full overflow-hidden rounded-lg border bg-card', FLOATING)}>
                     <StepVisual id={step.id} />
                   </div>
-                </div>
+                </Canvas>
               </Frame>
             );
           })}
@@ -490,12 +548,12 @@ export function Signals() {
           frame's overflow hides the ones on the rim. The first cell spans two columns on sm so
           nine signals fill whole rows at both 2 and 3 columns. */}
       <Reveal className={CONTENT_GAP}>
-        <ul className="grid overflow-hidden rounded-2xl border bg-card sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="grid grid-cols-1 overflow-hidden rounded-2xl border bg-card sm:grid-cols-2 lg:grid-cols-3">
           {ordered.map((item, index) => {
             const Icon = SIGNAL_ICONS[item.icon];
             return (
               <li key={item.id} className={cn('-mr-px -mb-px border-r border-b', index === 0 && 'sm:col-span-2 lg:col-span-1')}>
-                <article className="flex h-full flex-col gap-4 p-5 transition-colors duration-200 hover:bg-muted/40 sm:p-7">
+                <article className="flex h-full flex-col gap-4 p-4 transition-colors duration-200 hover:bg-muted/40 sm:p-7">
                   <span className={cn(ICON_TILE, index === 0 && 'bg-primary text-primary-foreground ring-primary')}>
                     <Icon aria-hidden="true" className="size-[18px]" />
                   </span>
@@ -530,28 +588,30 @@ export function Proof() {
         lead="Five parts add up to the score, and each one says why. Records that don't qualify are kept with the reason, so you can check the rules instead of trusting them."
       />
       <Reveal className={CONTENT_GAP}>
-        <Frame innerClassName="grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-          <div className="flex flex-col">
-            <FrameTitle aside={<Tag tone="accent">Example lead</Tag>}>Score, line by line</FrameTitle>
-            <div className="p-5 sm:p-7">
-              <ScoreBreakdown score={EXAMPLE_SCORE} />
+        <Canvas tone="teal">
+          <Frame className="border-0 bg-transparent p-0 sm:p-0" innerClassName={cn('grid grid-cols-1 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]', FLOATING)}>
+            <div className="flex flex-col">
+              <FrameTitle aside={<Tag tone="accent">Example lead</Tag>}>Score, line by line</FrameTitle>
+              <div className="p-4 sm:p-7">
+                <ScoreBreakdown score={EXAMPLE_SCORE} />
+              </div>
             </div>
-          </div>
-          <div className="flex flex-col border-t lg:border-t-0 lg:border-l">
-            <FrameTitle aside={<Tag>Kept, not contacted</Tag>}>Rejected, with the reason</FrameTitle>
-            <ul className="flex flex-1 flex-col divide-y">
-              {REJECT_EXAMPLES.map((reason) => (
-                <li key={reason.code} className="flex flex-1 items-center gap-3 px-5 py-3.5 sm:px-7">
-                  <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
-                    <Icons.Ban aria-hidden="true" className="size-3.5" />
-                  </span>
-                  <p className="min-w-0 flex-1 text-sm text-foreground">{reason.label}</p>
-                  <span className="hidden font-mono text-[11px] text-muted-foreground sm:block">{reason.code}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </Frame>
+            <div className="flex flex-col border-t lg:border-t-0 lg:border-l">
+              <FrameTitle aside={<Tag>Kept, not contacted</Tag>}>Rejected, with the reason</FrameTitle>
+              <ul className="flex flex-1 flex-col divide-y">
+                {REJECT_EXAMPLES.map((reason) => (
+                  <li key={reason.code} className="flex flex-1 items-center gap-3 px-5 py-3.5 sm:px-7">
+                    <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
+                      <Icons.Ban aria-hidden="true" className="size-3.5" />
+                    </span>
+                    <p className="min-w-0 flex-1 text-sm text-foreground">{reason.label}</p>
+                    <span className="hidden font-mono text-[11px] text-muted-foreground sm:block">{reason.code}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Frame>
+        </Canvas>
       </Reveal>
     </Section>
   );
@@ -577,11 +637,12 @@ export function Industries() {
         <Tabs
           vertical
           label="Industry packs"
+          autoAdvance={4000}
           tabs={industries.map((industry) => industry.name)}
           panels={industries.map((industry, index) => (
             <Frame key={industry.id} className="h-full" innerClassName="flex flex-col">
               <FrameTitle aside={<Tag tone="accent">Pack {String(index + 1).padStart(2, '0')}</Tag>}>Industry pack</FrameTitle>
-              <div className="flex flex-1 flex-col gap-7 p-5 sm:p-8">
+              <div className="flex flex-1 flex-col gap-6 p-4 sm:gap-7 sm:p-8">
                 <div className="flex flex-col gap-2">
                   <h3 className="text-2xl font-semibold tracking-[-0.03em] text-foreground">{industry.name}</h3>
                   <p className="text-[15px] leading-7 text-pretty text-muted-foreground">
@@ -654,26 +715,28 @@ export function Compliance() {
         title="Built to send within the law, and to keep your data yours"
         lead="The rules are in the product, not in a policy document. When a check fails, the email waits."
       />
-      <div className={cn('grid items-start gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-14', CONTENT_GAP)}>
+      <div className={cn('grid grid-cols-1 items-start gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-14', CONTENT_GAP)}>
         <Reveal className="flex flex-col gap-4">
-          <Frame innerClassName="flex flex-col">
-            <FrameTitle aside={<Tag tone="accent">{SEND_GATES.length} gates, in order</Tag>}>Every send, from your own mailbox</FrameTitle>
-            <ol className="flex flex-col gap-2 p-4 sm:p-5">
-              {SEND_GATES.map((gate, index) => (
-                <li key={gate} className="flex items-center gap-3 rounded-lg border px-3 py-2.5 text-sm text-foreground">
-                  <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-primary font-mono text-xs font-semibold text-primary-foreground tabular-nums">
-                    {index + 1}
-                  </span>
-                  <span className="min-w-0 flex-1">{gate}</span>
-                  <Icons.Check aria-hidden="true" className="size-4 shrink-0 text-success" />
+          <Canvas tone="sunset" className="lg:p-8">
+            <Frame className="border-0 bg-transparent p-0 sm:p-0" innerClassName={cn('flex flex-col', FLOATING)}>
+              <FrameTitle aside={<Tag tone="accent">{SEND_GATES.length} gates, in order</Tag>}>Every send, from your own mailbox</FrameTitle>
+              <ol className="flex flex-col gap-2 p-4 sm:p-5">
+                {SEND_GATES.map((gate, index) => (
+                  <li key={gate} className="flex items-center gap-3 rounded-lg border px-3 py-2.5 text-sm text-foreground">
+                    <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-primary font-mono text-xs font-semibold text-primary-foreground tabular-nums">
+                      {index + 1}
+                    </span>
+                    <span className="min-w-0 flex-1">{gate}</span>
+                    <Icons.Check aria-hidden="true" className="size-4 shrink-0 text-success" />
+                  </li>
+                ))}
+                <li className="mt-1 flex items-center gap-2 rounded-lg bg-selected px-3 py-2.5 text-sm font-medium text-foreground ring-1 ring-selected-border">
+                  <Icons.Send aria-hidden="true" className="size-4 text-primary" />
+                  All passed: sent. One fails: the email waits.
                 </li>
-              ))}
-              <li className="mt-1 flex items-center gap-2 rounded-lg bg-selected px-3 py-2.5 text-sm font-medium text-foreground ring-1 ring-selected-border">
-                <Icons.Send aria-hidden="true" className="size-4 text-primary" />
-                All passed: sent. One fails: the email waits.
-              </li>
-            </ol>
-          </Frame>
+              </ol>
+            </Frame>
+          </Canvas>
           <p className="px-1 text-[13px] text-pretty text-muted-foreground">
             A send that fails more than one gate reports the first. Legal basis is set per country; public holidays are built in for Australia, Canada, France, Germany, India, Ireland, Singapore, the UAE, the UK and the US.
           </p>
@@ -702,7 +765,7 @@ export function Compliance() {
 export function Faq() {
   return (
     <Section id="faq" labelledBy="faq-title" band>
-      <div className="grid gap-10 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] lg:gap-16">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] lg:gap-16">
         <SectionHeader eyebrow="FAQ" titleId="faq-title" title="Questions" className="lg:sticky lg:top-28 lg:self-start" />
         <Reveal delay={0.08} className="divide-y border-y">
           {FAQ.map((item) => (
@@ -722,7 +785,7 @@ export function Faq() {
 
 export function FinalCta({ token }: { token: string }) {
   return (
-    <section aria-labelledby="final-title" className="relative isolate overflow-hidden py-20 sm:py-28">
+    <section aria-labelledby="final-title" className="relative isolate overflow-hidden py-14 sm:py-28">
       {/* The hero's grid and glow, mirrored from the bottom, so the page closes the way it opened. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] opacity-60 [mask-image:radial-gradient(ellipse_70%_60%_at_50%_100%,black,transparent)]" />
@@ -739,7 +802,7 @@ export function FinalCta({ token }: { token: string }) {
           </p>
           <TrustRow className="justify-center" />
         </Reveal>
-        <Reveal delay={0.08} className="w-full max-w-2xl rounded-3xl border bg-card p-5 shadow-[0_24px_60px_-24px_var(--shadow-color),0_2px_6px_var(--shadow-color)] sm:p-8">
+        <Reveal delay={0.08} className="w-full max-w-2xl rounded-3xl border bg-card p-4 shadow-[0_24px_60px_-24px_var(--shadow-color),0_2px_6px_var(--shadow-color)] sm:p-8">
           <WaitlistForm token={token} source="landing-final" />
         </Reveal>
       </div>

@@ -5,7 +5,7 @@ import { BRAND_NAME, BRAND_TAGLINE } from '@/lib/marketing/brand';
 import { MobileNav } from './mobile-nav';
 import { SmoothScroll } from './smooth-scroll';
 
-export const CONTAINER = 'mx-auto w-full max-w-6xl px-3 sm:px-6 lg:px-8';
+export const CONTAINER = 'mx-auto w-full max-w-7xl px-5 sm:px-6 lg:px-8';
 
 const FOCUS =
   'rounded-sm outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid focus-visible:outline-ring';
@@ -34,9 +34,9 @@ function SiteHeader({ showNav }: { showNav: boolean }) {
     // A floating shell rather than a full-width bar: inset from the edges, rounded, glass. The
     // sections' scroll-margin (scroll-mt-20/28) clears its 4.25rem. From lg its left padding puts
     // the logo on the content edge: 1rem while the page's 1rem margin still insets the shell,
-    // 2rem once the viewport is wider than max-w-6xl plus those margins (74rem).
+    // 2rem once the viewport is wider than max-w-7xl plus those margins (82rem).
     <header className="sticky top-0 z-40 px-2 pt-2 sm:px-4 sm:pt-3">
-      <div className="glass relative mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-3 rounded-2xl border border-border/80 pr-2 pl-3 shadow-[0_8px_24px_-12px_var(--shadow-color)] sm:gap-6 sm:pr-2.5 sm:pl-5 lg:pl-4 min-[74rem]:pl-8">
+      <div className="glass relative mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-3 rounded-2xl border border-border/80 pr-2 pl-3 shadow-[0_8px_24px_-12px_var(--shadow-color)] sm:gap-6 sm:pr-2.5 sm:pl-5 lg:pl-4 min-[82rem]:pl-8">
         <BrandMark />
         {showNav && (
           <nav aria-label="Page sections" className="hidden lg:block">
@@ -88,7 +88,7 @@ function SiteFooter() {
   return (
     <footer className="border-t">
       <div className={cn(CONTAINER, 'flex flex-col gap-12 pt-14 pb-10 sm:pt-16')}>
-        <div className="grid gap-10 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)] sm:gap-8">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)] sm:gap-8">
           <div className="flex max-w-sm flex-col gap-3">
             <BrandMark />
             <p className="text-sm text-pretty text-muted-foreground">{BRAND_TAGLINE}</p>
