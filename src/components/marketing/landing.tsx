@@ -15,7 +15,7 @@ import {
   STEPS,
 } from '@/lib/marketing/content';
 import { CONTAINER } from './marketing-shell';
-import { HeroGradient } from './hero-gradient';
+import { FlowMotion } from './flow-motion';
 import { HeroIntro } from './hero-intro';
 import { Reveal } from './reveal';
 import { SourcesMarquee } from './sources-marquee';
@@ -165,9 +165,13 @@ export function Hero({ token }: { token: string }) {
     // the content centred in it. From lg the headline and the gaps scale with the viewport's
     // height, so it still fits a 1280x720 screen; the product window only shows from lg.
     <section aria-labelledby="hero-title" className="relative isolate flex min-h-[calc(100svh-4rem)] overflow-x-clip border-b sm:min-h-[calc(100svh-4.25rem)]">
-      {/* The colour band starts under the floating header's strip so the top of the page is one
-          continuous surface; overflow-x-clip (not hidden) lets it. */}
-      <HeroGradient className="pointer-events-none absolute inset-x-0 -top-16 -z-10 h-[26rem] sm:-top-[4.25rem] sm:h-[38rem] lg:h-[44rem]" />
+      {/* A faint grid and an accent glow behind the window; both fade out well before the edges.
+          The layer reaches up under the floating header's strip (pt-2 + h-14, sm: pt-3 + h-14) so
+          the top of the page is one surface; overflow-x-clip (not hidden) lets it. */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 -top-16 bottom-0 -z-10 sm:-top-[4.25rem]">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] opacity-60 [mask-image:radial-gradient(ellipse_75%_65%_at_50%_0%,black,transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_55%_60%_at_85%_10%,color-mix(in_oklch,var(--primary)_14%,transparent),transparent_70%)]" />
+      </div>
       <HeroIntro
         className={cn(
           CONTAINER,
@@ -240,40 +244,6 @@ export function ProofBar() {
     </section>
   );
 }
-
-// Stripe's signature image: product UI floating on a soft field of colour. The colours are mixes of
-// the theme's own tokens (no raw colours, no image files), so they follow dark mode.
-const CANVAS_TONES = {
-  violet: [
-    'radial-gradient(60% 75% at 12% 18%, color-mix(in oklch, var(--primary) 55%, transparent), transparent 70%)',
-    'radial-gradient(55% 70% at 88% 25%, color-mix(in oklch, var(--primary) 45%, var(--destructive)), transparent 70%)',
-    'radial-gradient(65% 70% at 55% 105%, color-mix(in oklch, var(--primary) 40%, var(--success)), transparent 70%)',
-  ],
-  teal: [
-    'radial-gradient(60% 75% at 10% 80%, color-mix(in oklch, var(--primary) 40%, var(--success)), transparent 70%)',
-    'radial-gradient(55% 70% at 90% 15%, color-mix(in oklch, var(--primary) 60%, transparent), transparent 70%)',
-    'radial-gradient(50% 60% at 60% 50%, color-mix(in oklch, var(--success) 35%, transparent), transparent 70%)',
-  ],
-  sunset: [
-    'radial-gradient(60% 70% at 85% 85%, color-mix(in oklch, var(--warning) 70%, var(--destructive)), transparent 70%)',
-    'radial-gradient(55% 70% at 15% 20%, color-mix(in oklch, var(--primary) 50%, var(--destructive)), transparent 70%)',
-    'radial-gradient(50% 60% at 70% 10%, color-mix(in oklch, var(--primary) 55%, transparent), transparent 70%)',
-  ],
-} as const;
-type CanvasTone = keyof typeof CANVAS_TONES;
-const CANVAS_ORDER: readonly CanvasTone[] = ['violet', 'teal', 'sunset'];
-
-function Canvas({ tone, className, children }: { tone: CanvasTone; className?: string; children: ReactNode }) {
-  return (
-    <div className={cn('relative isolate overflow-hidden rounded-3xl bg-muted/50 p-3 sm:p-6 lg:p-10', className)}>
-      <div aria-hidden="true" className="absolute inset-0 -z-10 opacity-70 dark:opacity-40" style={{ backgroundImage: CANVAS_TONES[tone].join(', ') }} />
-      {children}
-    </div>
-  );
-}
-
-/** A Frame's card alone, lifted off a Canvas. */
-const FLOATING = 'shadow-[0_24px_60px_-24px_var(--shadow-color),0_2px_6px_var(--shadow-color)]';
 
 /**
  * A product "screen": a muted outer frame around a card, the way Infrantic frames its workflow
@@ -519,11 +489,11 @@ export function HowItWorks() {
                   <h3 className="text-2xl font-semibold tracking-[-0.03em] text-balance text-foreground sm:text-[1.75rem]">{step.title}</h3>
                   <p className="max-w-md text-[15px] leading-7 text-pretty text-muted-foreground lg:mt-auto">{step.body}</p>
                 </div>
-                <Canvas tone={CANVAS_ORDER[index % CANVAS_ORDER.length] ?? 'violet'} className="rounded-none border-t p-4 sm:p-6 lg:border-t-0 lg:border-l lg:p-8">
-                  <div className={cn('h-full overflow-hidden rounded-lg border bg-card', FLOATING)}>
+                <div className="border-t bg-muted/30 p-3 sm:p-4 lg:border-t-0 lg:border-l">
+                  <div className="h-full overflow-hidden rounded-lg border bg-card shadow-sm">
                     <StepVisual id={step.id} />
                   </div>
-                </Canvas>
+                </div>
               </Frame>
             );
           })}
@@ -536,7 +506,7 @@ export function HowItWorks() {
 export function Signals() {
   const ordered = [...SIGNAL_TYPES.filter((item) => item.id === 'secured-loan'), ...SIGNAL_TYPES.filter((item) => item.id !== 'secured-loan')];
   return (
-    <Section id="signals" labelledBy="signals-title" band>
+    <Section id="signals" labelledBy="signals-title">
       <HeaderRow
         eyebrow="Signals"
         titleId="signals-title"
@@ -580,7 +550,7 @@ export function Signals() {
 
 export function Proof() {
   return (
-    <Section id="evidence" labelledBy="proof-title">
+    <Section id="evidence" labelledBy="proof-title" band>
       <SectionHeader
         eyebrow="Evidence"
         titleId="proof-title"
@@ -588,30 +558,28 @@ export function Proof() {
         lead="Five parts add up to the score, and each one says why. Records that don't qualify are kept with the reason, so you can check the rules instead of trusting them."
       />
       <Reveal className={CONTENT_GAP}>
-        <Canvas tone="teal">
-          <Frame className="border-0 bg-transparent p-0 sm:p-0" innerClassName={cn('grid grid-cols-1 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]', FLOATING)}>
-            <div className="flex flex-col">
-              <FrameTitle aside={<Tag tone="accent">Example lead</Tag>}>Score, line by line</FrameTitle>
-              <div className="p-4 sm:p-7">
-                <ScoreBreakdown score={EXAMPLE_SCORE} />
-              </div>
+        <Frame innerClassName="grid grid-cols-1 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+          <div className="flex flex-col">
+            <FrameTitle aside={<Tag tone="accent">Example lead</Tag>}>Score, line by line</FrameTitle>
+            <div className="p-4 sm:p-7">
+              <ScoreBreakdown score={EXAMPLE_SCORE} />
             </div>
-            <div className="flex flex-col border-t lg:border-t-0 lg:border-l">
-              <FrameTitle aside={<Tag>Kept, not contacted</Tag>}>Rejected, with the reason</FrameTitle>
-              <ul className="flex flex-1 flex-col divide-y">
-                {REJECT_EXAMPLES.map((reason) => (
-                  <li key={reason.code} className="flex flex-1 items-center gap-3 px-5 py-3.5 sm:px-7">
-                    <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
-                      <Icons.Ban aria-hidden="true" className="size-3.5" />
-                    </span>
-                    <p className="min-w-0 flex-1 text-sm text-foreground">{reason.label}</p>
-                    <span className="hidden font-mono text-[11px] text-muted-foreground sm:block">{reason.code}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </Frame>
-        </Canvas>
+          </div>
+          <div className="flex flex-col border-t lg:border-t-0 lg:border-l">
+            <FrameTitle aside={<Tag>Kept, not contacted</Tag>}>Rejected, with the reason</FrameTitle>
+            <ul className="flex flex-1 flex-col divide-y">
+              {REJECT_EXAMPLES.map((reason) => (
+                <li key={reason.code} className="flex flex-1 items-center gap-3 px-5 py-3.5 sm:px-7">
+                  <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
+                    <Icons.Ban aria-hidden="true" className="size-3.5" />
+                  </span>
+                  <p className="min-w-0 flex-1 text-sm text-foreground">{reason.label}</p>
+                  <span className="hidden font-mono text-[11px] text-muted-foreground sm:block">{reason.code}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Frame>
       </Reveal>
     </Section>
   );
@@ -625,7 +593,7 @@ export function Industries() {
   const packs = livePacks();
   const industries = INDUSTRY_PACKS.map((copy) => ({ ...copy, pack: packs.find((pack) => pack.id === copy.id) }));
   return (
-    <Section id="industries" labelledBy="industries-title" band>
+    <Section id="industries" labelledBy="industries-title">
       <HeaderRow
         eyebrow="Industries"
         titleId="industries-title"
@@ -717,26 +685,24 @@ export function Compliance() {
       />
       <div className={cn('grid grid-cols-1 items-start gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-14', CONTENT_GAP)}>
         <Reveal className="flex flex-col gap-4">
-          <Canvas tone="sunset" className="lg:p-8">
-            <Frame className="border-0 bg-transparent p-0 sm:p-0" innerClassName={cn('flex flex-col', FLOATING)}>
-              <FrameTitle aside={<Tag tone="accent">{SEND_GATES.length} gates, in order</Tag>}>Every send, from your own mailbox</FrameTitle>
-              <ol className="flex flex-col gap-2 p-4 sm:p-5">
-                {SEND_GATES.map((gate, index) => (
-                  <li key={gate} className="flex items-center gap-3 rounded-lg border px-3 py-2.5 text-sm text-foreground">
-                    <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-primary font-mono text-xs font-semibold text-primary-foreground tabular-nums">
-                      {index + 1}
-                    </span>
-                    <span className="min-w-0 flex-1">{gate}</span>
-                    <Icons.Check aria-hidden="true" className="size-4 shrink-0 text-success" />
-                  </li>
-                ))}
-                <li className="mt-1 flex items-center gap-2 rounded-lg bg-selected px-3 py-2.5 text-sm font-medium text-foreground ring-1 ring-selected-border">
-                  <Icons.Send aria-hidden="true" className="size-4 text-primary" />
-                  All passed: sent. One fails: the email waits.
+          <Frame innerClassName="flex flex-col">
+            <FrameTitle aside={<Tag tone="accent">{SEND_GATES.length} gates, in order</Tag>}>Every send, from your own mailbox</FrameTitle>
+            <ol className="flex flex-col gap-2 p-4 sm:p-5">
+              {SEND_GATES.map((gate, index) => (
+                <li key={gate} className="flex items-center gap-3 rounded-lg border px-3 py-2.5 text-sm text-foreground">
+                  <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-primary font-mono text-xs font-semibold text-primary-foreground tabular-nums">
+                    {index + 1}
+                  </span>
+                  <span className="min-w-0 flex-1">{gate}</span>
+                  <Icons.Check aria-hidden="true" className="size-4 shrink-0 text-success" />
                 </li>
-              </ol>
-            </Frame>
-          </Canvas>
+              ))}
+              <li className="mt-1 flex items-center gap-2 rounded-lg bg-selected px-3 py-2.5 text-sm font-medium text-foreground ring-1 ring-selected-border">
+                <Icons.Send aria-hidden="true" className="size-4 text-primary" />
+                All passed: sent. One fails: the email waits.
+              </li>
+            </ol>
+          </Frame>
           <p className="px-1 text-[13px] text-pretty text-muted-foreground">
             A send that fails more than one gate reports the first. Legal basis is set per country; public holidays are built in for Australia, Canada, France, Germany, India, Ireland, Singapore, the UAE, the UK and the US.
           </p>
@@ -807,5 +773,300 @@ export function FinalCta({ token }: { token: string }) {
         </Reveal>
       </div>
     </section>
+  );
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Automation: Infrantic-style node diagram. Absolutely placed cards over elbow connectors on a
+ * dotted canvas; the connectors' dashes march and a packet travels into the active node
+ * (FlowMotion). Illustration only: role="img" with a text description, inner markup aria-hidden.
+ * ---------------------------------------------------------------------------------------------- */
+
+type FlowStatus = 'done' | 'active' | 'todo';
+
+interface FlowNode {
+  id: string;
+  label: string;
+  detail: string;
+  x: number;
+  y: number;
+  status: FlowStatus;
+}
+
+// Two rows, read as a snake: the machine's half runs left to right along the top, then down into
+// "You approve", and the rest waits, right to left, until a person has decided.
+const FLOW_NODES: readonly FlowNode[] = [
+  { id: 'sources', label: 'Public record', detail: 'Companies House, TED, SAM.gov', x: 12, y: 28, status: 'done' },
+  { id: 'signal', label: 'Signal found', detail: EXAMPLE_LEAD.evidence.trigger, x: 37, y: 28, status: 'done' },
+  { id: 'checks', label: 'Rules and AI checks', detail: 'Same company? Own industry?', x: 62, y: 28, status: 'done' },
+  { id: 'lead', label: 'Lead scored', detail: `${EXAMPLE_SCORE.text} of ${EXAMPLE_SCORE.max}, with evidence`, x: 87, y: 28, status: 'done' },
+  { id: 'approve', label: 'You approve', detail: 'Nothing moves without you', x: 87, y: 72, status: 'active' },
+  { id: 'buyer', label: 'Buyer found', detail: 'Their address verified', x: 62, y: 72, status: 'todo' },
+  { id: 'draft', label: 'AI first draft', detail: `Cites ${EXAMPLE_LEAD.evidence.title}`, x: 37, y: 72, status: 'todo' },
+  { id: 'send', label: 'Gates, then send', detail: `${SEND_GATES.length} checks, your own mailbox`, x: 12, y: 72, status: 'todo' },
+];
+
+const FLOW_STATUS: Record<FlowStatus, { card: string; pill: string; label: string; line: string; dash: number; duration: number }> = {
+  done: { card: 'border-border', pill: 'bg-success-soft text-success', label: 'Done', line: 'color-mix(in oklch, var(--primary) 45%, transparent)', dash: 4, duration: 8 },
+  active: { card: 'border-selected-border ring-4 ring-selected', pill: 'bg-selected text-primary', label: 'Waiting for you', line: 'var(--primary)', dash: 4, duration: 6 },
+  todo: { card: 'border-dashed border-control/60 bg-card/80', pill: 'bg-muted text-muted-foreground', label: 'Queued', line: 'color-mix(in oklch, var(--muted-foreground) 45%, transparent)', dash: 3, duration: 16 },
+};
+
+function FlowDot({ status }: { status: FlowStatus }) {
+  if (status === 'done') {
+    return (
+      <span className="grid size-4 shrink-0 place-items-center rounded-full bg-success text-card">
+        <Icons.Check className="size-2.5" strokeWidth={3} />
+      </span>
+    );
+  }
+  if (status === 'active') {
+    return (
+      <span className="relative grid size-4 shrink-0 place-items-center">
+        <span className="absolute inset-0 rounded-full bg-primary/30 motion-safe:animate-ping" />
+        <span className="relative size-2.5 rounded-full bg-primary" />
+      </span>
+    );
+  }
+  return <span className="block size-4 shrink-0 rounded-full border-[1.5px] border-dashed border-control" />;
+}
+
+/** One straight segment of a connector: a clipped strip of dashes that FlowMotion slides along. */
+function FlowSegment({ from, to, status, delay }: { from: FlowNode; to: FlowNode; status: FlowStatus; delay: number }) {
+  const horizontal = from.y === to.y;
+  const reverse = horizontal ? to.x < from.x : to.y < from.y;
+  const style = FLOW_STATUS[status];
+  const box = horizontal
+    ? { left: `${Math.min(from.x, to.x)}%`, top: `${from.y}%`, width: `${Math.abs(to.x - from.x)}%` }
+    : { left: `${from.x}%`, top: `${Math.min(from.y, to.y)}%`, height: `${Math.abs(to.y - from.y)}%` };
+  return (
+    <>
+      <span className={cn('absolute overflow-hidden', horizontal ? 'h-[1.5px] -translate-y-1/2' : 'w-[1.5px] -translate-x-1/2')} style={box}>
+        <span
+          data-flow={horizontal ? 'x' : 'y'}
+          data-reverse={reverse}
+          data-duration={style.duration}
+          className={cn('absolute', horizontal ? 'inset-y-0 right-0 -left-20' : 'inset-x-0 -top-20 bottom-0')}
+          style={{ backgroundImage: `repeating-linear-gradient(${horizontal ? '90deg' : '180deg'}, ${style.line} 0 ${style.dash}px, transparent ${style.dash}px 8px)` }}
+        />
+      </span>
+      {status === 'active' && (
+        <span className="absolute overflow-hidden motion-reduce:hidden" style={{ ...box, ...(horizontal ? { height: 8, marginTop: -4 } : { width: 8, marginLeft: -4 }) }}>
+          <span data-packet={horizontal ? 'x' : 'y'} data-reverse={reverse} data-delay={delay} className="absolute inset-0 opacity-0">
+            <span
+              className={cn(
+                'absolute size-2 rounded-full bg-primary shadow-[0_0_10px_2px_color-mix(in_oklch,var(--primary)_55%,transparent)]',
+                horizontal ? (reverse ? 'left-0 top-0' : 'right-0 top-0') : reverse ? 'top-0 left-0' : 'bottom-0 left-0',
+              )}
+            />
+          </span>
+        </span>
+      )}
+    </>
+  );
+}
+
+function FlowCard({ node }: { node: FlowNode }) {
+  const style = FLOW_STATUS[node.status];
+  return (
+    <div className="absolute w-[22%] max-w-[13.5rem] -translate-x-1/2 -translate-y-1/2" style={{ left: `${node.x}%`, top: `${node.y}%` }}>
+      <div className={cn('rounded-lg border bg-card px-3 py-2.5 shadow-sm', style.card)}>
+        <div className="flex items-center gap-2">
+          <FlowDot status={node.status} />
+          <span className="truncate text-xs font-semibold text-foreground">{node.label}</span>
+        </div>
+        <p className="mt-1 truncate pl-6 text-[11px] text-muted-foreground">{node.detail}</p>
+        <span className={cn('mt-2 ml-6 inline-flex rounded-full px-1.5 py-px text-[10px] font-medium', style.pill)}>{style.label}</span>
+      </div>
+    </div>
+  );
+}
+
+const FLOW_DESCRIPTION = `Diagram: ${FLOW_NODES.map((node) => `${node.label} (${FLOW_STATUS[node.status].label.toLowerCase()})`).join(', then ')}.`;
+
+export function Automation() {
+  return (
+    <Section id="automation" labelledBy="automation-title" band>
+      <SectionHeader
+        eyebrow="Automation"
+        titleId="automation-title"
+        title="The reading is automated. The decisions stay with you."
+        lead="Rules and a narrow model read the public record, check each event and score what qualifies. Then it stops: nothing moves past a lead or a draft until a person approves it."
+      />
+      <Reveal className={CONTENT_GAP}>
+        <Frame>
+          {/* The diagram from md; a plain stepper below it, where the canvas would be too narrow. */}
+          <FlowMotion className="hidden md:block">
+            <div
+              role="img"
+              aria-label={FLOW_DESCRIPTION}
+              className="relative aspect-[16/6] min-h-[22rem] overflow-hidden rounded-xl bg-muted/30 bg-[radial-gradient(color-mix(in_oklch,var(--foreground)_10%,transparent)_1px,transparent_1px)] [background-size:16px_16px]"
+            >
+              <div aria-hidden="true">
+                {FLOW_NODES.slice(1).map((node, index) => {
+                  const from = FLOW_NODES[index];
+                  return from === undefined ? null : <FlowSegment key={node.id} from={from} to={node} status={node.status} delay={index * 0.4} />;
+                })}
+                {FLOW_NODES.map((node) => (
+                  <FlowCard key={node.id} node={node} />
+                ))}
+                <p className="absolute top-3 left-4 text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">Automated</p>
+                <p className="absolute bottom-3 left-4 text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">After your approval</p>
+              </div>
+            </div>
+          </FlowMotion>
+          <ol className="flex flex-col gap-2 p-3 md:hidden">
+            {FLOW_NODES.map((node) => (
+              <li key={node.id} className={cn('flex items-start gap-3 rounded-lg border bg-card px-3 py-2.5', FLOW_STATUS[node.status].card)}>
+                <span className="pt-0.5">
+                  <FlowDot status={node.status} />
+                </span>
+                <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <p className="text-sm font-medium text-foreground">{node.label}</p>
+                  <p className="text-[13px] text-muted-foreground">{node.detail}</p>
+                </div>
+                <span className={cn('shrink-0 rounded-full px-1.5 py-px text-[10px] font-medium', FLOW_STATUS[node.status].pill)}>{FLOW_STATUS[node.status].label}</span>
+              </li>
+            ))}
+          </ol>
+        </Frame>
+      </Reveal>
+    </Section>
+  );
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Workspace: a dashboard mock-up of the product. Every figure is from the content (the three
+ * queued examples, the 12% holdout default, the seven gates); the chart has no axis values.
+ * ---------------------------------------------------------------------------------------------- */
+
+const WORKSPACE_NAV: readonly { label: string; icon: keyof typeof WORKSPACE_ICONS; badge?: string }[] = [
+  { label: 'Approval queue', icon: 'ListChecks', badge: '3' },
+  { label: 'Inbox', icon: 'Inbox' },
+  { label: 'Results', icon: 'ChartColumn' },
+  { label: 'Industry packs', icon: 'Filter' },
+  { label: 'Sending', icon: 'Send' },
+];
+const WORKSPACE_ICONS = { ListChecks: Icons.ListChecks, Inbox: Icons.Inbox, ChartColumn: Icons.ChartColumn, Filter: Icons.Filter, Send: Icons.Send } as const;
+
+const QUEUE_ROWS: readonly { descriptor: string; signal: string; score?: string }[] = [
+  { descriptor: EXAMPLE_LEAD.descriptor, signal: EXAMPLE_LEAD.evidence.trigger, score: EXAMPLE_SCORE.text },
+  ...['tender-award', 'new-leader'].flatMap((id) => {
+    const item = SIGNAL_TYPES.find((signal) => signal.id === id);
+    return item === undefined ? [] : [{ descriptor: item.example, signal: item.name }];
+  }),
+];
+
+const KPIS: readonly { label: string; value: string; note: string }[] = [
+  { label: 'Waiting for approval', value: String(QUEUE_ROWS.length), note: 'leads in the queue' },
+  { label: 'Holdout group', value: '12%', note: 'never contacted, by default' },
+  { label: 'Send gates', value: String(SEND_GATES.length), note: 'checked on every send' },
+];
+
+// Two example series, no values: the contacted group against the holdout, the comparison Results makes.
+const CONTACTED = '0,78 14,70 28,66 42,54 56,48 70,36 84,30 100,20';
+const HOLDOUT = '0,80 14,78 28,75 42,74 56,70 70,68 84,66 100,62';
+
+export function Workspace() {
+  return (
+    <Section id="workspace" labelledBy="workspace-title" band>
+      <HeaderRow
+        eyebrow="Workspace"
+        titleId="workspace-title"
+        title="One workspace for the whole loop"
+        lead="The queue you approve from, the inbox for replies and inbound leads, and Results, which compares contacted accounts with a holdout so you see what outreach added."
+        action={<ActionLink href="#join">Join the waitlist</ActionLink>}
+      />
+      <Reveal className={CONTENT_GAP}>
+        <Frame innerClassName="flex overflow-hidden">
+          <div aria-hidden="true" className="flex w-full">
+            <aside className="hidden w-52 shrink-0 flex-col gap-1 border-r bg-muted/40 p-3 md:flex">
+              <p className="flex items-center gap-2 px-2 pt-1 pb-3 text-sm font-semibold text-foreground">
+                <span className="inline-flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
+                  <Icons.Radar className="size-3.5" strokeWidth={2.25} />
+                </span>
+                {BRAND_NAME}
+              </p>
+              {WORKSPACE_NAV.map((item, index) => {
+                const Icon = WORKSPACE_ICONS[item.icon];
+                return (
+                  <span
+                    key={item.label}
+                    className={cn('flex items-center gap-2.5 rounded-md px-2 py-1.5 text-[13px]', index === 0 ? 'bg-card font-medium text-foreground shadow-xs ring-1 ring-border' : 'text-muted-foreground')}
+                  >
+                    <Icon className="size-4" />
+                    {item.label}
+                    {item.badge !== undefined && <span className="ml-auto rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground">{item.badge}</span>}
+                  </span>
+                );
+              })}
+            </aside>
+            <div className="flex min-w-0 flex-1 flex-col gap-4 p-4 sm:gap-5 sm:p-6">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-base font-semibold text-foreground">Approval queue</p>
+                <Tag>Example workspace</Tag>
+              </div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                {KPIS.map((kpi) => (
+                  <div key={kpi.label} className="flex flex-col gap-1 rounded-lg border p-3.5">
+                    <span className="text-[12px] text-muted-foreground">{kpi.label}</span>
+                    <span className="font-mono text-2xl font-semibold tracking-tight text-foreground tabular-nums">{kpi.value}</span>
+                    <span className="text-[11px] text-muted-foreground">{kpi.note}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+                <div className="overflow-hidden rounded-lg border">
+                  <p className="border-b bg-muted/40 px-3.5 py-2 text-[11px] font-medium tracking-[0.06em] text-muted-foreground uppercase">Waiting for a person</p>
+                  <ul className="divide-y">
+                    {QUEUE_ROWS.map((row) => (
+                      <li key={row.descriptor} className="flex items-center gap-3 px-3.5 py-3">
+                        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                          <p className="truncate text-[13px] font-medium text-foreground">{row.descriptor}</p>
+                          <p className="truncate text-[11px] text-muted-foreground">{row.signal}</p>
+                        </div>
+                        {row.score !== undefined ? (
+                          <span className="font-mono text-sm font-semibold text-primary tabular-nums">{row.score}</span>
+                        ) : (
+                          <span className="text-[11px] text-muted-foreground">Scoring</span>
+                        )}
+                        <span className="hidden gap-1 sm:flex">
+                          <span className="inline-flex h-6 items-center rounded-md border px-2 text-[11px] text-foreground">Reject</span>
+                          <span className="inline-flex h-6 items-center rounded-md bg-primary px-2 text-[11px] text-primary-foreground">Approve</span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="flex flex-col gap-3 rounded-lg border p-3.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-[13px] font-medium text-foreground">Results: meetings</p>
+                    <span className="flex gap-3 text-[11px] text-muted-foreground">
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="h-0.5 w-3 rounded-full bg-primary" />
+                        Contacted
+                      </span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="h-0.5 w-3 rounded-full bg-muted-foreground/60" />
+                        Holdout
+                      </span>
+                    </span>
+                  </div>
+                  <svg viewBox="0 0 100 90" preserveAspectRatio="none" className="h-36 w-full">
+                    {[20, 40, 60, 80].map((y) => (
+                      <line key={y} x1="0" x2="100" y1={y} y2={y} className="stroke-border" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+                    ))}
+                    <polyline points={`${CONTACTED} 100,90 0,90`} className="fill-primary/10" />
+                    <polyline points={CONTACTED} fill="none" className="stroke-primary" strokeWidth="2" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
+                    <polyline points={HOLDOUT} fill="none" className="stroke-muted-foreground/60" strokeWidth="2" strokeDasharray="4 4" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
+                  </svg>
+                  <p className="text-[11px] text-muted-foreground">The gap between the lines is the lift outreach added. Example shape, no real data.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Frame>
+      </Reveal>
+    </Section>
   );
 }
