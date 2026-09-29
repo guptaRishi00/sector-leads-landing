@@ -30,6 +30,8 @@ export {
   Monitor,
   Moon,
   PanelLeft,
+  Pause,
+  Play,
   Plug,
   Plus,
   Radar,

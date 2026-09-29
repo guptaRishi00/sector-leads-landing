@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Compliance, Faq, FinalCta, Hero, HowItWorks, Industries, Proof, Signals } from '@/components/marketing/landing';
+import { Compliance, Faq, FinalCta, Hero, HowItWorks, Industries, Proof, ProofBar, Signals } from '@/components/marketing/landing';
 import { MarketingShell } from '@/components/marketing/marketing-shell';
 import { BRAND_NAME } from '@/lib/marketing/brand';
 import { liveSiteUrl, liveWaitlistFormToken } from '@/lib/marketing/live';
@@ -33,6 +33,7 @@ export default function Page() {
   return (
     <MarketingShell showNav>
       <Hero token={token} />
+      <ProofBar />
       <HowItWorks />
       <Signals />
       <Proof />

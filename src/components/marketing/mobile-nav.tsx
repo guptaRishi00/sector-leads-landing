@@ -32,8 +32,8 @@ export function MobileNav({ items }: { items: readonly { href: string; label: st
       <Button variant="ghost" size="icon-sm" aria-expanded={open} aria-controls={id} aria-label={open ? 'Close menu' : 'Open menu'} onClick={() => setOpen((value) => !value)}>
         {open ? <Icons.X aria-hidden="true" /> : <Icons.Menu aria-hidden="true" />}
       </Button>
-      <nav id={id} aria-label="Page sections" hidden={!open} className="absolute inset-x-0 top-full border-b bg-background shadow-md">
-        <ul className="mx-auto flex w-full max-w-6xl flex-col px-3 py-2 sm:px-6">
+      <nav id={id} aria-label="Page sections" hidden={!open} className="absolute inset-x-0 top-full mt-2 rounded-2xl border bg-background p-2 shadow-[0_16px_40px_-16px_var(--shadow-color)]">
+        <ul className="flex flex-col">
           {items.map((item) => (
             <li key={item.href}>
               <a href={item.href} className={LINK} onClick={() => setOpen(false)}>
