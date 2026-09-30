@@ -12,7 +12,8 @@ type Autoplay = 'off' | 'on' | 'paused';
  *
  * `autoAdvance` (ms) moves to the next tab on its own. The active tab's progress bar is the timer:
  * a Web Animation fills it and the next tab opens when it finishes, so pausing the bar pauses the
- * rotation. It holds while the pointer or focus is on the panel, while the tabs are off screen and
+ * rotation. It holds while keyboard focus is in the panel (not on hover: resting the pointer on the
+ * panel while reading must not freeze it), while the tabs are off screen and
  * while the page is hidden; the button pauses it (WCAG 2.2.2); choosing a tab stops it for good;
  * reduced motion never starts it.
  */
@@ -33,14 +34,14 @@ export function Tabs({
 }) {
   const [active, setActive] = useState(0);
   const [autoplay, setAutoplay] = useState<Autoplay>('off');
-  const [holds, setHolds] = useState({ pointer: false, focus: false, offscreen: true, hidden: false });
+  const [holds, setHolds] = useState({ focus: false, offscreen: true, hidden: false });
   const root = useRef<HTMLDivElement>(null);
   const list = useRef<HTMLDivElement>(null);
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
   const bars = useRef<(HTMLSpanElement | null)[]>([]);
   const timer = useRef<Animation | null>(null);
   const base = useId();
-  const held = holds.pointer || holds.focus || holds.offscreen || holds.hidden;
+  const held = holds.focus || holds.offscreen || holds.hidden;
   const running = autoplay === 'on' && !held;
   const runningRef = useRef(running);
   runningRef.current = running;
@@ -161,8 +162,16 @@ export function Tabs({
                 )}
               >
                 {tab}
-                {/* The underline (horizontal) or bottom bar (vertical). While rotating it is the
-                    progress bar, filled by the timer; once stopped it is simply shown in full. */}
+                {/* Horizontal tabs: the active one always carries a soft full-width underline, so it
+                    reads as selected even while the progress bar above it is still empty. */}
+                {!vertical && (
+                  <span
+                    aria-hidden="true"
+                    className={cn('absolute inset-x-4 bottom-0 h-0.5 rounded-full bg-primary/25 transition-opacity duration-200', selected ? 'opacity-100' : 'opacity-0')}
+                  />
+                )}
+                {/* The progress bar (horizontal: drawn over the underline; vertical: a bottom bar).
+                    While rotating the timer fills it; once stopped it is simply shown in full. */}
                 <span
                   aria-hidden="true"
                   ref={(node) => {
@@ -192,8 +201,6 @@ export function Tabs({
       </div>
       <div
         className={cn(vertical && 'lg:h-full')}
-        onMouseEnter={() => setHolds((value) => ({ ...value, pointer: true }))}
-        onMouseLeave={() => setHolds((value) => ({ ...value, pointer: false }))}
         onFocus={() => setHolds((value) => ({ ...value, focus: true }))}
         onBlur={onPanelBlur}
       >

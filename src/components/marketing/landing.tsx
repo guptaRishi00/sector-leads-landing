@@ -25,9 +25,13 @@ import { WaitlistForm } from './waitlist-form';
 // One design language for every section: eyebrow → h2 → lead, the same gap from that header to the
 // content, product "screens" in a Frame (see below) and one icon tile. The accent (primary) is kept
 // to eyebrows, icon tiles, numbers and the call to action.
-const H2 = 'text-[1.75rem] leading-[1.15] font-medium tracking-[-0.02em] text-balance text-foreground sm:text-[2.5rem] sm:leading-[1.1] sm:tracking-[-0.03em] lg:text-[2.75rem]';
+const H2 = 'text-[1.75rem] leading-[1.15] font-medium tracking-[-0.02em] text-balance text-foreground sm:text-[2.5rem] sm:leading-[1.1] sm:tracking-[-0.03em]';
 const LEAD = 'max-w-[62ch] text-[15px] leading-6.5 text-pretty text-muted-foreground sm:text-lg sm:leading-8';
 const CONTENT_GAP = 'mt-9 sm:mt-14';
+/** Supabase's "canvas-night" panel, dark in both themes with tokens only: inverted in light mode, the lifted popover surface in dark. */
+const NIGHT = 'bg-foreground text-background dark:bg-popover dark:text-foreground';
+const NIGHT_MUTED = 'text-background/60 dark:text-muted-foreground';
+const NIGHT_LINE = 'border-background/10 dark:border-border';
 /** A hero piece GSAP brings in (see HeroIntro): hidden until the timeline starts, unless motion is reduced. */
 const INTRO = 'motion-safe:opacity-0';
 const ICON_TILE = 'inline-flex size-10 shrink-0 items-center justify-center rounded-lg border bg-muted/50 text-foreground';
@@ -56,19 +60,15 @@ function Section({ id, labelledBy, band = false, className, children }: { id: st
   );
 }
 
+// Every section opens with a short eyebrow label (the user's choice, over the taste-skill's ration).
 function Eyebrow({ children }: { children: string }) {
-  return (
-    <p className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground">
-      <span aria-hidden="true" className="size-1.5 rounded-full bg-primary" />
-      {children}
-    </p>
-  );
+  return <p className="text-sm font-medium text-primary">{children}</p>;
 }
 
-function SectionHeader({ eyebrow, titleId, title, lead, className }: { eyebrow: string; titleId: string; title: string; lead?: string; className?: string }) {
+function SectionHeader({ eyebrow, titleId, title, lead, className }: { eyebrow?: string; titleId: string; title: string; lead?: string; className?: string }) {
   return (
     <Reveal className={cn('flex max-w-3xl flex-col gap-4', className)}>
-      <Eyebrow>{eyebrow}</Eyebrow>
+      {eyebrow !== undefined && <Eyebrow>{eyebrow}</Eyebrow>}
       <h2 id={titleId} className={H2}>
         {title}
       </h2>
@@ -77,53 +77,66 @@ function SectionHeader({ eyebrow, titleId, title, lead, className }: { eyebrow: 
   );
 }
 
-/** Other kinds of lead in the illustrated queue; only the open one carries a (real, worked) score. */
-const QUEUE_TABS: readonly string[] = SIGNAL_TYPES.filter((signal) => signal.id === 'tender-award' || signal.id === 'new-leader').map((signal) => signal.name);
+/** The events feeding the queue, as the product logs them: source, event, what the rules did. From content only. */
+const HERO_FEED: readonly { source: string; event: string; outcome: string; lead?: boolean }[] = [
+  { source: 'Companies House', event: EXAMPLE_LEAD.evidence.title ?? EXAMPLE_LEAD.evidence.trigger, outcome: `Lead, ${EXAMPLE_SCORE.text}`, lead: true },
+  { source: 'Find a Tender', event: 'Tender published', outcome: 'Scoring' },
+  { source: 'SEC EDGAR', event: 'Form D filed', outcome: 'Scoring' },
+  ...REJECT_EXAMPLES.filter((reason) => reason.code === 'staffing_firm' || reason.code === 'own_industry').map((reason) => ({
+    source: 'Rules',
+    event: reason.label,
+    outcome: 'Rejected',
+  })),
+];
+
+/** The dark pane behind the lead window: the event feed, set like Supabase's log panes. */
+function EventFeed() {
+  return (
+    <div aria-hidden="true" className={cn('overflow-hidden rounded-xl border shadow-[0_24px_48px_-20px_var(--shadow-color)]', NIGHT, NIGHT_LINE)}>
+      <div className={cn('flex items-center justify-between border-b px-4 py-2.5 text-xs', NIGHT_LINE)}>
+        <span className="font-medium">Incoming events</span>
+        <span className={NIGHT_MUTED}>Public record</span>
+      </div>
+      <ul className="flex flex-col gap-2 px-4 py-3 font-mono text-[11px]">
+        {HERO_FEED.map((row) => (
+          <li key={`${row.source}-${row.outcome}`} className="grid grid-cols-[7.5rem_minmax(0,1fr)_auto] items-center gap-3">
+            <span className={cn('truncate', NIGHT_MUTED)}>{row.source}</span>
+            <span className="truncate">{row.event}</span>
+            <span className={cn('rounded px-1.5 py-0.5', row.lead === true ? 'bg-primary text-primary-foreground' : NIGHT_MUTED)}>{row.outcome}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 /** The example lead, framed as the product's approval queue. Illustration only: nothing in it is interactive. */
 function LeadWindow() {
   return (
     <section
       aria-labelledby="example-lead-title"
-      className="flex flex-col overflow-hidden rounded-xl border bg-card shadow-[0_16px_48px_-12px_var(--shadow-color),0_1px_3px_var(--shadow-color)] ring-1 ring-foreground/[0.03]"
+      className="flex flex-col overflow-hidden rounded-xl border bg-card shadow-[0_24px_60px_-16px_var(--shadow-color),0_1px_3px_var(--shadow-color)]"
     >
-      <div className="flex h-10 shrink-0 items-center gap-3 border-b bg-muted/50 px-4">
-        <span aria-hidden="true" className="flex gap-1.5">
-          <span className="size-2.5 rounded-full bg-foreground/15" />
-          <span className="size-2.5 rounded-full bg-foreground/15" />
-          <span className="size-2.5 rounded-full bg-foreground/15" />
-        </span>
-        <h2 id="example-lead-title" className="text-xs font-medium text-muted-foreground">
+      <div className="flex h-10 shrink-0 items-center justify-between gap-3 border-b bg-muted/40 px-4">
+        <h2 id="example-lead-title" className="text-xs font-medium text-foreground">
           Approval queue
         </h2>
+        <span aria-hidden="true" className="text-xs text-muted-foreground">
+          1 of {HERO_FEED.filter((row) => !row.outcome.startsWith('Rejected')).length}
+        </span>
       </div>
-      <ul
-        aria-hidden="true"
-        className="flex shrink-0 gap-1.5 overflow-hidden border-b px-3 py-2.5 [mask-image:linear-gradient(to_right,black_80%,transparent)] sm:px-4"
-      >
-        <li className="inline-flex h-7 shrink-0 items-center gap-1.5 rounded-md bg-selected px-2.5 text-xs font-medium text-foreground ring-1 ring-selected-border">
-          <span className="font-mono text-primary tabular-nums">{EXAMPLE_SCORE.text}</span>
-          {EXAMPLE_LEAD.evidence.trigger}
-        </li>
-        {QUEUE_TABS.map((name) => (
-          <li key={name} className="inline-flex h-7 shrink-0 items-center gap-1.5 rounded-md px-2.5 text-xs text-muted-foreground">
-            <span className="size-1.5 rounded-full bg-foreground/20" />
-            {name}
-          </li>
-        ))}
-      </ul>
       <div className="flex flex-1 flex-col gap-5 p-4 sm:p-5">
         <div className="flex items-start justify-between gap-4">
           <p className="text-[15px] font-medium text-pretty text-foreground">{EXAMPLE_LEAD.descriptor}</p>
           <p className="flex shrink-0 flex-col items-end">
-            <span className="font-mono text-2xl font-medium text-primary tabular-nums">{EXAMPLE_SCORE.text}</span>
+            <span className="font-mono text-2xl font-medium text-foreground tabular-nums">{EXAMPLE_SCORE.text}</span>
             <span className="text-xs text-muted-foreground">score of {EXAMPLE_SCORE.max}</span>
           </p>
         </div>
         <div className="border-t pt-5">
           <EvidencePanel evidence={EXAMPLE_LEAD.evidence} />
         </div>
-        <div className="mt-auto flex flex-wrap items-center justify-between gap-3 rounded-xl bg-muted/70 p-2 pl-3">
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-3 rounded-lg bg-muted/60 p-2 pl-3">
           <p className="flex items-center gap-2 text-[13px] text-muted-foreground">
             <Icons.Inbox aria-hidden="true" className="size-4 shrink-0" />
             Waiting for a person to decide.
@@ -138,22 +151,18 @@ function LeadWindow() {
   );
 }
 
-/** The product window with a "sent" toast layered on it, the way Stripe stacks product UI. From lg only. */
+/** Stacked panes, the way Supabase composites product UI: the dark feed behind, the lead window over it. From lg only. */
 function HeroVisual() {
   return (
-    <div data-intro="" className={cn('relative hidden lg:ml-4 lg:block', INTRO)}>
-      <LeadWindow />
-      <div
-        aria-hidden="true"
-        className="absolute -top-5 -right-3 flex items-center gap-2.5 rounded-xl border bg-card/95 py-2 pr-3.5 pl-2 shadow-[0_12px_32px_-12px_var(--shadow-color)] backdrop-blur-sm xl:-right-5"
-      >
-        <span className="inline-flex size-7 items-center justify-center rounded-lg bg-success-soft text-success">
-          <Icons.Send className="size-3.5" />
-        </span>
-        <span className="flex flex-col">
-          <span className="text-xs font-medium text-foreground">All {SEND_GATES.length} gates passed</span>
-          <span className="text-[11px] text-muted-foreground">Sent from your own mailbox</span>
-        </span>
+    // On short viewports the panes are zoomed (zoom, unlike transform, shrinks the layout box too),
+    // so the hero still fits one screen: measured at 1024x700, 1280x720 and 1366x768. The two height
+    // ranges don't overlap, so which rule Tailwind emits last can't matter.
+    <div data-intro="" className={cn('relative hidden lg:ml-6 lg:block [@media(min-height:781px)_and_(max-height:860px)]:[zoom:0.9] [@media(max-height:780px)]:[zoom:0.8]', INTRO)}>
+      <div className="mr-14">
+        <EventFeed />
+      </div>
+      <div className="relative -mt-16 ml-12">
+        <LeadWindow />
       </div>
     </div>
   );
@@ -163,9 +172,9 @@ export function Hero({ token }: { token: string }) {
   return (
     // One screen, no more: at least the viewport minus the header strip (4rem, sm: 4.25rem), with
     // the content centred in it. From lg the headline and the gaps scale with the viewport's
-    // height, so it still fits a 1280x720 screen; the product window only shows from lg.
+    // height, so it still fits a 1280x720 screen; the product panes only show from lg.
     <section aria-labelledby="hero-title" className="relative isolate flex min-h-[calc(100svh-4rem)] overflow-x-clip border-b sm:min-h-[calc(100svh-4.25rem)]">
-      {/* A faint grid and an accent glow behind the window; both fade out well before the edges.
+      {/* A faint grid and an accent glow behind the panes; both fade out well before the edges.
           The layer reaches up under the floating header's strip (pt-2 + h-14, sm: pt-3 + h-14) so
           the top of the page is one surface; overflow-x-clip (not hidden) lets it. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 -top-16 bottom-0 -z-10 sm:-top-[4.25rem]">
@@ -175,7 +184,7 @@ export function Hero({ token }: { token: string }) {
       <HeroIntro
         className={cn(
           CONTAINER,
-          'my-auto grid grid-cols-1 items-center gap-10 py-6 sm:py-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-8 lg:py-[5svh]',
+          'my-auto grid grid-cols-1 items-center gap-10 py-6 sm:py-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-6 lg:py-[5svh]',
         )}
       >
         <div id="join" className="flex scroll-mt-28 flex-col gap-5 sm:gap-6 lg:gap-[clamp(1rem,2.6svh,1.75rem)]">
@@ -190,14 +199,14 @@ export function Hero({ token }: { token: string }) {
             data-intro=""
             id="hero-title"
             className={cn(
-              'max-w-[15ch] text-[2.375rem] leading-[1.08] font-medium tracking-[-0.03em] text-balance text-foreground sm:text-6xl sm:leading-[1.06] lg:text-[clamp(3rem,6.4svh,4rem)] lg:leading-[1.08]',
+              'text-[2.375rem] leading-[1.08] font-medium tracking-[-0.03em] text-balance text-foreground sm:text-6xl sm:leading-[1.06] lg:text-[clamp(2.75rem,5.6svh,3.5rem)] lg:leading-[1.08]',
               INTRO,
             )}
           >
             Leads from public events, with the proof attached.
           </h1>
           <p data-intro="" className={cn('max-w-[34rem] text-base leading-7 text-pretty text-muted-foreground sm:text-lg sm:leading-8', INTRO)}>
-            {BRAND_NAME} turns tenders, filings, new directors, hiring and funding into leads you can check, and sends only what you approve.
+            Tenders, filings, new directors, hiring and funding become leads you can check. Only what you approve is sent.
           </p>
           <div data-intro="" className={cn('pt-1', INTRO)}>
             <WaitlistForm token={token} source="landing-hero" compact className="max-w-lg" />
@@ -256,7 +265,7 @@ function Frame({ className, innerClassName, children }: { className?: string; in
 }
 
 /** Section header with one action on the right from `lg`, as on Infrantic. */
-function HeaderRow({ action, ...header }: { action: ReactNode; eyebrow: string; titleId: string; title: string; lead?: string }) {
+function HeaderRow({ action, ...header }: { action: ReactNode; eyebrow?: string; titleId: string; title: string; lead?: string }) {
   return (
     <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
       <SectionHeader {...header} />
@@ -502,7 +511,9 @@ export function HowItWorks() {
 }
 
 export function Signals() {
-  const ordered = [...SIGNAL_TYPES.filter((item) => item.id === 'secured-loan'), ...SIGNAL_TYPES.filter((item) => item.id !== 'secured-loan')];
+  const featured = SIGNAL_TYPES.find((item) => item.id === 'secured-loan');
+  const rest = SIGNAL_TYPES.filter((item) => item.id !== 'secured-loan');
+  const FeaturedIcon = featured === undefined ? null : SIGNAL_ICONS[featured.icon];
   return (
     <Section id="signals" labelledBy="signals-title">
       <HeaderRow
@@ -512,36 +523,49 @@ export function Signals() {
         lead="Each signal is a dated record in a public source. The examples describe kinds of companies, not real ones."
         action={<ActionLink href="#evidence">See how a lead is scored</ActionLink>}
       />
-      {/* One frame, cells divided by hairlines: each cell draws its right and bottom edge and the
-          frame's overflow hides the ones on the rim. The first cell spans two columns on sm so
-          nine signals fill whole rows at both 2 and 3 columns. */}
-      <Reveal className={CONTENT_GAP}>
-        <ul className="grid grid-cols-1 overflow-hidden rounded-xl border bg-card sm:grid-cols-2 lg:grid-cols-3">
-          {ordered.map((item, index) => {
-            const Icon = SIGNAL_ICONS[item.icon];
-            return (
-              <li key={item.id} className={cn('-mr-px -mb-px border-r border-b', index === 0 && 'sm:col-span-2 lg:col-span-1')}>
-                <article className="flex h-full flex-col gap-4 p-4 transition-colors duration-200 hover:bg-muted/40 sm:p-7">
-                  <span className={cn(ICON_TILE, index === 0 && 'bg-primary text-primary-foreground ring-primary')}>
-                    <Icon aria-hidden="true" className="size-[18px]" />
-                  </span>
-                  <div className="flex flex-col gap-1.5">
-                    <h3 className="text-base font-medium text-foreground">{item.name}</h3>
-                    <p className="text-[15px] leading-6 text-pretty text-muted-foreground">{item.example}</p>
-                  </div>
-                  <p className="mt-auto flex flex-wrap gap-1.5 pt-1">
-                    {item.sources.split(', ').map((source) => (
-                      <span key={source} className="rounded-md border bg-muted/40 px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground">
-                        {source}
-                      </span>
-                    ))}
-                  </p>
-                </article>
-              </li>
-            );
-          })}
-        </ul>
-      </Reveal>
+      {/* A bento, not a grid of equal cards: the dark feature cell is 2x2 on lg (two columns on sm),
+          so nine signals fill exactly 12 slots on lg and 10 on sm, with no empty cell. */}
+      <ul className={cn('grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3', CONTENT_GAP)}>
+        {featured !== undefined && FeaturedIcon !== null && (
+          <Reveal as="li" className={cn('flex flex-col gap-6 rounded-xl border p-6 sm:col-span-2 sm:p-8 lg:row-span-2', NIGHT, NIGHT_LINE)}>
+            <span className="inline-flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <FeaturedIcon aria-hidden="true" className="size-[18px]" />
+            </span>
+            <div className="flex flex-col gap-2">
+              <h3 className="text-xl font-medium">{featured.name}</h3>
+              <p className={cn('max-w-[42ch] text-lg leading-7 text-pretty', NIGHT_MUTED)}>{featured.example}</p>
+            </div>
+            <figure className={cn('mt-auto flex flex-col gap-2 rounded-lg border p-4 font-mono text-[12px] leading-5', NIGHT_LINE)}>
+              <figcaption className={NIGHT_MUTED}>{EXAMPLE_LEAD.evidence.source}</figcaption>
+              <p>{EXAMPLE_LEAD.evidence.title}</p>
+              <p className={NIGHT_MUTED}>{EXAMPLE_LEAD.evidence.snippet}</p>
+            </figure>
+          </Reveal>
+        )}
+        {rest.map((item, index) => {
+          const Icon = SIGNAL_ICONS[item.icon];
+          return (
+            <Reveal
+              as="li"
+              key={item.id}
+              delay={(index % 3) * 0.06}
+              className={cn(
+                'flex flex-col gap-4 rounded-xl border p-5 transition-[translate,border-color] duration-300 hover:border-foreground/20 motion-safe:hover:-translate-y-0.5',
+                index === 2 || index === 5 ? 'bg-muted/50' : 'bg-card',
+              )}
+            >
+              <span className={ICON_TILE}>
+                <Icon aria-hidden="true" className="size-[18px]" />
+              </span>
+              <div className="flex flex-col gap-1.5">
+                <h3 className="text-base font-medium text-foreground">{item.name}</h3>
+                <p className="text-[15px] leading-6 text-pretty text-muted-foreground">{item.example}</p>
+              </div>
+              <p className="mt-auto pt-1 font-mono text-[11px] text-muted-foreground">{item.sources}</p>
+            </Reveal>
+          );
+        })}
+      </ul>
     </Section>
   );
 }
@@ -683,24 +707,28 @@ export function Compliance() {
       />
       <div className={cn('grid grid-cols-1 items-start gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-14', CONTENT_GAP)}>
         <Reveal className="flex flex-col gap-4">
-          <Frame innerClassName="flex flex-col">
-            <FrameTitle aside={<Tag tone="accent">{SEND_GATES.length} gates, in order</Tag>}>Every send, from your own mailbox</FrameTitle>
-            <ol className="flex flex-col gap-2 p-4 sm:p-5">
+          <div className={cn('overflow-hidden rounded-xl border', NIGHT, NIGHT_LINE, SCREEN_SHADOW)}>
+            <div className={cn('flex items-center justify-between gap-3 border-b px-5 py-3 text-xs', NIGHT_LINE)}>
+              <span className="font-medium">Every send, from your own mailbox</span>
+              <span className={NIGHT_MUTED}>{SEND_GATES.length} gates, in order</span>
+            </div>
+            <ol className="flex flex-col px-5 py-3 font-mono text-[13px]">
               {SEND_GATES.map((gate, index) => (
-                <li key={gate} className="flex items-center gap-3 rounded-lg border px-3 py-2.5 text-sm text-foreground">
-                  <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-foreground font-mono text-xs font-medium text-background tabular-nums">
-                    {index + 1}
+                <li key={gate} className="grid grid-cols-[1.75rem_minmax(0,1fr)_auto] items-center gap-3 py-1.5">
+                  <span className={cn('tabular-nums', NIGHT_MUTED)}>{String(index + 1).padStart(2, '0')}</span>
+                  <span className="truncate">{gate}</span>
+                  <span className="inline-flex items-center gap-1 text-[color-mix(in_oklch,var(--success)_55%,var(--background))] dark:text-success">
+                    <Icons.Check aria-hidden="true" className="size-3.5" />
+                    pass
                   </span>
-                  <span className="min-w-0 flex-1">{gate}</span>
-                  <Icons.Check aria-hidden="true" className="size-4 shrink-0 text-success" />
                 </li>
               ))}
-              <li className="mt-1 flex items-center gap-2 rounded-lg bg-selected px-3 py-2.5 text-sm font-medium text-foreground ring-1 ring-selected-border">
-                <Icons.Send aria-hidden="true" className="size-4 text-primary" />
-                All passed: sent. One fails: the email waits.
-              </li>
             </ol>
-          </Frame>
+            <p className={cn('flex items-center gap-2 border-t px-5 py-3 text-[13px] font-medium', NIGHT_LINE)}>
+              <Icons.Send aria-hidden="true" className="size-4" />
+              All passed: sent. One fails: the email waits.
+            </p>
+          </div>
           <p className="px-1 text-[13px] text-pretty text-muted-foreground">
             A send that fails more than one gate reports the first. Legal basis is set per country; public holidays are built in for Australia, Canada, France, Germany, India, Ireland, Singapore, the UAE, the UK and the US.
           </p>

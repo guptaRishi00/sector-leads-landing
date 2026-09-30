@@ -41,8 +41,7 @@ export function SourcesMarquee({ sources }: { sources: readonly string[] }) {
 
   const items = (copy: number) =>
     sources.map((source) => (
-      <li key={`${copy}-${source}`} className="flex items-center gap-2 px-5 text-sm font-medium whitespace-nowrap text-muted-foreground sm:px-7">
-        <span aria-hidden="true" className="size-1 rounded-full bg-primary/60" />
+      <li key={`${copy}-${source}`} className="px-5 text-sm font-medium whitespace-nowrap text-muted-foreground sm:px-7">
         {source}
       </li>
     ));
