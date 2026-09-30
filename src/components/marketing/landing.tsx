@@ -25,12 +25,12 @@ import { WaitlistForm } from './waitlist-form';
 // One design language for every section: eyebrow → h2 → lead, the same gap from that header to the
 // content, product "screens" in a Frame (see below) and one icon tile. The accent (primary) is kept
 // to eyebrows, icon tiles, numbers and the call to action.
-const H2 = 'text-[1.75rem] leading-[1.1] font-semibold tracking-[-0.035em] text-balance text-foreground sm:text-[2.625rem] sm:leading-[1.08]';
+const H2 = 'text-[1.75rem] leading-[1.15] font-medium tracking-[-0.02em] text-balance text-foreground sm:text-[2.5rem] sm:leading-[1.1] sm:tracking-[-0.03em] lg:text-[2.75rem]';
 const LEAD = 'max-w-[62ch] text-[15px] leading-6.5 text-pretty text-muted-foreground sm:text-lg sm:leading-8';
 const CONTENT_GAP = 'mt-9 sm:mt-14';
 /** A hero piece GSAP brings in (see HeroIntro): hidden until the timeline starts, unless motion is reduced. */
 const INTRO = 'motion-safe:opacity-0';
-const ICON_TILE = 'inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-selected text-primary ring-1 ring-selected-border';
+const ICON_TILE = 'inline-flex size-10 shrink-0 items-center justify-center rounded-lg border bg-muted/50 text-foreground';
 
 /** Three promises, each stated elsewhere on the page (How it works and Compliance). */
 const TRUST: readonly string[] = ['A person approves every lead and email', 'Every lead links to its public source', 'Sent from your own mailbox'];
@@ -50,7 +50,7 @@ function TrustRow({ className }: { className?: string }) {
 
 function Section({ id, labelledBy, band = false, className, children }: { id: string; labelledBy: string; band?: boolean; className?: string; children: ReactNode }) {
   return (
-    <section id={id} aria-labelledby={labelledBy} className={cn('scroll-mt-20 py-14 sm:py-28', band && 'border-y bg-muted/40', className)}>
+    <section id={id} aria-labelledby={labelledBy} className={cn('scroll-mt-20 py-14 sm:py-24', band && 'border-y bg-muted/40', className)}>
       <div className={CONTAINER}>{children}</div>
     </section>
   );
@@ -58,7 +58,7 @@ function Section({ id, labelledBy, band = false, className, children }: { id: st
 
 function Eyebrow({ children }: { children: string }) {
   return (
-    <p className="inline-flex items-center gap-2 text-sm font-medium text-primary">
+    <p className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground">
       <span aria-hidden="true" className="size-1.5 rounded-full bg-primary" />
       {children}
     </p>
@@ -85,7 +85,7 @@ function LeadWindow() {
   return (
     <section
       aria-labelledby="example-lead-title"
-      className="flex flex-col overflow-hidden rounded-2xl border bg-card shadow-[0_32px_80px_-32px_var(--shadow-color),0_2px_6px_var(--shadow-color)] ring-1 ring-foreground/[0.03]"
+      className="flex flex-col overflow-hidden rounded-xl border bg-card shadow-[0_16px_48px_-12px_var(--shadow-color),0_1px_3px_var(--shadow-color)] ring-1 ring-foreground/[0.03]"
     >
       <div className="flex h-10 shrink-0 items-center gap-3 border-b bg-muted/50 px-4">
         <span aria-hidden="true" className="flex gap-1.5">
@@ -116,7 +116,7 @@ function LeadWindow() {
         <div className="flex items-start justify-between gap-4">
           <p className="text-[15px] font-medium text-pretty text-foreground">{EXAMPLE_LEAD.descriptor}</p>
           <p className="flex shrink-0 flex-col items-end">
-            <span className="font-mono text-2xl font-semibold text-primary tabular-nums">{EXAMPLE_SCORE.text}</span>
+            <span className="font-mono text-2xl font-medium text-primary tabular-nums">{EXAMPLE_SCORE.text}</span>
             <span className="text-xs text-muted-foreground">score of {EXAMPLE_SCORE.max}</span>
           </p>
         </div>
@@ -190,7 +190,7 @@ export function Hero({ token }: { token: string }) {
             data-intro=""
             id="hero-title"
             className={cn(
-              'max-w-[15ch] text-[2.375rem] leading-[1.04] font-semibold tracking-[-0.045em] text-balance text-foreground sm:text-6xl lg:text-[clamp(2.75rem,6.6svh,4.25rem)] lg:leading-[1.02]',
+              'max-w-[15ch] text-[2.375rem] leading-[1.08] font-medium tracking-[-0.03em] text-balance text-foreground sm:text-6xl sm:leading-[1.06] lg:text-[clamp(3rem,6.4svh,4rem)] lg:leading-[1.08]',
               INTRO,
             )}
           >
@@ -232,7 +232,7 @@ export function ProofBar() {
           {STATS.map((stat, index) => (
             <Reveal key={stat.label} delay={index * 0.08} className="flex flex-col gap-1.5 border-l pl-4 sm:pl-5">
               <dt className="order-2 text-sm text-pretty text-muted-foreground">{stat.label}</dt>
-              <dd className="order-1 font-mono text-2xl font-semibold tracking-tight text-foreground tabular-nums sm:text-4xl">{stat.value}</dd>
+              <dd className="order-1 font-mono text-2xl font-medium tracking-tight text-foreground tabular-nums sm:text-4xl">{stat.value}</dd>
             </Reveal>
           ))}
         </dl>
@@ -246,15 +246,13 @@ export function ProofBar() {
 }
 
 /**
- * A product "screen": a muted outer frame around a card, the way Infrantic frames its workflow
- * panels. Everything inside is illustration built from the page's own content.
+ * A product "screen": one 12px card with a hairline border and a soft lift, the way Supabase sets
+ * its composited product UI. Everything inside is illustration built from the page's own content.
  */
+const SCREEN_SHADOW = 'shadow-[0_8px_24px_-6px_var(--shadow-color),0_1px_3px_var(--shadow-color)]';
+
 function Frame({ className, innerClassName, children }: { className?: string; innerClassName?: string; children: ReactNode }) {
-  return (
-    <div className={cn('rounded-2xl border bg-muted/60 p-1.5 sm:p-2', className)}>
-      <div className={cn('h-full rounded-xl border bg-card', innerClassName)}>{children}</div>
-    </div>
-  );
+  return <div className={cn('h-full overflow-hidden rounded-xl border bg-card', SCREEN_SHADOW, className, innerClassName)}>{children}</div>;
 }
 
 /** Section header with one action on the right from `lg`, as on Infrantic. */
@@ -295,7 +293,7 @@ const Tag = ({ tone = 'muted', children }: { tone?: 'muted' | 'accent' | 'succes
     className={cn(
       'inline-flex h-6 shrink-0 items-center gap-1 rounded-md px-2 text-xs font-medium',
       tone === 'muted' && 'bg-muted text-muted-foreground',
-      tone === 'accent' && 'bg-selected text-primary ring-1 ring-selected-border',
+      tone === 'accent' && 'border bg-card text-foreground',
       tone === 'success' && 'bg-success-soft text-success',
     )}
   >
@@ -369,7 +367,7 @@ function StepVisual({ id }: { id: string }) {
                 Lead
               </Tag>
               <p className="min-w-0 flex-1 truncate text-sm text-foreground">{EXAMPLE_LEAD.descriptor}</p>
-              <span className="font-mono text-sm font-semibold text-primary tabular-nums">{EXAMPLE_SCORE.text}</span>
+              <span className="font-mono text-sm font-medium text-primary tabular-nums">{EXAMPLE_SCORE.text}</span>
             </li>
             {REJECTED_IN_QUEUE.map((reason) => (
               <li key={reason.code} className="flex items-center gap-3 px-4 py-3.5 sm:px-5">
@@ -486,7 +484,7 @@ export function HowItWorks() {
                     <Icon aria-hidden="true" className="size-3.5 text-primary" />
                     Step {index + 1} of {STEPS.length}
                   </span>
-                  <h3 className="text-2xl font-semibold tracking-[-0.03em] text-balance text-foreground sm:text-[1.75rem]">{step.title}</h3>
+                  <h3 className="text-2xl font-medium tracking-[-0.03em] text-balance text-foreground sm:text-[1.75rem]">{step.title}</h3>
                   <p className="max-w-md text-[15px] leading-7 text-pretty text-muted-foreground lg:mt-auto">{step.body}</p>
                 </div>
                 <div className="border-t bg-muted/30 p-3 sm:p-4 lg:border-t-0 lg:border-l">
@@ -518,7 +516,7 @@ export function Signals() {
           frame's overflow hides the ones on the rim. The first cell spans two columns on sm so
           nine signals fill whole rows at both 2 and 3 columns. */}
       <Reveal className={CONTENT_GAP}>
-        <ul className="grid grid-cols-1 overflow-hidden rounded-2xl border bg-card sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="grid grid-cols-1 overflow-hidden rounded-xl border bg-card sm:grid-cols-2 lg:grid-cols-3">
           {ordered.map((item, index) => {
             const Icon = SIGNAL_ICONS[item.icon];
             return (
@@ -528,7 +526,7 @@ export function Signals() {
                     <Icon aria-hidden="true" className="size-[18px]" />
                   </span>
                   <div className="flex flex-col gap-1.5">
-                    <h3 className="text-base font-semibold text-foreground">{item.name}</h3>
+                    <h3 className="text-base font-medium text-foreground">{item.name}</h3>
                     <p className="text-[15px] leading-6 text-pretty text-muted-foreground">{item.example}</p>
                   </div>
                   <p className="mt-auto flex flex-wrap gap-1.5 pt-1">
@@ -612,7 +610,7 @@ export function Industries() {
               <FrameTitle aside={<Tag tone="accent">Pack {String(index + 1).padStart(2, '0')}</Tag>}>Industry pack</FrameTitle>
               <div className="flex flex-1 flex-col gap-6 p-4 sm:gap-7 sm:p-8">
                 <div className="flex flex-col gap-2">
-                  <h3 className="text-2xl font-semibold tracking-[-0.03em] text-foreground">{industry.name}</h3>
+                  <h3 className="text-2xl font-medium tracking-[-0.03em] text-foreground">{industry.name}</h3>
                   <p className="text-[15px] leading-7 text-pretty text-muted-foreground">
                     <span className="text-foreground">Starts a lead:</span> {industry.watches}
                   </p>
@@ -690,7 +688,7 @@ export function Compliance() {
             <ol className="flex flex-col gap-2 p-4 sm:p-5">
               {SEND_GATES.map((gate, index) => (
                 <li key={gate} className="flex items-center gap-3 rounded-lg border px-3 py-2.5 text-sm text-foreground">
-                  <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-primary font-mono text-xs font-semibold text-primary-foreground tabular-nums">
+                  <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-foreground font-mono text-xs font-medium text-background tabular-nums">
                     {index + 1}
                   </span>
                   <span className="min-w-0 flex-1">{gate}</span>
@@ -716,7 +714,7 @@ export function Compliance() {
                   <Icon aria-hidden="true" className="size-[18px]" />
                 </span>
                 <div className="flex flex-col gap-1.5">
-                  <h3 className="text-base font-semibold text-foreground">{item.title}</h3>
+                  <h3 className="text-base font-medium text-foreground">{item.title}</h3>
                   <p className="text-[15px] leading-6 text-pretty text-muted-foreground">{item.body}</p>
                 </div>
               </Reveal>
@@ -751,7 +749,7 @@ export function Faq() {
 
 export function FinalCta({ token }: { token: string }) {
   return (
-    <section aria-labelledby="final-title" className="relative isolate overflow-hidden py-14 sm:py-28">
+    <section aria-labelledby="final-title" className="relative isolate overflow-hidden py-14 sm:py-24">
       {/* The hero's grid and glow, mirrored from the bottom, so the page closes the way it opened. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] opacity-60 [mask-image:radial-gradient(ellipse_70%_60%_at_50%_100%,black,transparent)]" />
@@ -768,7 +766,7 @@ export function FinalCta({ token }: { token: string }) {
           </p>
           <TrustRow className="justify-center" />
         </Reveal>
-        <Reveal delay={0.08} className="w-full max-w-2xl rounded-3xl border bg-card p-4 shadow-[0_24px_60px_-24px_var(--shadow-color),0_2px_6px_var(--shadow-color)] sm:p-8">
+        <Reveal delay={0.08} className="w-full max-w-2xl rounded-xl border bg-card p-4 shadow-[0_16px_48px_-12px_var(--shadow-color),0_1px_3px_var(--shadow-color)] sm:p-8">
           <WaitlistForm token={token} source="landing-final" />
         </Reveal>
       </div>
@@ -873,7 +871,7 @@ function FlowCard({ node }: { node: FlowNode }) {
       <div className={cn('rounded-lg border bg-card px-3 py-2.5 shadow-sm', style.card)}>
         <div className="flex items-center gap-2">
           <FlowDot status={node.status} />
-          <span className="truncate text-xs font-semibold text-foreground">{node.label}</span>
+          <span className="truncate text-xs font-medium text-foreground">{node.label}</span>
         </div>
         <p className="mt-1 truncate pl-6 text-[11px] text-muted-foreground">{node.detail}</p>
         <span className={cn('mt-2 ml-6 inline-flex rounded-full px-1.5 py-px text-[10px] font-medium', style.pill)}>{style.label}</span>
@@ -981,7 +979,7 @@ export function Workspace() {
         <Frame innerClassName="flex overflow-hidden">
           <div aria-hidden="true" className="flex w-full">
             <aside className="hidden w-52 shrink-0 flex-col gap-1 border-r bg-muted/40 p-3 md:flex">
-              <p className="flex items-center gap-2 px-2 pt-1 pb-3 text-sm font-semibold text-foreground">
+              <p className="flex items-center gap-2 px-2 pt-1 pb-3 text-sm font-medium text-foreground">
                 <span className="inline-flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
                   <Icons.Radar className="size-3.5" strokeWidth={2.25} />
                 </span>
@@ -1003,14 +1001,14 @@ export function Workspace() {
             </aside>
             <div className="flex min-w-0 flex-1 flex-col gap-4 p-4 sm:gap-5 sm:p-6">
               <div className="flex items-center justify-between gap-3">
-                <p className="text-base font-semibold text-foreground">Approval queue</p>
+                <p className="text-base font-medium text-foreground">Approval queue</p>
                 <Tag>Example workspace</Tag>
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 {KPIS.map((kpi) => (
                   <div key={kpi.label} className="flex flex-col gap-1 rounded-lg border p-3.5">
                     <span className="text-[12px] text-muted-foreground">{kpi.label}</span>
-                    <span className="font-mono text-2xl font-semibold tracking-tight text-foreground tabular-nums">{kpi.value}</span>
+                    <span className="font-mono text-2xl font-medium tracking-tight text-foreground tabular-nums">{kpi.value}</span>
                     <span className="text-[11px] text-muted-foreground">{kpi.note}</span>
                   </div>
                 ))}
@@ -1026,7 +1024,7 @@ export function Workspace() {
                           <p className="truncate text-[11px] text-muted-foreground">{row.signal}</p>
                         </div>
                         {row.score !== undefined ? (
-                          <span className="font-mono text-sm font-semibold text-primary tabular-nums">{row.score}</span>
+                          <span className="font-mono text-sm font-medium text-primary tabular-nums">{row.score}</span>
                         ) : (
                           <span className="text-[11px] text-muted-foreground">Scoring</span>
                         )}

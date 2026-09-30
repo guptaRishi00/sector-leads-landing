@@ -13,7 +13,7 @@ export function SimplePage({ title, intro, draft = false, children }: { title: s
               Draft: not yet in force
             </p>
           )}
-          <h1 className="text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl">{title}</h1>
+          <h1 className="text-3xl font-medium tracking-[-0.03em] text-balance text-foreground sm:text-4xl">{title}</h1>
           {intro !== undefined && <div className="text-base leading-relaxed text-pretty text-muted-foreground sm:text-lg">{intro}</div>}
           {children !== undefined && <div className="flex flex-col gap-5 text-[15px] leading-relaxed text-pretty text-foreground/90">{children}</div>}
         </article>
@@ -25,7 +25,7 @@ export function SimplePage({ title, intro, draft = false, children }: { title: s
 export function LegalSection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="flex flex-col gap-2">
-      <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+      <h2 className="text-lg font-medium text-foreground">{title}</h2>
       {children}
     </section>
   );
