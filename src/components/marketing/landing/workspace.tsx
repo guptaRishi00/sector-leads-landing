@@ -1,7 +1,7 @@
 import { EXAMPLE_LEAD, EXAMPLE_SCORE, SEND_GATES, SIGNAL_TYPES } from '@/lib/marketing/content';
 import { Reveal } from '../reveal';
 import { AppSidebar } from './product';
-import { ActionLink, CONTENT_GAP, Frame, Section, SectionHeader, Tag } from './ui';
+import { ActionLink, AppWindow, CONTENT_GAP, Section, SectionHeader, Tag } from './ui';
 
 /* ------------------------------------------------------------------------------------------------
  * Workspace: a dashboard mock-up of the product. Every figure is from the content (the three
@@ -38,7 +38,7 @@ export function Workspace() {
         action={<ActionLink href="#join">Join the waitlist</ActionLink>}
       />
       <Reveal className={CONTENT_GAP}>
-        <Frame bar="Approval queue" innerClassName="flex overflow-hidden">
+        <AppWindow shadow innerClassName="flex">
           <div aria-hidden="true" className="flex w-full">
             <AppSidebar className="hidden md:flex" />
             <div className="flex min-w-0 flex-1 flex-col gap-4 p-4 sm:gap-5 sm:p-6">
@@ -108,7 +108,7 @@ export function Workspace() {
               </div>
             </div>
           </div>
-        </Frame>
+        </AppWindow>
       </Reveal>
     </Section>
   );

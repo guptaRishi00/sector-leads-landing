@@ -51,11 +51,10 @@ export function StepRail({ label, items, children }: { label: string; items: rea
                     <motion.span
                       layoutId={`${label}-active`}
                       aria-hidden="true"
-                      className="absolute inset-0 -z-10 rounded-[10px] bg-card shadow-xs ring-1 ring-border"
+                      className="absolute inset-0 -z-10 rounded-[10px] bg-card ring-1 ring-border"
                       transition={{ type: 'spring', stiffness: 380, damping: 34 }}
                     />
                   )}
-                  <span className="font-mono text-xs text-muted-foreground tabular-nums">{String(index + 1).padStart(2, '0')}</span>
                   {item.title}
                 </a>
               </li>

@@ -3,7 +3,7 @@ import { livePacks } from '@/lib/marketing/live';
 import { INDUSTRY_PACKS } from '@/lib/marketing/content';
 import { Reveal } from '../reveal';
 import { Tabs } from '../tabs';
-import { ActionLink, CONTENT_GAP, Frame, FrameTitle, Section, SectionHeader } from './ui';
+import { AppWindow, ActionLink, CONTENT_GAP, FrameTitle, Section, SectionHeader } from './ui';
 
 const PackChip = ({ children }: { children: string }) => (
   <li className="rounded-md border bg-card px-2 py-1 text-[13px] text-foreground">{children}</li>
@@ -28,7 +28,7 @@ export function Industries() {
           autoAdvance={4000}
           tabs={industries.map((industry) => industry.name)}
           panels={industries.map((industry) => (
-            <Frame key={industry.id} className="h-full" innerClassName="flex flex-col">
+            <AppWindow key={industry.id} shadow className="h-full" innerClassName="flex flex-col">
               <FrameTitle>Industry pack</FrameTitle>
               <div className="flex flex-1 flex-col gap-6 p-4 sm:gap-7 sm:p-8">
                 <div className="flex flex-col gap-2">
@@ -62,7 +62,7 @@ export function Industries() {
                   Each signal can be switched on or off, and your competitors and staffing firms are left out.
                 </p>
               </div>
-            </Frame>
+            </AppWindow>
           ))}
         />
       </Reveal>

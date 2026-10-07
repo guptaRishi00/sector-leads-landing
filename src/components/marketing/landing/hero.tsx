@@ -1,26 +1,66 @@
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { Button, cn, Icons } from '@sl/ui';
 import { EXAMPLE_SCORE, SEND_GATES } from '@/lib/marketing/content';
 import { HeroIntro } from '../hero-intro';
 import { HeroStage } from '../hero-stage';
 import { GUTTER } from '../marketing-shell';
 import { AppSidebar, HERO_FEED, LeadWindow } from './product';
-import { BUTTON, BUTTON_INK, BUTTON_PLAIN, EDGE, INTRO } from './ui';
+import { AppWindow, BUTTON, BUTTON_INK, BUTTON_PLAIN, INTRO } from './ui';
+
+type Surface = 'glass' | 'liquid';
+
+/**
+ * The side cards' grounds. One shadow utility each (an inset highlight and the lift together, since
+ * a second shadow class would replace the first). Token mixes in oklab, so they hold in both themes.
+ * - glass: frosted glass over a cool aurora: a clearish card ground with two wide, soft elliptical
+ *   blooms of the theme's blues (the accent from the top right, the pale selection blue from the
+ *   bottom left) and a white sheen at the top left, the window blurred and saturated behind it.
+ * - liquid: liquid glass: a clearer ground than glass with a stronger blur and saturation, a light
+ *   rim (bright along the top, softer down the left, a faint shade along the bottom), an inner glow
+ *   and a diagonal specular sheen, so it reads as a thick, wet pane. `--rim` is the light it catches:
+ *   white on the light page, a soft white haze in dark mode.
+ */
+const SURFACE: Record<Surface, { className: string; style?: CSSProperties }> = {
+  glass: {
+    className:
+      'border-[color-mix(in_oklab,var(--card)_55%,var(--border))] shadow-[inset_0_1px_0_color-mix(in_oklab,var(--card)_85%,transparent),0_1px_2px_var(--shadow-color),0_24px_48px_-20px_var(--shadow-color)] backdrop-blur-xl backdrop-saturate-150',
+    style: {
+      backgroundColor: 'color-mix(in oklab, var(--card) 70%, transparent)',
+      backgroundImage: [
+        'radial-gradient(70% 55% at 12% 0%, color-mix(in oklab, var(--card) 90%, transparent) 0%, transparent 70%)',
+        'radial-gradient(130% 90% at 100% 0%, color-mix(in oklab, var(--primary) 20%, transparent) 0%, transparent 62%)',
+        'radial-gradient(120% 100% at 0% 100%, color-mix(in oklab, var(--selected-border) 55%, transparent) 0%, transparent 68%)',
+      ].join(', '),
+    },
+  },
+  liquid: {
+    className:
+      '[--rim:var(--card)] dark:[--rim:color-mix(in_oklab,var(--foreground)_35%,transparent)] border-[color-mix(in_oklab,var(--border)_80%,transparent)] shadow-[inset_0_1px_0_color-mix(in_oklab,var(--rim)_95%,transparent),inset_1px_0_0_color-mix(in_oklab,var(--rim)_50%,transparent),inset_0_-1px_1px_color-mix(in_oklab,var(--foreground)_8%,transparent),inset_0_0_16px_color-mix(in_oklab,var(--rim)_35%,transparent),0_1px_2px_var(--shadow-color),0_24px_48px_-20px_var(--shadow-color)] backdrop-blur-2xl backdrop-saturate-[1.8]',
+    style: {
+      backgroundColor: 'color-mix(in oklab, var(--card) 45%, transparent)',
+      backgroundImage:
+        'linear-gradient(135deg, color-mix(in oklab, var(--rim) 60%, transparent) 0%, transparent 36%, transparent 70%, color-mix(in oklab, var(--rim) 30%, transparent) 100%)',
+    },
+  },
+};
+
+/** The cards' inner hairlines: the border colour, half clear. */
+const CLEAR_LINE = 'border-[color-mix(in_oklab,var(--border)_60%,transparent)]';
 
 /**
  * A floating side card around the hero window: compact, and draggable by hand from lg (HeroStage
  * wires GSAP Draggable to `[data-drag]`). Decorative, so it's hidden from assistive tech and has no
  * keyboard role; its content is all from the page's own data.
  */
-function SideCard({ title, aside, dark = false, children }: { title: string; aside?: string; dark?: boolean; children: ReactNode }) {
+function SideCard({ title, aside, surface = 'glass', children }: { title: string; aside?: string; surface?: Surface; children: ReactNode }) {
   return (
     <div
       aria-hidden="true"
       data-drag=""
-      data-theme={dark ? 'dark' : undefined}
-      className={cn('overflow-hidden rounded-xl border bg-card text-left text-foreground shadow-[0_1px_2px_var(--shadow-color),0_24px_48px_-20px_var(--shadow-color)] select-none', EDGE)}
+      style={SURFACE[surface].style}
+      className={cn('overflow-hidden rounded-xl border text-left text-foreground select-none', SURFACE[surface].className)}
     >
-      <div className="flex items-center justify-between gap-3 border-b px-3 py-2 text-[11px]">
+      <div className={cn('flex items-center justify-between gap-3 border-b px-3 py-2 text-[11px]', CLEAR_LINE)}>
         <span className="font-medium">{title}</span>
         {aside !== undefined && <span className="text-muted-foreground">{aside}</span>}
       </div>
@@ -31,7 +71,7 @@ function SideCard({ title, aside, dark = false, children }: { title: string; asi
 
 /**
  * The hero's product: a window (sidebar and the example lead) in a tinted bezel, and from lg three
- * side cards (the incoming events, the send gates in a dark card, the score), each in its own
+ * side cards (the incoming events and the score on glass, the send gates on liquid glass), each in its own
  * `[data-stage=card]` wrapper so HeroStage can bring them out one after another as the stage pins
  * (`data-from` says which side they slide out to). The cards are draggable (`[data-drag]`, inside
  * the wrapper so the scroll and the drag never move the same element). Stacking: copy < window
@@ -42,41 +82,32 @@ function HeroVisual() {
   return (
     <HeroStage className="relative mx-auto w-full max-w-[72rem]">
       <div data-stage="window" className="relative z-10 mx-auto max-w-5xl origin-top text-left lg:mx-36 lg:max-w-none">
-        {/* Attio's app window: a pale frame with the window controls on their own strip, and the
-            white app inset in it with its own corners and hairline. */}
-        <div className="rounded-2xl border bg-muted px-1.5 pb-1.5 shadow-[0_1px_2px_var(--shadow-color),0_24px_60px_-24px_var(--shadow-color)] sm:px-2 sm:pb-2">
-          <div aria-hidden="true" className="flex h-8 items-center gap-2 px-1.5 sm:h-9">
-            <span className="size-3 rounded-full bg-[color-mix(in_oklab,var(--destructive)_80%,var(--card))]" />
-            <span className="size-3 rounded-full bg-[color-mix(in_oklab,var(--highlight)_50%,var(--warning-border))]" />
-            <span className="size-3 rounded-full bg-[color-mix(in_oklab,var(--success)_75%,var(--card))]" />
-          </div>
-          {/* The app's UI at 78%: zoom (not a transform) so the layout shrinks with it and the window
-              keeps its width while getting shorter. */}
-          <div className={cn('flex overflow-hidden rounded-xl border bg-card [zoom:0.78]', EDGE)}>
-            <AppSidebar packs chrome className="hidden md:flex" />
-            <LeadWindow />
-          </div>
-        </div>
+        {/* Attio's app window; the app's UI at 78%: zoom (not a transform) so the layout shrinks
+            with it and the window keeps its width while getting shorter. */}
+        <AppWindow shadow innerClassName="flex [zoom:0.78]">
+          <AppSidebar packs chrome className="hidden md:flex" />
+          <LeadWindow />
+        </AppWindow>
       </div>
-      <div data-stage="card" data-from="left" className="absolute top-10 left-2 z-20 hidden w-52 lg:block">
-        <SideCard title="Incoming events" aside="Public record">
-          <ul className="flex flex-col gap-2 p-3">
+      <div data-stage="card" data-from="left" className="absolute top-10 left-2 z-20 hidden w-60 lg:block">
+        <SideCard surface="glass" title="Incoming events" aside="Public record">
+          {/* One event per divided row, plain text only: what happened, then where it was read with its
+              outcome set against it on the right (the lead in the accent, the rest in grey). */}
+          <ul className="flex flex-col divide-y divide-[color-mix(in_oklab,var(--border)_60%,transparent)]">
             {HERO_FEED.slice(0, 3).map((row) => (
-              <li key={`${row.source}-${row.outcome}`} className="flex flex-col gap-0.5">
-                <span className="flex items-center justify-between gap-2">
-                  <span className="truncate font-mono text-[10px] text-muted-foreground">{row.source}</span>
-                  <span className={cn('shrink-0 rounded-full px-1.5 py-px text-[9px] font-medium', row.lead === true ? 'bg-primary text-primary-foreground' : 'bg-selected text-primary')}>
-                    {row.outcome}
-                  </span>
+              <li key={`${row.source}-${row.outcome}`} className="flex flex-col gap-1.5 px-3 py-2.5">
+                <span className="truncate text-xs leading-none font-medium">{row.event}</span>
+                <span className="flex items-baseline justify-between gap-3 text-[10px] leading-none">
+                  <span className="truncate font-mono text-muted-foreground">{row.source}</span>
+                  <span className={cn('shrink-0 font-medium', row.lead === true ? 'text-primary' : 'text-muted-foreground')}>{row.outcome}</span>
                 </span>
-                <span className="truncate text-xs">{row.event}</span>
               </li>
             ))}
           </ul>
         </SideCard>
       </div>
       <div data-stage="card" data-from="right" className="absolute top-24 right-2 z-20 hidden w-52 lg:block">
-        <SideCard title="Why it scored" aside={`${EXAMPLE_SCORE.text} of ${EXAMPLE_SCORE.max}`}>
+        <SideCard surface="glass" title="Why it scored" aside={`${EXAMPLE_SCORE.text} of ${EXAMPLE_SCORE.max}`}>
           <ul className="flex flex-col gap-1.5 p-3">
             {EXAMPLE_SCORE.lines.map((line) => (
               <li key={line.id} className="flex items-center justify-between gap-2 text-xs">
@@ -90,7 +121,7 @@ function HeroVisual() {
         </SideCard>
       </div>
       <div data-stage="card" data-from="left" className="absolute top-64 left-14 z-20 hidden w-52 lg:block">
-        <SideCard dark title="Before it sends" aside={`${SEND_GATES.length} gates`}>
+        <SideCard surface="liquid" title="Before it sends" aside={`${SEND_GATES.length} gates`}>
           <ol className="flex flex-col gap-1 p-3 font-mono text-[10px]">
             {SEND_GATES.slice(0, 4).map((gate) => (
               <li key={gate} className="flex items-center justify-between gap-2">

@@ -2,7 +2,7 @@ import { Icons } from '@sl/ui';
 import { ScoreBreakdown } from '@/components/queue/score-breakdown';
 import { EXAMPLE_SCORE, REJECT_EXAMPLES } from '@/lib/marketing/content';
 import { Reveal } from '../reveal';
-import { CONTENT_GAP, Frame, FrameTitle, Section, SectionHeader, Tag } from './ui';
+import { AppWindow, CONTENT_GAP, FrameTitle, Section, SectionHeader, Tag } from './ui';
 
 export function Proof() {
   return (
@@ -14,7 +14,7 @@ export function Proof() {
         lead="Five parts add up to the score, and each one says why. Records that don't qualify are kept with the reason, so you can check the rules instead of trusting them."
       />
       <Reveal className={CONTENT_GAP}>
-        <Frame bar="Example lead" innerClassName="grid grid-cols-1 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+        <AppWindow shadow innerClassName="grid grid-cols-1 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
           <div className="flex flex-col">
             <FrameTitle aside={<Tag tone="accent">Example lead</Tag>}>Score, line by line</FrameTitle>
             <div className="p-4 sm:p-7">
@@ -35,7 +35,7 @@ export function Proof() {
               ))}
             </ul>
           </div>
-        </Frame>
+        </AppWindow>
       </Reveal>
     </Section>
   );

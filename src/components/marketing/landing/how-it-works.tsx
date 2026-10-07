@@ -1,8 +1,10 @@
 import { cn, Icons } from '@sl/ui';
-import { EXAMPLE_LEAD, EXAMPLE_SCORE, REJECT_EXAMPLES, SEND_GATES, SIGNAL_TYPES, STEPS } from '@/lib/marketing/content';
+import { EXAMPLE_LEAD, EXAMPLE_SCORE, SEND_GATES, STEPS } from '@/lib/marketing/content';
+import { EvidenceStory } from '../evidence-story';
 import { Reveal } from '../reveal';
+import { SignalExplainer, SignalFeed, SignalStory } from '../signal-story';
 import { StepRail } from '../step-rail';
-import { CONTENT_GAP, Frame, FrameTitle, ICON_TILE, Line, Section, SectionHeader, sentence, SIGNAL_ICONS, Tag } from './ui';
+import { AppWindow, CONTENT_GAP, FrameTitle, Line, Section, SectionHeader, sentence, Tag } from './ui';
 
 const STEP_ICONS = {
   Radar: Icons.Radar,
@@ -12,77 +14,36 @@ const STEP_ICONS = {
   ShieldCheck: Icons.ShieldCheck,
 } as const;
 
-const signalById = (id: string) => SIGNAL_TYPES.find((item) => item.id === id);
-
-const FEED = ['secured-loan', 'tender-notice', 'new-leader'].map(signalById).filter((item) => item !== undefined);
-
-const REJECTED_IN_QUEUE = REJECT_EXAMPLES.filter((reason) => reason.code === 'staffing_firm' || reason.code === 'shell_or_spv');
-
 const SEND_WINDOW = SEND_GATES.filter((gate) => gate === 'Legal basis for the country' || gate === 'Daily caps' || gate === 'Business hours and holidays');
 
 const REACHABILITY = EXAMPLE_SCORE.lines.find((line) => line.id === 'reachability');
 
-/** The right-hand view for each step of How it works. Illustrations only; not interactive. */
+/** The view under each step of How it works after the first (which is SignalStory). Illustrations only; not interactive. */
 function StepVisual({ id }: { id: string }) {
   switch (id) {
-    case 'signal':
-      return (
-        <>
-          <FrameTitle aside={<Tag tone="accent">{FEED.length} new</Tag>}>Events from the public record</FrameTitle>
-          <ul className="divide-y">
-            {FEED.map((item) => {
-              const Icon = SIGNAL_ICONS[item.icon];
-              return (
-                <li key={item.id} className="flex items-start gap-3 px-4 py-3.5 sm:px-5">
-                  <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted text-foreground">
-                    <Icon aria-hidden="true" className="size-4" />
-                  </span>
-                  <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <p className="text-sm font-medium text-foreground">{item.name}</p>
-                    <p className="truncate text-[13px] text-muted-foreground">{item.example}</p>
-                  </div>
-                  <span className="hidden shrink-0 pt-0.5 font-mono text-[11px] text-muted-foreground sm:block">{item.sources.split(', ')[0]}</span>
-                </li>
-              );
-            })}
-          </ul>
-        </>
-      );
     case 'evidence':
-      return (
-        <>
-          <FrameTitle>Rules applied to each event</FrameTitle>
-          <ul className="divide-y">
-            <li className="flex items-center gap-3 px-4 py-3.5 sm:px-5">
-              <Tag tone="accent">
-                <Icons.Check aria-hidden="true" className="size-3.5" />
-                Lead
-              </Tag>
-              <p className="min-w-0 flex-1 truncate text-sm text-foreground">{EXAMPLE_LEAD.descriptor}</p>
-              <span className="font-mono text-sm font-medium text-primary tabular-nums">{EXAMPLE_SCORE.text}</span>
-            </li>
-            {REJECTED_IN_QUEUE.map((reason) => (
-              <li key={reason.code} className="flex items-center gap-3 px-4 py-3.5 sm:px-5">
-                <Tag>
-                  <Icons.Ban aria-hidden="true" className="size-3.5" />
-                  Rejected
-                </Tag>
-                <p className="min-w-0 flex-1 truncate text-sm text-muted-foreground">{reason.label}</p>
-                <span className="hidden font-mono text-[11px] text-muted-foreground sm:block">{reason.code}</span>
-              </li>
-            ))}
-          </ul>
-        </>
-      );
+      return <EvidenceStory />;
     case 'contact':
       return (
         <>
           <FrameTitle>After you approve</FrameTitle>
           <ol className="flex flex-col gap-3 p-4 sm:p-5">
             {[
-              { label: 'Lead approved by a person', detail: EXAMPLE_LEAD.descriptor, done: true },
-              { label: 'The right person found', detail: REACHABILITY?.why ?? '', done: true },
-              { label: 'Their address verified', detail: 'Verified again before it sends', done: false },
+              {
+                label: 'Lead approved by a person',
+                detail: EXAMPLE_LEAD.descriptor,
+                done: true,
+              },
+              {
+                label: 'The right person found',
+                detail: REACHABILITY?.why ?? '',
+                done: true,
+              },
+              {
+                label: 'Their address verified',
+                detail: 'Verified again before it sends',
+                done: false,
+              },
             ].map((row) => (
               <li key={row.label} className="flex items-start gap-3 rounded-lg border px-3 py-2.5">
                 <span
@@ -150,32 +111,52 @@ function StepVisual({ id }: { id: string }) {
 
 export function HowItWorks() {
   return (
-    <Section id="how-it-works" labelledBy="how-title" band>
+    <Section id="how-it-works" labelledBy="how-title">
       <SectionHeader
         eyebrow="How it works"
         titleId="how-title"
-        title="From a public event to an email a person approved"
+        title="From public event to approved email"
         lead="Five steps, in this order. A person decides at every point that matters."
       />
       <div className={CONTENT_GAP}>
-        <StepRail label="How it works, step by step" items={STEPS.map((step) => ({ id: step.id, title: step.title.split(',')[0] ?? step.title }))}>
+        <StepRail
+          label="How it works, step by step"
+          items={STEPS.map((step) => ({
+            id: step.id,
+            title: step.title.split(',')[0] ?? step.title,
+          }))}
+        >
           {STEPS.map((step) => {
             const Icon = STEP_ICONS[step.icon];
             return (
               <article key={step.id} id={`step-${step.id}`} data-step="" aria-labelledby={`step-${step.id}-title`} className="scroll-mt-28">
                 <Reveal className="flex flex-col gap-7">
                   <div className="flex max-w-2xl flex-col gap-4">
-                    <span className={ICON_TILE}>
-                      <Icon aria-hidden="true" className="size-[18px]" />
-                    </span>
+                    {/* A quiet marker, not a badge: the muted glyph alone, flush with the heading. -ml-0.5 takes
+                        up the icon set's built-in 2px inset so the drawn shape meets the heading's edge. */}
+                    <Icon aria-hidden="true" className="-ml-0.5 size-5 shrink-0 text-muted-foreground" />
                     <h3 id={`step-${step.id}-title`} className="text-[1.375rem] leading-[1.25] font-medium tracking-[-0.01em] text-balance sm:text-[1.75rem] sm:leading-[1.2]">
                       <span className="text-foreground">{sentence(step.title)}</span>
                       <span className="text-muted-foreground"> {step.body}</span>
                     </h3>
                   </div>
-                  <Frame bar>
-                    <StepVisual id={step.id} />
-                  </Frame>
+                  {step.id === 'signal' ? (
+                    // The first step, drawn and then shown working, in one window: the three stages
+                    // as a panel beside a feed that runs by itself, on one clock (side by side from
+                    // xl, stacked below).
+                    <SignalStory>
+                      <AppWindow innerClassName="grid grid-cols-1 xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)]">
+                        <SignalExplainer className="border-b xl:border-r xl:border-b-0" />
+                        <div className="flex min-w-0">
+                          <SignalFeed />
+                        </div>
+                      </AppWindow>
+                    </SignalStory>
+                  ) : (
+                    <AppWindow>
+                      <StepVisual id={step.id} />
+                    </AppWindow>
+                  )}
                 </Reveal>
               </article>
             );

@@ -104,10 +104,10 @@ export function Section({
   );
 }
 
-// Every section opens with a short label (the user's choice), set as Attio's chip: blue on a pale
-// blue ground, 8px corners.
+// Every section opens with a short label (the user's choice): the accent colour only, no ground,
+// so it sits flush with the heading under it.
 export function Chip({ children }: { children: string }) {
-  return <p className="inline-flex h-6 w-fit items-center rounded-lg bg-selected px-1.5 text-sm font-medium text-primary">{children}</p>;
+  return <p className="inline-flex h-6 w-fit items-center text-sm font-medium text-primary">{children}</p>;
 }
 
 /** Up to this many words, the lead continues the heading in grey (Attio's two-tone heading); longer leads sit under it. */
@@ -164,34 +164,23 @@ export function ActionLink({ href, children }: { href: string; children: string 
   );
 }
 
-/** A window's title bar, as Attio frames its product: the three window controls, then a title. Decorative. */
-function WindowBar({ title }: { title?: string | undefined }) {
-  return (
-    <div aria-hidden="true" className="flex h-10 shrink-0 items-center gap-3 border-b bg-sidebar px-4">
-      <span className="flex gap-1.5">
-        <span className="size-2.5 rounded-full bg-destructive/80" />
-        <span className="size-2.5 rounded-full bg-warning/80" />
-        <span className="size-2.5 rounded-full bg-success/80" />
-      </span>
-      {title !== undefined && <span className="text-xs font-medium text-muted-foreground">{title}</span>}
-    </div>
-  );
-}
-
-/**
- * A product screen: a 12px window (with Attio's title bar when given a title) inside the 16px
- * bezel. Everything inside is built from the page's own content and the product's own components
- * (EvidencePanel, ScoreBreakdown).
- */
+/** The soft lift under a card that sits on the page (the Compliance log, the final form). */
 export const SCREEN_SHADOW = 'shadow-[0_1px_2px_var(--shadow-color),0_16px_40px_-20px_var(--shadow-color)]';
 
-export function Frame({ bar, className, innerClassName, children }: { bar?: boolean | string; className?: string; innerClassName?: string; children: ReactNode }) {
+/**
+ * Attio's app window, as the hero shows the product: a pale frame with the three window controls
+ * on their own strip, and the white app inset in it with its own corners and hairline. `shadow`
+ * lifts it off the page (the hero); without it the window is flat, with no dark-mode edge either.
+ */
+export function AppWindow({ shadow = false, className, innerClassName, children }: { shadow?: boolean; className?: string; innerClassName?: string; children: ReactNode }) {
   return (
-    <div className={cn(BEZEL, 'h-full', className)}>
-      <div className={cn('flex h-full flex-col overflow-hidden rounded-xl border bg-card', SCREEN_SHADOW, EDGE)}>
-        {bar !== undefined && bar !== false && <WindowBar title={typeof bar === 'string' ? bar : undefined} />}
-        <div className={cn('min-h-0 flex-1', innerClassName)}>{children}</div>
+    <div className={cn('flex flex-col rounded-2xl border bg-muted px-1.5 pb-1.5 sm:px-2 sm:pb-2', shadow && 'shadow-[0_1px_2px_var(--shadow-color),0_24px_60px_-24px_var(--shadow-color)]', className)}>
+      <div aria-hidden="true" className="flex h-8 items-center gap-2 px-1.5 sm:h-9">
+        <span className="size-3 rounded-full bg-[color-mix(in_oklab,var(--destructive)_80%,var(--card))]" />
+        <span className="size-3 rounded-full bg-[color-mix(in_oklab,var(--highlight)_50%,var(--warning-border))]" />
+        <span className="size-3 rounded-full bg-[color-mix(in_oklab,var(--success)_75%,var(--card))]" />
       </div>
+      <div className={cn('min-h-0 flex-1 overflow-hidden rounded-xl border bg-card', shadow && EDGE, innerClassName)}>{children}</div>
     </div>
   );
 }
