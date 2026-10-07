@@ -16,9 +16,9 @@ function isPreference(value: unknown): value is ThemePreference {
 function readPreference(): ThemePreference {
   try {
     const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
-    return stored === 'light' || stored === 'dark' ? stored : 'system';
+    return stored === 'dark' || stored === 'system' ? stored : 'light';
   } catch {
-    return memoryPreference ?? 'system';
+    return memoryPreference ?? 'light';
   }
 }
 
@@ -38,11 +38,12 @@ function subscribe(listener: () => void): () => void {
 }
 
 // Transitions are switched off (theme.css, [data-theme-switching]) while the colours swap,
-// so nothing animates from the old theme to the new one.
+// so nothing animates from the old theme to the new one. Light, the default, is the absence of the
+// attribute; "system" is set explicitly so theme.css follows the OS only then.
 function applyAttribute(preference: ThemePreference): void {
   const root = document.documentElement;
   root.setAttribute('data-theme-switching', '');
-  if (preference === 'system') root.removeAttribute('data-theme');
+  if (preference === 'light') root.removeAttribute('data-theme');
   else root.setAttribute('data-theme', preference);
   // Reading a computed style flushes the new colours while transitions are still off.
   void window.getComputedStyle(root).color;
@@ -52,7 +53,7 @@ function applyAttribute(preference: ThemePreference): void {
 export function setThemePreference(preference: ThemePreference): void {
   applyAttribute(preference);
   try {
-    if (preference === 'system') window.localStorage.removeItem(THEME_STORAGE_KEY);
+    if (preference === 'light') window.localStorage.removeItem(THEME_STORAGE_KEY);
     else window.localStorage.setItem(THEME_STORAGE_KEY, preference);
   } catch {
     memoryPreference = preference;
@@ -61,7 +62,7 @@ export function setThemePreference(preference: ThemePreference): void {
 }
 
 export function useThemePreference(): ThemePreference {
-  return useSyncExternalStore(subscribe, readPreference, () => 'system');
+  return useSyncExternalStore(subscribe, readPreference, () => 'light');
 }
 
 const options: readonly { value: ThemePreference; label: string; Icon: LucideIcon }[] = [

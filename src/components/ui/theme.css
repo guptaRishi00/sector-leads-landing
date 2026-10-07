@@ -4,28 +4,29 @@
  * Token names follow shadcn/ui (--background, --primary, --sidebar-*, ...) so the vendored
  * component source works unchanged.
  *
- * Neutrals: hue 265-268 with chroma <= 0.016, a faint cool bias (zinc/slate family),
- * never pure grey and never visibly blue.
- * Accent: one deep indigo (hue 274-276). It appears only on the primary action,
- * focus rings, selected rows and progress. Success / warning / destructive sit on their
- * own hues (155 / 62-85 / 24-26) so status never reads as "brand".
+ * Light (the default): a white page with blue-tinted neutrals (hue 250-262, chroma <= 0.03)
+ * and one clear blue accent (hue 259) on the primary action, focus rings, selection and
+ * progress. Its complement, a warm coral (--highlight, hue 42-48), marks what waits on a
+ * person; it is used sparingly. Success / warning / destructive sit on their own hues
+ * (155 / 62-85 / 24-26) so status never reads as "brand".
  *
- * Dark mode is its own palette: surfaces step up in lightness
- * (sidebar 0.132 < background 0.158 < card 0.188 < popover 0.205 < muted 0.225), and
- * the accent flips to a light indigo with dark text so it stays AA on dark surfaces.
+ * Dark mode is its own palette: near-black blue surfaces that step up in lightness
+ * (sidebar 0.13 < background 0.155 < card 0.185 < popover 0.2 < muted 0.22), and the
+ * accent flips to a light blue with dark text so it stays AA on dark surfaces.
  *
  * --input and --control are the edges of form controls: both keep 3:1 against the
  * page, card and popover surfaces in each theme (WCAG 1.4.11).
  */
 
-/* Dark follows data-theme on <html> (set by themeScript and setThemePreference); with no
-   explicit choice it follows the OS. */
+/* Light unless the visitor chose otherwise: dark applies with data-theme="dark", or with
+   data-theme="system" while the OS is dark (themeScript and setThemePreference set it).
+   Without JavaScript the page is light. */
 @custom-variant dark {
   &:where([data-theme='dark'], [data-theme='dark'] *) {
     @slot;
   }
   @media (prefers-color-scheme: dark) {
-    &:where(:not([data-theme='light'], [data-theme='light'] *)) {
+    &:where([data-theme='system'], [data-theme='system'] *) {
       @slot;
     }
   }
@@ -35,34 +36,37 @@
   color-scheme: light;
   --radius: 0.5rem;
 
-  --background: oklch(0.993 0.0015 265);
-  --foreground: oklch(0.205 0.012 268);
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.21 0.03 262);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.205 0.012 268);
+  --card-foreground: oklch(0.21 0.03 262);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.205 0.012 268);
+  --popover-foreground: oklch(0.21 0.03 262);
 
-  --primary: oklch(0.475 0.165 274);
-  --primary-foreground: oklch(0.99 0.004 274);
-  --secondary: oklch(0.967 0.004 265);
-  --secondary-foreground: oklch(0.205 0.012 268);
-  --muted: oklch(0.967 0.004 265);
-  --muted-foreground: oklch(0.505 0.016 266);
+  --primary: oklch(0.53 0.2 259);
+  --primary-foreground: oklch(0.99 0.005 259);
+  --secondary: oklch(0.972 0.01 252);
+  --secondary-foreground: oklch(0.21 0.03 262);
+  --muted: oklch(0.975 0.01 252);
+  --muted-foreground: oklch(0.5 0.028 258);
   /* shadcn's "accent" is the neutral hover surface, not the brand accent. */
-  --accent: oklch(0.955 0.005 265);
-  --accent-foreground: oklch(0.205 0.012 268);
+  --accent: oklch(0.96 0.014 252);
+  --accent-foreground: oklch(0.21 0.03 262);
 
   --destructive: oklch(0.525 0.19 26);
   --destructive-foreground: oklch(0.99 0.004 26);
-  --border: oklch(0.915 0.005 265);
-  --input: oklch(0.64 0.012 266);
-  --ring: oklch(0.475 0.165 274);
+  --border: oklch(0.92 0.014 255);
+  --input: oklch(0.64 0.025 258);
+  --ring: oklch(0.53 0.2 259);
 
   /* Extensions beyond shadcn's set. */
-  --control: oklch(0.64 0.012 266);
-  --selected: oklch(0.965 0.022 274);
-  --selected-border: oklch(0.86 0.06 274);
-  --progress-track: oklch(0.93 0.006 265);
+  --control: oklch(0.64 0.025 258);
+  --selected: oklch(0.96 0.025 255);
+  --selected-border: oklch(0.84 0.075 257);
+  --progress-track: oklch(0.93 0.014 255);
+  --highlight: oklch(0.66 0.17 45);
+  --highlight-foreground: oklch(0.52 0.15 42);
+  --highlight-soft: oklch(0.97 0.025 55);
   --success: oklch(0.49 0.11 155);
   --success-soft: oklch(0.97 0.025 155);
   --warning: oklch(0.52 0.11 68);
@@ -70,47 +74,56 @@
   --warning-soft: oklch(0.978 0.028 85);
   --warning-border: oklch(0.88 0.07 80);
   --critical-soft: oklch(0.97 0.018 26);
-  --glass: oklch(0.993 0.0015 265 / 0.78);
-  --shadow-color: oklch(0.2 0.02 268 / 0.06);
+  --glass: oklch(1 0 0 / 0.78);
+  --shadow-color: oklch(0.3 0.06 260 / 0.07);
 
-  --sidebar: oklch(0.978 0.003 265);
-  --sidebar-foreground: oklch(0.205 0.012 268);
-  --sidebar-primary: oklch(0.475 0.165 274);
-  --sidebar-primary-foreground: oklch(0.99 0.004 274);
-  --sidebar-accent: oklch(0.945 0.005 265);
-  --sidebar-accent-foreground: oklch(0.205 0.012 268);
-  --sidebar-border: oklch(0.915 0.005 265);
-  --sidebar-ring: oklch(0.475 0.165 274);
+  --sidebar: oklch(0.982 0.007 252);
+  --sidebar-foreground: oklch(0.21 0.03 262);
+  --sidebar-primary: oklch(0.53 0.2 259);
+  --sidebar-primary-foreground: oklch(0.99 0.005 259);
+  --sidebar-accent: oklch(0.955 0.014 252);
+  --sidebar-accent-foreground: oklch(0.21 0.03 262);
+  --sidebar-border: oklch(0.92 0.014 255);
+  --sidebar-ring: oklch(0.53 0.2 259);
+}
 
+/* The dark palette, on <html> (the page theme) and on any element marked data-theme="dark": a
+   dark chapter inside a light page, which then uses the same tokens (and `dark:` utilities) as
+   dark mode does. */
+:root,
+[data-theme='dark'] {
   @variant dark {
     color-scheme: dark;
 
-    --background: oklch(0.158 0.006 268);
-    --foreground: oklch(0.955 0.004 265);
-    --card: oklch(0.188 0.007 268);
-    --card-foreground: oklch(0.955 0.004 265);
-    --popover: oklch(0.205 0.008 268);
-    --popover-foreground: oklch(0.955 0.004 265);
+    --background: oklch(0.155 0.008 262);
+    --foreground: oklch(0.965 0.004 255);
+    --card: oklch(0.185 0.01 262);
+    --card-foreground: oklch(0.965 0.004 255);
+    --popover: oklch(0.2 0.011 262);
+    --popover-foreground: oklch(0.965 0.004 255);
 
-    --primary: oklch(0.735 0.12 276);
-    --primary-foreground: oklch(0.185 0.035 276);
-    --secondary: oklch(0.225 0.008 268);
-    --secondary-foreground: oklch(0.955 0.004 265);
-    --muted: oklch(0.225 0.008 268);
-    --muted-foreground: oklch(0.715 0.013 266);
-    --accent: oklch(0.245 0.009 268);
-    --accent-foreground: oklch(0.955 0.004 265);
+    --primary: oklch(0.72 0.135 255);
+    --primary-foreground: oklch(0.18 0.04 260);
+    --secondary: oklch(0.22 0.012 262);
+    --secondary-foreground: oklch(0.965 0.004 255);
+    --muted: oklch(0.22 0.012 262);
+    --muted-foreground: oklch(0.72 0.016 258);
+    --accent: oklch(0.24 0.013 262);
+    --accent-foreground: oklch(0.965 0.004 255);
 
     --destructive: oklch(0.705 0.165 24);
     --destructive-foreground: oklch(0.18 0.04 24);
     --border: oklch(1 0 0 / 0.09);
     --input: oklch(1 0 0 / 0.36);
-    --ring: oklch(0.735 0.12 276);
+    --ring: oklch(0.72 0.135 255);
 
-    --control: oklch(0.56 0.012 266);
-    --selected: oklch(0.225 0.035 276);
-    --selected-border: oklch(0.4 0.08 276);
+    --control: oklch(0.56 0.016 258);
+    --selected: oklch(0.24 0.04 258);
+    --selected-border: oklch(0.42 0.09 257);
     --progress-track: oklch(1 0 0 / 0.1);
+    --highlight: oklch(0.76 0.14 52);
+    --highlight-foreground: oklch(0.8 0.12 58);
+    --highlight-soft: oklch(0.25 0.045 50);
     --success: oklch(0.76 0.13 155);
     --success-soft: oklch(0.24 0.04 155);
     --warning: oklch(0.82 0.12 78);
@@ -118,17 +131,17 @@
     --warning-soft: oklch(0.235 0.035 70);
     --warning-border: oklch(0.38 0.07 72);
     --critical-soft: oklch(0.24 0.05 24);
-    --glass: oklch(0.158 0.006 268 / 0.72);
+    --glass: oklch(0.155 0.008 262 / 0.72);
     --shadow-color: oklch(0 0 0 / 0.35);
 
-    --sidebar: oklch(0.132 0.005 268);
-    --sidebar-foreground: oklch(0.955 0.004 265);
-    --sidebar-primary: oklch(0.735 0.12 276);
-    --sidebar-primary-foreground: oklch(0.185 0.035 276);
-    --sidebar-accent: oklch(0.205 0.008 268);
-    --sidebar-accent-foreground: oklch(0.955 0.004 265);
+    --sidebar: oklch(0.13 0.007 262);
+    --sidebar-foreground: oklch(0.965 0.004 255);
+    --sidebar-primary: oklch(0.72 0.135 255);
+    --sidebar-primary-foreground: oklch(0.18 0.04 260);
+    --sidebar-accent: oklch(0.2 0.011 262);
+    --sidebar-accent-foreground: oklch(0.965 0.004 255);
     --sidebar-border: oklch(1 0 0 / 0.07);
-    --sidebar-ring: oklch(0.735 0.12 276);
+    --sidebar-ring: oklch(0.72 0.135 255);
   }
 }
 
@@ -157,6 +170,9 @@
   --color-selected: var(--selected);
   --color-selected-border: var(--selected-border);
   --color-progress-track: var(--progress-track);
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
+  --color-highlight-soft: var(--highlight-soft);
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
   --color-warning: var(--warning);

@@ -5,7 +5,10 @@ import { BRAND_NAME, BRAND_TAGLINE } from '@/lib/marketing/brand';
 import { MobileNav } from './mobile-nav';
 import { SmoothScroll } from './smooth-scroll';
 
-export const CONTAINER = 'mx-auto w-full max-w-7xl px-5 sm:px-6 lg:px-8';
+export const CONTAINER = 'mx-auto w-full max-w-[84rem] px-5 sm:px-8';
+/** The page gutter and the frame width shared by the header and every landing section (whose hairline rails sit on its edges). */
+export const GUTTER = 'px-3 sm:px-6';
+export const FRAME = 'mx-auto w-full max-w-[84rem]';
 
 const FOCUS =
   'rounded-sm outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid focus-visible:outline-ring';
@@ -20,43 +23,49 @@ const NAV: readonly { href: string; label: string }[] = [
 
 export function BrandMark({ className }: { className?: string }) {
   return (
-    <Link href="/" className={cn('inline-flex items-center gap-2 font-semibold text-foreground', FOCUS, className)}>
+    <Link href="/" className={cn('inline-flex items-center gap-2 text-foreground', FOCUS, className)}>
       <span aria-hidden="true" className="inline-flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
         <Icons.Radar className="size-4" strokeWidth={2.25} />
       </span>
-      <span className="text-[15px]">{BRAND_NAME}</span>
+      <span className="text-[15px] font-[560] tracking-[-0.01em]">{BRAND_NAME}</span>
     </Link>
   );
 }
 
 function SiteHeader({ showNav }: { showNav: boolean }) {
   return (
-    // A floating shell rather than a full-width bar: inset from the edges, rounded, glass. The
-    // sections' scroll-margin (scroll-mt-20/28) clears its 4.25rem. From lg its left padding puts
-    // the logo on the content edge: 1rem while the page's 1rem margin still insets the shell,
-    // 2rem once the viewport is wider than max-w-7xl plus those margins (82rem).
-    <header className="sticky top-0 z-40 px-2 pt-2 sm:px-4 sm:pt-3">
-      <div className="glass relative mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-3 rounded-2xl border border-border/80 pr-2 pl-3 shadow-[0_8px_24px_-12px_var(--shadow-color)] sm:gap-6 sm:pr-2.5 sm:pl-5 lg:pl-4 min-[82rem]:pl-8">
-        <BrandMark />
-        {showNav && (
-          <nav aria-label="Page sections" className="hidden lg:block">
-            <ul className="flex items-center gap-7">
-              {NAV.map((item) => (
-                <li key={item.href}>
-                  <a href={item.href} className={cn('text-sm text-muted-foreground transition-colors hover:text-foreground', FOCUS)}>
-                    {item.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        )}
-        <div className="flex items-center gap-2 sm:gap-3">
-          <Link href="/sign-in" className={cn('text-sm font-medium text-foreground/80 transition-colors hover:text-foreground', showNav && 'hidden sm:inline', FOCUS)}>
-            Sign in
-          </Link>
+    // A full-width glass bar with a hairline under it, as on Attio: the logo and the section nav on
+    // the left, the two actions on the right. Its content spans FRAME, the same width as the
+    // sections' rails, so the logo and the last button sit on the rail lines. The sections' scroll-margin
+    // (scroll-mt-18) meets its 4.5rem.
+    <header className={cn('glass sticky top-0 z-40 border-b border-border/80', GUTTER)}>
+      <div className={cn(FRAME, 'relative flex h-18 items-center justify-between gap-3 sm:gap-6')}>
+        <div className="flex items-center gap-10">
+          <BrandMark />
           {showNav && (
-            <Button asChild size="sm" className="group/cta">
+            <nav aria-label="Page sections" className="hidden lg:block">
+              <ul className="flex items-center gap-7">
+                {NAV.map((item) => (
+                  <li key={item.href}>
+                    <a href={item.href} className={cn('text-sm font-medium text-foreground/75 transition-colors hover:text-foreground', FOCUS)}>
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline" size="sm" className={cn('h-9 rounded-[10px] border-border bg-card px-3 shadow-none', showNav && 'hidden sm:inline-flex')}>
+            <Link href="/sign-in">Sign in</Link>
+          </Button>
+          {showNav && (
+            <Button
+              asChild
+              size="sm"
+              className="group/cta h-9 rounded-[10px] bg-foreground px-3 text-background shadow-none transition-[color,background-color,transform] hover:bg-foreground/85 motion-safe:active:scale-[0.98]"
+            >
               <a href="#join">
                 Join the waitlist
                 <Icons.ArrowRight aria-hidden="true" className="transition-transform duration-200 group-hover/cta:translate-x-0.5" />
@@ -95,8 +104,8 @@ function SiteFooter() {
           </div>
           {FOOTER_COLUMNS.map((column) => (
             <nav key={column.title} aria-label={`Footer: ${column.title}`} className="flex flex-col gap-3.5">
-              <h2 className="text-[13px] font-medium text-foreground">{column.title}</h2>
-              <ul className="flex flex-col gap-2.5 text-sm">
+              <h2 className="text-[13px] font-[510] text-foreground">{column.title}</h2>
+              <ul className="flex flex-col gap-2.5 text-[13px]">
                 {column.links.map((link) => (
                   <li key={link.href}>
                     <Link href={link.href} className={cn('text-muted-foreground transition-colors hover:text-foreground', FOCUS)}>

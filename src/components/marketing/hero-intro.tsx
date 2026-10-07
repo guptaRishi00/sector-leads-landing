@@ -1,6 +1,7 @@
 'use client';
 
 import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useLayoutEffect, useRef, type ReactNode } from 'react';
 
 /**
@@ -22,7 +23,17 @@ export function HeroIntro({ className, children }: { className?: string; childre
       gsap.fromTo(
         '[data-intro]',
         { autoAlpha: 0, y: 24 },
-        { autoAlpha: 1, y: 0, duration: 1.4, ease: 'power3.out', stagger: 0.14, delay: 0.1, clearProps: 'transform' },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 1.4,
+          ease: 'power3.out',
+          stagger: 0.14,
+          delay: 0.1,
+          clearProps: 'transform',
+          // The pieces were offset while the hero's ScrollTriggers measured; measure again once still.
+          onComplete: () => ScrollTrigger.refresh(),
+        },
       );
     }, scope);
     return () => ctx.revert();

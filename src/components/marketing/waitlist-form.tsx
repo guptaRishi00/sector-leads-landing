@@ -162,7 +162,7 @@ export function WaitlistForm({ token, source, compact = false, className }: { to
   );
 
   const submitButton = (
-    <Button type="submit" size="lg" loading={pending} className={cn('group/cta w-full sm:w-auto sm:self-start', compact && 'h-11 px-6 sm:mt-[calc(1.625rem+1px)]')}>
+    <Button type="submit" size="lg" loading={pending} className={cn('group/cta w-full rounded-[10px] bg-foreground font-medium text-background shadow-none transition-[color,background-color,transform] hover:bg-foreground/85 motion-safe:active:scale-[0.98] sm:w-auto sm:self-start', compact && 'h-11 px-6 sm:mt-[calc(1.625rem+1px)]')}>
       Join the waitlist
       {!pending && <Icons.ArrowRight aria-hidden="true" className="transition-transform duration-200 group-hover/cta:translate-x-0.5" />}
     </Button>
@@ -197,7 +197,7 @@ export function WaitlistForm({ token, source, compact = false, className }: { to
           <div className="flex flex-col items-start gap-2">
             <p>{formError}</p>
             {reload && (
-              <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+              <Button variant="outline" size="sm" className="shadow-none" onClick={() => window.location.reload()}>
                 Reload the page
               </Button>
             )}

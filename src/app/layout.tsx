@@ -1,16 +1,17 @@
 import type { Metadata } from 'next';
-import { IBM_Plex_Mono, IBM_Plex_Sans } from 'next/font/google';
+import { IBM_Plex_Mono, Inter } from 'next/font/google';
 import type { ReactNode } from 'react';
 import { themeScript } from '@sl/ui';
 import './globals.css';
 
-// IBM Plex: an engineered, data-first face suited to a compliance-heavy B2B product, with a mono
-// for the evidence, scores and sources. The variables keep their Geist names because the shared
-// theme.css (@sl/ui) reads --font-geist-sans / --font-geist-mono; the main app's layout needs the
-// same swap.
-const plexSans = IBM_Plex_Sans({
+// Inter (variable, with the optical-size axis so headings use the display cut) for the text, and
+// IBM Plex Mono for the evidence, scores, sources and captions. Both are self-hosted by next/font.
+// The variables keep their Geist names because the shared theme.css (@sl/ui) reads
+// --font-geist-sans / --font-geist-mono; the main app's layout needs the same swap.
+const inter = Inter({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+  // The optical-size axis: large headings get Inter's display cut (Attio's "Inter Display").
+  axes: ['opsz'],
   variable: '--font-geist-sans',
   display: 'swap',
 });
@@ -31,7 +32,7 @@ export const metadata: Metadata = {
 // public pages do not use.
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${plexSans.variable} ${plexMono.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${plexMono.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>

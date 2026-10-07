@@ -1,3 +1,51 @@
 @import 'tailwindcss';
 /* In the main app this line is `@import '@sl/ui/theme.css';` (the shared UI package). */
 @import '../components/ui/theme.css';
+
+/*
+ * The hero badge's comet: a thin light that runs round the pill's border at a constant speed. It
+ * travels a CSS motion path (offset-path) along the pill's own outline, so equal times cover equal
+ * lengths of border (a rotating conic sweep would race along the long edges and crawl round the
+ * ends). The ring is masked to the 1px border band, which also trims the tail on the curves.
+ * Hidden under reduced motion, or where motion paths aren't supported, rather than frozen.
+ */
+@keyframes comet-orbit {
+  from {
+    offset-distance: 0%;
+  }
+  to {
+    offset-distance: 100%;
+  }
+}
+
+@utility comet-border {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  mask:
+    linear-gradient(black 0 0) content-box exclude,
+    linear-gradient(black 0 0);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3.5rem;
+    height: 3px;
+    background: linear-gradient(to right, transparent, color-mix(in oklab, var(--primary) 35%, transparent) 55%, var(--primary));
+    offset-path: inset(0.5px round 9999px);
+    offset-anchor: 100% 50%;
+    offset-rotate: auto;
+    animation: comet-orbit 4s linear infinite;
+  }
+
+  @supports not (offset-path: inset(0 round 1px)) {
+    display: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    display: none;
+  }
+}

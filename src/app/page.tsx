@@ -32,7 +32,7 @@ export default function Page() {
   const token = liveWaitlistFormToken();
   return (
     <MarketingShell showNav>
-      <Hero token={token} />
+      <Hero />
       <ProofBar />
       <HowItWorks />
       <Automation />
