@@ -1,5 +1,6 @@
 import { EXAMPLE_LEAD, EXAMPLE_SCORE, SEND_GATES, SIGNAL_TYPES } from '@/lib/marketing/content';
 import { Reveal } from '../reveal';
+import { ResultsChart } from '../results-chart';
 import { AppSidebar } from './product';
 import { ActionLink, AppWindow, CONTENT_GAP, Section, SectionHeader, Tag } from './ui';
 
@@ -33,7 +34,8 @@ export function Workspace() {
       <SectionHeader
         eyebrow="Workspace"
         titleId="workspace-title"
-        title="One workspace for the whole loop"
+        title="One workspace"
+        accent="for the whole loop"
         lead="The queue you approve from, the inbox for replies and inbound leads, and Results, which compares contacted accounts with a holdout so you see what outreach added."
         action={<ActionLink href="#join">Join the waitlist</ActionLink>}
       />
@@ -55,56 +57,23 @@ export function Workspace() {
                   </div>
                 ))}
               </div>
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
-                <div className="overflow-hidden rounded-lg border">
-                  <p className="flex items-center gap-2 border-b bg-highlight-soft px-3.5 py-2 text-xs font-medium text-highlight-foreground">
-                    <span className="size-1.5 rounded-full bg-highlight" />
-                    Waiting for a person
-                  </p>
-                  <ul className="divide-y">
-                    {QUEUE_ROWS.map((row) => (
-                      <li key={row.descriptor} className="flex items-center gap-3 px-3.5 py-3">
-                        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                          <p className="truncate text-[13px] font-medium text-foreground">{row.descriptor}</p>
-                          <p className="truncate text-[11px] text-muted-foreground">{row.signal}</p>
-                        </div>
-                        {row.score !== undefined ? (
-                          <span className="font-mono text-sm font-medium text-primary tabular-nums">{row.score}</span>
-                        ) : (
-                          <span className="text-[11px] text-muted-foreground">Scoring</span>
-                        )}
-                        <span className="hidden gap-1 sm:flex">
-                          <span className="inline-flex h-6 items-center rounded-md border px-2 text-[11px] text-foreground">Reject</span>
-                          <span className="inline-flex h-6 items-center rounded-md bg-primary px-2 text-[11px] text-primary-foreground">Approve</span>
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="flex flex-col gap-3 rounded-lg border p-3.5">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-[13px] font-medium text-foreground">Results: meetings</p>
-                    <span className="flex gap-3 text-[11px] text-muted-foreground">
-                      <span className="inline-flex items-center gap-1.5">
-                        <span className="h-0.5 w-3 rounded-full bg-primary" />
-                        Contacted
-                      </span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <span className="h-0.5 w-3 rounded-full bg-muted-foreground/60" />
-                        Holdout
-                      </span>
+              {/* Results, full width: contacted accounts against the holdout, drawn in on view. */}
+              <div className="flex flex-col gap-3 rounded-lg border p-3.5 sm:p-4">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-[13px] font-medium text-foreground">Results: meetings</p>
+                  <span className="flex gap-3 text-[11px] text-muted-foreground">
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className="h-0.5 w-3 rounded-full bg-primary" />
+                      Contacted
                     </span>
-                  </div>
-                  <svg viewBox="0 0 100 90" preserveAspectRatio="none" className="h-36 w-full">
-                    {[20, 40, 60, 80].map((y) => (
-                      <line key={y} x1="0" x2="100" y1={y} y2={y} className="stroke-border" strokeWidth="1" vectorEffect="non-scaling-stroke" />
-                    ))}
-                    <polyline points={`${CONTACTED} 100,90 0,90`} className="fill-primary/10" />
-                    <polyline points={CONTACTED} fill="none" className="stroke-primary" strokeWidth="2" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
-                    <polyline points={HOLDOUT} fill="none" className="stroke-muted-foreground/60" strokeWidth="2" strokeDasharray="4 4" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
-                  </svg>
-                  <p className="text-[11px] text-muted-foreground">The gap between the lines is the lift outreach added. Example shape, no real data.</p>
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className="h-0.5 w-3 rounded-full bg-muted-foreground/60" />
+                      Holdout
+                    </span>
+                  </span>
                 </div>
+                <ResultsChart contacted={CONTACTED} holdout={HOLDOUT} className="h-44 pr-1.5 sm:h-52" />
+                <p className="text-[11px] text-muted-foreground">The gap between the lines is the lift outreach added. Example shape, no real data.</p>
               </div>
             </div>
           </div>

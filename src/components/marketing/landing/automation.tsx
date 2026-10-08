@@ -9,7 +9,8 @@ export function Automation() {
       <SectionHeader
         eyebrow="Automation"
         titleId="automation-title"
-        title="The reading is automated. The decisions stay with you."
+        title="The reading is automated."
+        accent="The decisions stay with you."
         lead="Rules and a narrow model read the public record, check each event and score what qualifies. Then it stops: nothing moves past a lead or a draft until a person approves it."
       />
       <Reveal className={CONTENT_GAP}>

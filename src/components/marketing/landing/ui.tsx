@@ -3,24 +3,26 @@ import { Button, cn, Icons } from '@sl/ui';
 import { FRAME, GUTTER } from '../marketing-shell';
 import { Reveal } from '../reveal';
 
-// One design language for every section, after attio.com: the page sits between two hairline rails
-// with a hairline between sections; every section opens with a small blue chip and a two-tone
-// heading (the title in ink, the lead continuing in grey) when the lead is short enough to read as
-// one statement; product screens are 12px windows in a 16px tinted bezel; content grids share
-// hairlines like Attio's cell walls. One deliberate theme switch device: the Compliance chapter and
-// the closing call to action are dark chapters (data-theme="dark", same tokens).
-// Shape rule: buttons 10px, chips 8px, cards and windows 12px, bezels 16px, inputs 8px.
-// Colour: white and blue-tinted neutrals, ink (foreground) for the primary action, blue (primary)
-// for chips, progress and accents, coral (highlight) only for what waits on a person, green only
-// for passed checks.
-const H2 = 'text-[1.75rem] leading-[1.12] font-medium tracking-[-0.01em] text-balance sm:text-[2.5rem] sm:leading-[1.1]';
+// One design language for every section, after leadistry.co.uk, in the page's own blue palette:
+// full-bleed hairlines between sections and a wide inner margin (no vertical guide lines); every
+// section opens with a small mono uppercase eyebrow and a display heading (Inter Tight, weight 500,
+// tight tracking) whose closing phrase is set in the accent; the lead sits under it in grey. Product screens are AppWindows. Dark panels
+// (the Compliance panel, the footer, the ticker) use the same tokens scoped dark.
+// Shape rule: buttons 8px (the header's call to action is a pill), cards and windows 12px, panels 16px.
+// Colour: white and blue-tinted neutrals, ink (foreground) for the header action, blue (primary)
+// for the main action, eyebrows, accents and progress, coral (highlight) only for what waits on a
+// person, green only for passed checks.
+const H2 = 'font-display text-[1.875rem] leading-[1.08] font-medium tracking-[-0.012em] text-balance sm:text-[2.625rem] sm:leading-[1.08]';
 
-/** A dark chapter's opener, set large and alone. */
-const STATEMENT = 'text-[2.25rem] leading-[1.04] font-semibold tracking-[-0.02em] text-balance sm:text-5xl lg:text-[4rem] lg:leading-[1]';
+/** A giant centred statement (Leadistry's "Pay for leads with intent."). */
+const STATEMENT = 'font-display text-[2.75rem] leading-[1] font-medium tracking-[-0.025em] text-balance sm:text-6xl lg:text-[5.25rem] lg:leading-[0.98]';
 
-export const LEAD = 'max-w-[62ch] text-base leading-7 font-medium text-pretty text-muted-foreground sm:text-[17px]';
+export const LEAD = 'max-w-[60ch] text-base leading-7 text-pretty text-muted-foreground sm:text-lg sm:leading-[1.5]';
 
 export const CONTENT_GAP = 'mt-12 sm:mt-16';
+
+/** Leadistry's eyebrows and captions: small mono capitals, spaced out. */
+export const MONO_LABEL = 'font-mono text-[11px] leading-none font-medium tracking-[0.14em] uppercase';
 
 /** A dark panel in both themes with tokens only: deep navy (the inverted foreground) in light mode, the lifted popover surface in dark. */
 export const NIGHT = 'bg-foreground text-background dark:bg-popover dark:text-foreground';
@@ -34,33 +36,38 @@ export const INTRO = 'motion-safe:opacity-0';
 
 export const ICON_TILE = 'inline-flex size-9 shrink-0 items-center justify-center rounded-lg border bg-card text-foreground shadow-xs';
 
-/** Attio's buttons: 10px corners, 14px medium; the primary is ink, with a small press. */
-export const BUTTON = 'rounded-[10px] font-medium transition-[color,background-color,border-color,box-shadow,transform] motion-safe:active:scale-[0.98]';
+/** Leadistry's buttons: 8px corners, 14px medium, a small press. */
+export const BUTTON = 'rounded-lg font-medium transition-[color,background-color,border-color,box-shadow,transform] motion-safe:active:scale-[0.98]';
 
 export const BUTTON_INK = 'bg-foreground text-background shadow-none hover:bg-foreground/85';
 
+/** The main action: the accent, flat (no shadow). */
+export const BUTTON_PRIMARY = 'bg-primary text-primary-foreground shadow-none hover:bg-primary/90';
+
 export const BUTTON_PLAIN = 'border-border bg-card text-foreground shadow-none hover:bg-muted';
 
-/** The product screens' bezel: a translucent hairline tint, so it reads on white, on the tinted bands and in the dark chapters. */
+/** The product screens' bezel: a translucent hairline tint, so it reads on white, on the tinted bands and in the dark panels. */
 export const BEZEL = 'rounded-2xl border bg-[color-mix(in_oklab,var(--border)_40%,transparent)] p-1.5 sm:p-2';
 
 /** A faint top-edge highlight on lifted panels, in dark mode only (where shadows don't read). */
 export const EDGE = 'dark:shadow-[inset_0_1px_0_color-mix(in_oklab,var(--foreground)_7%,transparent)]';
 
-/** Attio's rails: the page gutter, then the header's frame width with hairlines on both sides. */
-export const RAIL = cn(FRAME, 'border-x');
+/** The content frame: the header's width. */
+export const RAIL = FRAME;
 
-export const INNER = 'px-5 sm:px-10 lg:px-16';
+/** Leadistry's wide inner margin between the frame's edge and the content. */
+export const INNER = 'px-5 sm:px-10 lg:px-24';
 
 /** Three promises, each stated elsewhere on the page (How it works and Compliance). */
-const TRUST: readonly string[] = ['A person approves every lead and email', 'Every lead links to its public source', 'Sent from your own mailbox'];
+export const TRUST: readonly string[] = ['A person approves every lead and email', 'Every lead links to its public source', 'Sent from your own mailbox'];
 
+/** Leadistry's check row: small ticks and grey text. */
 export function TrustRow({ className }: { className?: string }) {
   return (
-    <ul className={cn('flex flex-wrap gap-x-5 gap-y-2 text-[13px] font-medium text-muted-foreground', className)}>
+    <ul className={cn('flex flex-wrap gap-x-5 gap-y-2 text-[13px] text-muted-foreground', className)}>
       {TRUST.map((item) => (
         <li key={item} className="inline-flex items-center gap-1.5">
-          <Icons.Check aria-hidden="true" className="size-3.5 text-primary" />
+          <Icons.Check aria-hidden="true" className="size-3.5 text-primary" strokeWidth={2.5} />
           {item}
         </li>
       ))}
@@ -69,8 +76,8 @@ export function TrustRow({ className }: { className?: string }) {
 }
 
 /**
- * A section between the rails, closed by a hairline. `band` sets it on the tinted surface; `dark`
- * makes it a dark chapter: the dark palette applies inside it (theme.css scopes it to
+ * A section in the frame, closed by a full-bleed hairline. `band` sets it on the tinted surface;
+ * `dark` makes it dark: the dark palette applies inside it (theme.css scopes it to
  * data-theme="dark"), on the deepest dark surface.
  */
 export function Section({
@@ -95,33 +102,32 @@ export function Section({
       id={id}
       aria-labelledby={labelledBy}
       data-theme={dark ? 'dark' : undefined}
-      className={cn('scroll-mt-18', GUTTER, band && 'bg-muted', dark && 'bg-sidebar text-foreground', className)}
+      className={cn('scroll-mt-18 border-b', GUTTER, band && 'bg-muted', dark && 'bg-sidebar text-foreground', className)}
     >
-      <div className={cn(RAIL, 'border-b')}>
-        <div className={cn(INNER, 'py-20 sm:py-28 lg:pt-36 lg:pb-28', innerClassName)}>{children}</div>
+      <div className={RAIL}>
+        <div className={cn(INNER, 'py-20 sm:py-28 lg:py-32', innerClassName)}>{children}</div>
       </div>
     </section>
   );
 }
 
-// Every section opens with a short label (the user's choice): the accent colour only, no ground,
-// so it sits flush with the heading under it.
+// Every section opens with a short label (the user's choice: the accent colour only, no ground),
+// set as Leadistry's mono capitals.
 export function Chip({ children }: { children: string }) {
-  return <p className="inline-flex h-6 w-fit items-center text-sm font-medium text-primary">{children}</p>;
+  return <p className={cn(MONO_LABEL, 'inline-flex h-4 w-fit items-center text-primary')}>{children}</p>;
 }
-
-/** Up to this many words, the lead continues the heading in grey (Attio's two-tone heading); longer leads sit under it. */
-const TWO_TONE_MAX = 24;
-
-const words = (text: string) => text.trim().split(/\s+/).length;
 
 export const sentence = (text: string) => (/[.!?]$/.test(text) ? text : `${text}.`);
 
-/** Chip, then the heading: two-tone when the lead is short, else heading and lead stacked. An action sits under it. */
+/**
+ * The eyebrow, then the heading, with its closing phrase (`accent`) in the accent colour, then the
+ * lead in grey and an optional action. `statement` sets the heading giant and centred.
+ */
 export function SectionHeader({
   eyebrow,
   titleId,
   title,
+  accent,
   lead,
   action,
   center = false,
@@ -131,31 +137,37 @@ export function SectionHeader({
   eyebrow: string;
   titleId: string;
   title: string;
+  /** The heading's closing phrase, set in the accent (Leadistry's "…the work for you."). */
+  accent?: string;
   lead?: string;
   action?: ReactNode;
   center?: boolean;
-  /** A dark chapter's opener: the title alone, large, with the lead under it (Attio's "Universal Context"). */
   statement?: boolean;
   className?: string;
 }) {
-  const twoTone = !statement && lead !== undefined && words(lead) <= TWO_TONE_MAX;
+  const centred = center || statement;
   return (
-    <Reveal className={cn('flex flex-col gap-5', center ? 'mx-auto max-w-3xl items-center text-center' : 'max-w-[58rem]', className)}>
+    <Reveal className={cn('flex flex-col gap-5', centred ? 'mx-auto max-w-4xl items-center text-center' : 'max-w-[52rem]', className)}>
       <Chip>{eyebrow}</Chip>
-      <h2 id={titleId} className={statement ? STATEMENT : H2}>
-        <span className="text-foreground">{twoTone ? sentence(title) : title}</span>
-        {twoTone && <span className="text-muted-foreground"> {lead}</span>}
+      <h2 id={titleId} className={cn(statement ? STATEMENT : H2, 'text-foreground')}>
+        {title}
+        {accent !== undefined && (
+          <>
+            {' '}
+            <span className="text-primary">{accent}</span>
+          </>
+        )}
       </h2>
-      {!twoTone && lead !== undefined && <p className={cn(LEAD, center && 'mx-auto')}>{lead}</p>}
+      {lead !== undefined && <p className={cn(LEAD, centred && 'mx-auto')}>{lead}</p>}
       {action !== undefined && <div className="pt-1">{action}</div>}
     </Reveal>
   );
 }
 
-/** Attio's "See more →": a small plain button. */
+/** Leadistry's quiet secondary action: a small plain button with an arrow. */
 export function ActionLink({ href, children }: { href: string; children: string }) {
   return (
-    <Button asChild variant="outline" size="sm" className={cn('group/cta h-8 px-3', BUTTON, BUTTON_PLAIN)}>
+    <Button asChild variant="outline" size="sm" className={cn('group/cta h-9 px-3.5', BUTTON, BUTTON_PLAIN)}>
       <a href={href}>
         {children}
         <Icons.ArrowRight aria-hidden="true" className="transition-transform duration-200 group-hover/cta:translate-x-0.5" />
@@ -174,7 +186,13 @@ export const SCREEN_SHADOW = 'shadow-[0_1px_2px_var(--shadow-color),0_16px_40px_
  */
 export function AppWindow({ shadow = false, className, innerClassName, children }: { shadow?: boolean; className?: string; innerClassName?: string; children: ReactNode }) {
   return (
-    <div className={cn('flex flex-col rounded-2xl border bg-muted px-1.5 pb-1.5 sm:px-2 sm:pb-2', shadow && 'shadow-[0_1px_2px_var(--shadow-color),0_24px_60px_-24px_var(--shadow-color)]', className)}>
+    <div
+      className={cn(
+        'flex flex-col rounded-2xl border bg-muted px-1.5 pb-1.5 sm:px-2 sm:pb-2',
+        shadow && 'shadow-[0_1px_2px_var(--shadow-color),0_24px_60px_-24px_var(--shadow-color)]',
+        className,
+      )}
+    >
       <div aria-hidden="true" className="flex h-8 items-center gap-2 px-1.5 sm:h-9">
         <span className="size-3 rounded-full bg-[color-mix(in_oklab,var(--destructive)_80%,var(--card))]" />
         <span className="size-3 rounded-full bg-[color-mix(in_oklab,var(--highlight)_50%,var(--warning-border))]" />

@@ -10,8 +10,9 @@ type Autoplay = 'off' | 'on' | 'paused';
  * and all stay in the HTML; only which one is visible is client state. `vertical` stacks the tabs
  * in a column from `lg` (arrow Up/Down) and scrolls them sideways below it.
  *
- * `autoAdvance` (ms) moves to the next tab on its own. The active tab's progress bar is the timer:
- * a Web Animation fills it and the next tab opens when it finishes, so pausing the bar pauses the
+ * `autoAdvance` (ms) moves to the next tab on its own. The active tab's progress is the timer: a
+ * Web Animation draws it (vertical tabs: a border tracing round the tab, clockwise from its top
+ * left; horizontal tabs: a bar) and the next tab opens when it completes, so pausing it pauses the
  * rotation. It holds while keyboard focus is in the panel (not on hover: resting the pointer on the
  * panel while reading must not freeze it), while the tabs are off screen and
  * while the page is hidden; the button pauses it (WCAG 2.2.2); choosing a tab stops it for good;
@@ -38,7 +39,7 @@ export function Tabs({
   const root = useRef<HTMLDivElement>(null);
   const list = useRef<HTMLDivElement>(null);
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
-  const bars = useRef<(HTMLSpanElement | null)[]>([]);
+  const bars = useRef<(Element | null)[]>([]);
   const timer = useRef<Animation | null>(null);
   const base = useId();
   const held = holds.focus || holds.offscreen || holds.hidden;
@@ -55,7 +56,15 @@ export function Tabs({
   // Hold while off screen or while the page is hidden.
   useEffect(() => {
     if (autoplay === 'off' || root.current === null) return;
-    const observer = new IntersectionObserver(([entry]) => setHolds((value) => ({ ...value, offscreen: entry?.isIntersecting !== true })), { threshold: 0.25 });
+    // Observed at 0 and at 25%: it counts as on screen from 25% visible, and as off screen only once
+    // fully gone (a single threshold never reports leaving below it).
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const ratio = entry?.intersectionRatio ?? 0;
+        setHolds((value) => ({ ...value, offscreen: value.offscreen ? ratio < 0.24 : ratio === 0 }));
+      },
+      { threshold: [0, 0.25] },
+    );
     observer.observe(root.current);
     const onVisibility = () => setHolds((value) => ({ ...value, hidden: document.hidden }));
     onVisibility();
@@ -70,14 +79,15 @@ export function Tabs({
   useEffect(() => {
     const bar = bars.current[active];
     if (autoplay === 'off' || autoAdvance === undefined || bar === undefined || bar === null) return;
-    const fill = bar.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: autoAdvance, fill: 'forwards' });
+    const keyframes = vertical ? [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }] : [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }];
+    const fill = bar.animate(keyframes, { duration: autoAdvance, fill: 'forwards' });
     // `finished` settles as soon as the fill ends, even before the next frame; cancelling (a new
     // step, a stop, unmount) rejects it, which is expected and ignored.
     fill.finished.then(() => setActive((index) => (index + 1) % tabs.length)).catch(() => undefined);
     if (!runningRef.current) fill.pause();
     timer.current = fill;
     return () => fill.cancel();
-  }, [active, autoplay, autoAdvance, tabs.length]);
+  }, [active, autoplay, autoAdvance, tabs.length, vertical]);
 
   useEffect(() => {
     if (running) timer.current?.play();
@@ -157,7 +167,10 @@ export function Tabs({
                 className={cn(
                   'relative shrink-0 overflow-hidden text-sm whitespace-nowrap transition-colors outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-solid focus-visible:outline-ring',
                   vertical
-                    ? cn('rounded-lg px-3 py-2 text-left lg:whitespace-normal', selected ? 'bg-card font-medium text-foreground shadow-xs ring-1 ring-border' : 'text-muted-foreground hover:bg-card/60 hover:text-foreground')
+                    ? cn(
+                        'rounded-lg px-3 py-2 text-left lg:whitespace-normal',
+                        selected ? 'bg-card font-medium text-foreground shadow-xs ring-1 ring-border' : 'text-muted-foreground hover:bg-card/60 hover:text-foreground',
+                      )
                     : cn('snap-start px-3 pt-2 pb-3.5 sm:px-4 lg:flex-1', selected ? 'font-medium text-foreground' : 'text-muted-foreground hover:text-foreground'),
                 )}
               >
@@ -170,19 +183,39 @@ export function Tabs({
                     className={cn('absolute inset-x-4 bottom-0 h-0.5 rounded-full bg-primary/25 transition-opacity duration-200', selected ? 'opacity-100' : 'opacity-0')}
                   />
                 )}
-                {/* The progress bar (horizontal: drawn over the underline; vertical: a bottom bar).
-                    While rotating the timer fills it; once stopped it is simply shown in full. */}
-                <span
-                  aria-hidden="true"
-                  ref={(node) => {
-                    bars.current[index] = node;
-                  }}
-                  className={cn(
-                    'absolute h-0.5 origin-left rounded-full bg-primary transition-opacity duration-200',
-                    vertical ? 'inset-x-3 bottom-0.5' : 'inset-x-4 bottom-0',
-                    selected && (!vertical || autoplay !== 'off') ? 'opacity-100' : 'opacity-0',
-                  )}
-                />
+                {/* The progress. Vertical: a border that traces round the tab (an SVG outline on the
+                    tab's edge, clipped by its rounded corners to a 1.5px line inside them), shown
+                    while it rotates. Horizontal: a bar drawn over the underline, shown in full once
+                    stopped. While rotating the timer draws it. */}
+                {vertical ? (
+                  <svg
+                    aria-hidden="true"
+                    className={cn('pointer-events-none absolute inset-0 size-full transition-opacity duration-200', selected && autoplay !== 'off' ? 'opacity-100' : 'opacity-0')}
+                  >
+                    <rect
+                      ref={(node) => {
+                        bars.current[index] = node;
+                      }}
+                      width="100%"
+                      height="100%"
+                      rx="8"
+                      pathLength={1}
+                      fill="none"
+                      strokeWidth={3}
+                      strokeDasharray="1 1"
+                      strokeDashoffset={1}
+                      className="stroke-primary"
+                    />
+                  </svg>
+                ) : (
+                  <span
+                    aria-hidden="true"
+                    ref={(node) => {
+                      bars.current[index] = node;
+                    }}
+                    className={cn('absolute inset-x-4 bottom-0 h-0.5 origin-left rounded-full bg-primary transition-opacity duration-200', selected ? 'opacity-100' : 'opacity-0')}
+                  />
+                )}
               </button>
             );
           })}
@@ -199,11 +232,7 @@ export function Tabs({
           </Button>
         )}
       </div>
-      <div
-        className={cn(vertical && 'lg:h-full')}
-        onFocus={() => setHolds((value) => ({ ...value, focus: true }))}
-        onBlur={onPanelBlur}
-      >
+      <div className={cn(vertical && 'lg:h-full')} onFocus={() => setHolds((value) => ({ ...value, focus: true }))} onBlur={onPanelBlur}>
         {panels.map((panel, index) => (
           <div
             key={index}

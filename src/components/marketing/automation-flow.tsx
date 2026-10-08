@@ -90,13 +90,20 @@ interface FlowState {
 /** The frame the server renders: the automated half done, waiting on your approval. */
 const INITIAL: FlowState = { at: FLOW_NODES.findIndex((node) => node.waits === true), stage: 'wait' };
 
-const RUN = 1.1;
-const LINK = 0.65;
-const LONG_LINK = 1.1;
-const HOLD: Record<Stage, number> = { idle: 800, run: RUN * 1000, wait: 1900, link: LINK * 1000, end: 2600, fade: 550 };
+const RUN = 0.75;
+const LINK = 0.45;
+const LONG_LINK = 0.75;
+const HOLD: Record<Stage, number> = { idle: 350, run: RUN * 1000, wait: 1300, link: LINK * 1000, end: 1800, fade: 450 };
 
 /** The connector into node `to` from the one before it is the long elbow when they sit on different rows. */
 const longLinkInto = (to: number) => cardTop(to) !== cardTop(to - 1);
+
+/** Where the run starts when the canvas first comes into view: idle, every step queued. */
+const RESTART: FlowState = { at: -1, stage: 'idle' };
+
+type Action = 'advance' | 'restart';
+
+const reduce = (state: FlowState, action: Action): FlowState => (action === 'restart' ? RESTART : next(state));
 
 function next(state: FlowState): FlowState {
   const node = FLOW_NODES[state.at];
@@ -390,21 +397,22 @@ function PauseButton({ paused, onClick, className }: { paused: boolean; onClick:
 }
 
 export function AutomationFlow() {
-  const [state, step] = useReducer(next, INITIAL);
-  const { ref, animated, running, paused, togglePaused, hold } = useAutoplay<HTMLDivElement>();
+  const [state, dispatch] = useReducer(reduce, INITIAL);
+  const { ref, animated, running, started, paused, togglePaused } = useAutoplay<HTMLDivElement>();
+
+  // The first time it comes into view, the run starts over from the trigger, in view.
+  useEffect(() => {
+    if (started) dispatch('restart');
+  }, [started]);
 
   useEffect(() => {
     if (!running) return;
-    const timer = window.setTimeout(step, holdFor(state));
+    const timer = window.setTimeout(() => dispatch('advance'), holdFor(state));
     return () => window.clearTimeout(timer);
   }, [running, state]);
 
   return (
-    <div
-      ref={ref}
-      {...hold}
-      className="relative bg-muted bg-[radial-gradient(color-mix(in_oklab,var(--foreground)_12%,transparent)_1px,transparent_1px)] [background-size:16px_16px]"
-    >
+    <div ref={ref} className="relative bg-muted bg-[radial-gradient(color-mix(in_oklab,var(--foreground)_12%,transparent)_1px,transparent_1px)] [background-size:16px_16px]">
       {/* The canvas from lg; the stacked list below it, where the canvas would be too small to read. */}
       <div role="img" aria-label={FLOW_DESCRIPTION} className="hidden px-2 py-1 lg:block">
         <div aria-hidden="true">

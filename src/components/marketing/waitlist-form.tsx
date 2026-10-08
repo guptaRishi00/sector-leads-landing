@@ -61,9 +61,11 @@ function Optional({ children }: { children: string }) {
 }
 
 /**
- * The waitlist form. `compact` (the hero) tucks the optional name, company and role fields into a
- * disclosure so the form reads email-first; the fields, their names and the JSON body are identical
- * either way, and the disclosure opens itself when one of them has an error.
+ * The waitlist form. `compact` (the closing call to action) is Leadistry's email-first form: a large
+ * work-email field with the button beside it, the optional name, company and role tucked into a
+ * disclosure, and the consent under a hairline. The fields, their names and the JSON body are
+ * identical either way (closed <details> content still submits), and the disclosure opens itself
+ * when one of its fields has an error.
  */
 export function WaitlistForm({ token, source, compact = false, className }: { token: string; source: WaitlistSource; compact?: boolean; className?: string }) {
   const id = useId();
@@ -145,10 +147,15 @@ export function WaitlistForm({ token, source, compact = false, className }: { to
         tabIndex={-1}
         role="status"
         data-testid="waitlist-done"
-        className={cn('flex items-start gap-3 rounded-xl border border-success/30 bg-success-soft p-4 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring', className)}
+        className={cn(
+          'flex items-center gap-4 rounded-xl border border-success/30 bg-success-soft p-5 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+          className,
+        )}
       >
-        <Icons.CircleCheck aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-success" />
-        <p className="text-sm text-pretty text-foreground">{WAITLIST_SUCCESS[done]}</p>
+        <span aria-hidden="true" className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-success text-primary-foreground">
+          <Icons.Check className="size-5" strokeWidth={2.75} />
+        </span>
+        <p className="text-[15px] font-medium text-pretty text-foreground">{WAITLIST_SUCCESS[done]}</p>
       </div>
     );
   }
@@ -157,12 +164,28 @@ export function WaitlistForm({ token, source, compact = false, className }: { to
 
   const emailField = (
     <Field label="Work email" required error={errors.email} id={fieldId('email')}>
-      <Input name="email" type="email" autoComplete="email" inputMode="email" maxLength={WAITLIST_EMAIL_MAX} className={cn('bg-card', compact ? 'h-11' : 'h-10')} />
+      <Input
+        name="email"
+        type="email"
+        autoComplete="email"
+        inputMode="email"
+        placeholder="you@company.com"
+        maxLength={WAITLIST_EMAIL_MAX}
+        className={cn('bg-card', compact ? 'h-12 rounded-lg px-4 text-base' : 'h-10')}
+      />
     </Field>
   );
 
   const submitButton = (
-    <Button type="submit" size="lg" loading={pending} className={cn('group/cta w-full rounded-[10px] bg-foreground font-medium text-background shadow-none transition-[color,background-color,transform] hover:bg-foreground/85 motion-safe:active:scale-[0.98] sm:w-auto sm:self-start', compact && 'h-11 px-6 sm:mt-[calc(1.625rem+1px)]')}>
+    <Button
+      type="submit"
+      size="lg"
+      loading={pending}
+      className={cn(
+        'group/cta w-full rounded-lg bg-primary font-medium text-primary-foreground shadow-none transition-[color,background-color,transform] hover:bg-primary/90 motion-safe:active:scale-[0.98] sm:w-auto sm:self-start',
+        compact && 'h-12 px-6 text-[15px] sm:mt-[calc(1.625rem+1px)]',
+      )}
+    >
       Join the waitlist
       {!pending && <Icons.ArrowRight aria-hidden="true" className="transition-transform duration-200 group-hover/cta:translate-x-0.5" />}
     </Button>
@@ -216,7 +239,7 @@ export function WaitlistForm({ token, source, compact = false, className }: { to
         emailField
       )}
       {compact ? (
-        <details open={moreOpen} onToggle={(event) => setMoreOpen(event.currentTarget.open)} className="group -mt-1">
+        <details open={moreOpen} onToggle={(event) => setMoreOpen(event.currentTarget.open)} className="group">
           <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 rounded-sm text-[13px] font-medium text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid focus-visible:outline-ring [&::-webkit-details-marker]:hidden">
             <Icons.Plus aria-hidden="true" className="size-3.5 transition-transform duration-200 group-open:rotate-45 motion-reduce:transition-none" />
             Add your name, company and role (optional)
@@ -232,7 +255,7 @@ export function WaitlistForm({ token, source, compact = false, className }: { to
         <input id={`${id}-hp`} name={WAITLIST_HONEYPOT_FIELD} type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
-      <div className="flex flex-col gap-1.5">
+      <div className={cn('flex flex-col gap-1.5', compact && 'border-t pt-4')}>
         <div className="flex items-start gap-2.5">
           <input
             id={fieldId('consent')}

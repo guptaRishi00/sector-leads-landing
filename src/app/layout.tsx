@@ -1,13 +1,14 @@
 import type { Metadata } from 'next';
-import { IBM_Plex_Mono, Inter } from 'next/font/google';
+import { Inter, Inter_Tight, JetBrains_Mono } from 'next/font/google';
 import type { ReactNode } from 'react';
 import { themeScript } from '@sl/ui';
 import './globals.css';
 
-// Inter (variable, with the optical-size axis so headings use the display cut) for the text, and
-// IBM Plex Mono for the evidence, scores, sources and captions. Both are self-hosted by next/font.
-// The variables keep their Geist names because the shared theme.css (@sl/ui) reads
-// --font-geist-sans / --font-geist-mono; the main app's layout needs the same swap.
+// Leadistry's type: Inter for the text, Inter Tight for the headings (--font-display, a landing
+// utility in globals.css) and JetBrains Mono for the eyebrows, evidence, scores and captions. All
+// are self-hosted by next/font. The text and mono variables keep their Geist names because the
+// shared theme.css (@sl/ui) reads --font-geist-sans / --font-geist-mono; the main app's layout
+// needs the same swap.
 const inter = Inter({
   subsets: ['latin'],
   // The optical-size axis: large headings get Inter's display cut (Attio's "Inter Display").
@@ -16,9 +17,14 @@ const inter = Inter({
   display: 'swap',
 });
 
-const plexMono = IBM_Plex_Mono({
+const interTight = Inter_Tight({
   subsets: ['latin'],
-  weight: ['400', '500', '600'],
+  variable: '--font-inter-tight',
+  display: 'swap',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
   variable: '--font-geist-mono',
   display: 'swap',
 });
@@ -32,7 +38,7 @@ export const metadata: Metadata = {
 // public pages do not use.
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${plexMono.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${interTight.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>

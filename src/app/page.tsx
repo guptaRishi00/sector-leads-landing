@@ -1,12 +1,11 @@
 import type { Metadata } from 'next';
-import { Automation, Compliance, Faq, FinalCta, Hero, HowItWorks, Industries, Proof, ProofBar, Signals, Workspace } from '@/components/marketing/landing';
+import { Automation, Compliance, Faq, FinalCta, Hero, HowItWorks, Industries, Proof, ProofBar, Signals, Ticker, Workspace } from '@/components/marketing/landing';
 import { MarketingShell } from '@/components/marketing/marketing-shell';
 import { BRAND_NAME } from '@/lib/marketing/brand';
 import { liveSiteUrl, liveWaitlistFormToken } from '@/lib/marketing/live';
 
 const TITLE = `${BRAND_NAME}: leads from public events, with the proof attached`;
-const DESCRIPTION =
-  'A B2B lead engine that turns tenders, filings, new directors, hiring and funding into leads you can check, then sends only what you approve, within the law.';
+const DESCRIPTION = 'A B2B lead engine that turns tenders, filings, new directors, hiring and funding into leads you can check, then sends only what you approve, within the law.';
 
 export function generateMetadata(): Metadata {
   let base: URL | undefined;
@@ -32,15 +31,19 @@ export default function Page() {
   const token = liveWaitlistFormToken();
   return (
     <MarketingShell showNav>
+      {/* Leadistry's order: the ticker and the hero, the product (how it works, the automation, the
+          workspace), the dark panel (compliance), the figures band, the checks (evidence), the
+          statement (signals), who it's for (industries), the questions, the close. */}
+      <Ticker />
       <Hero />
-      <ProofBar />
       <HowItWorks />
       <Automation />
-      <Signals />
-      <Proof />
-      <Industries />
       <Workspace />
       <Compliance />
+      <ProofBar />
+      <Proof />
+      <Signals />
+      <Industries />
       <Faq />
       <FinalCta token={token} />
     </MarketingShell>

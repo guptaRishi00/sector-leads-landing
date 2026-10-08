@@ -29,7 +29,7 @@ export function MobileNav({ items }: { items: readonly { href: string; label: st
 
   return (
     <div className="lg:hidden">
-      <Button variant="ghost" size="icon-sm" className="rounded-full" aria-expanded={open} aria-controls={id} aria-label={open ? 'Close menu' : 'Open menu'} onClick={() => setOpen((value) => !value)}>
+      <Button variant="ghost" size="icon-sm" className="rounded-[10px]" aria-expanded={open} aria-controls={id} aria-label={open ? 'Close menu' : 'Open menu'} onClick={() => setOpen((value) => !value)}>
         {open ? <Icons.X aria-hidden="true" /> : <Icons.Menu aria-hidden="true" />}
       </Button>
       <nav id={id} aria-label="Page sections" hidden={!open} className="absolute inset-x-3 top-full mt-2 rounded-2xl border bg-background p-2 shadow-[0_16px_40px_-16px_var(--shadow-color)] sm:inset-x-4">

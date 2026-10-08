@@ -70,9 +70,9 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 
 // The clock. Step 0 the event arrives; step n (1..count) checks rule n - 1; step count + 1 is the
 // decision. How long each holds (ms):
-const ARRIVE = 900;
-const CHECK = 420;
-const DECIDED = 3600;
+const ARRIVE = 600;
+const CHECK = 280;
+const DECIDED = 2600;
 
 interface State {
   index: number;
@@ -85,6 +85,13 @@ const FIRST: Case = CASES[0] ?? { id: 'none', signal: '', company: '', source: '
 const caseAt = (index: number) => CASES[index] ?? FIRST;
 
 const INITIAL: State = { index: 0, step: ruleCount(FIRST) + 1, leads: 1, rejected: 3 };
+
+/** Where the loop starts when it first comes into view: the first case, arriving, no rule run yet. */
+const RESTART: State = { ...INITIAL, index: 0, step: 0 };
+
+type Action = 'advance' | 'restart';
+
+const reduce = (state: State, action: Action): State => (action === 'restart' ? RESTART : advance(state));
 
 function advance(state: State): State {
   const count = ruleCount(caseAt(state.index));
@@ -142,7 +149,7 @@ function Score({ value, count }: { value: number; count: boolean }) {
   const text = useTransform(shown, (latest) => Math.round(latest).toString());
   useEffect(() => {
     if (!count) return;
-    const run = animate(shown, value, { from: 0, duration: 1.1, ease: EASE });
+    const run = animate(shown, value, { from: 0, duration: 0.9, ease: EASE });
     return () => run.stop();
   }, [count, value, shown]);
   return <motion.span>{text}</motion.span>;
@@ -217,8 +224,13 @@ function RejectResult({ code }: { code: RuleCode }) {
 }
 
 export function EvidenceStory() {
-  const [state, step] = useReducer(advance, INITIAL);
-  const { ref, animated, running, paused, togglePaused, hold } = useAutoplay<HTMLDivElement>();
+  const [state, dispatch] = useReducer(reduce, INITIAL);
+  const { ref, animated, running, started, paused, togglePaused } = useAutoplay<HTMLDivElement>();
+
+  // The first time it comes into view, the loop starts over, so it runs from the beginning in view.
+  useEffect(() => {
+    if (started) dispatch('restart');
+  }, [started]);
   const item = caseAt(state.index);
   const count = ruleCount(item);
   const decided = state.step > count;
@@ -228,12 +240,12 @@ export function EvidenceStory() {
   useEffect(() => {
     if (!running) return;
     const delay = state.step === 0 ? ARRIVE : state.step > count ? DECIDED : CHECK;
-    const timer = window.setTimeout(step, delay);
+    const timer = window.setTimeout(() => dispatch('advance'), delay);
     return () => window.clearTimeout(timer);
   }, [running, state, count]);
 
   return (
-    <div ref={ref} {...hold}>
+    <div ref={ref}>
       <p className="sr-only">{EVIDENCE_STORY_DESCRIPTION}</p>
       <div className="flex h-10 items-center justify-between gap-3 border-b pr-1 pl-3 sm:pl-4">
         <p aria-hidden="true" className="flex min-w-0 items-center gap-1.5 text-xs">

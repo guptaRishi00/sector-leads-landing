@@ -147,7 +147,7 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 
 // The clock: phase 0 the event, 1 the record, 2 the reading, 3 into the feed; how long each holds (ms).
 type Phase = 0 | 1 | 2 | 3;
-const HOLD: Record<Phase, number> = { 0: 1300, 1: 1500, 2: 1700, 3: 2600 };
+const HOLD: Record<Phase, number> = { 0: 850, 1: 1000, 2: 1150, 3: 1800 };
 
 interface State {
   story: number;
@@ -173,6 +173,13 @@ const INITIAL: State = {
   fresh: false,
   nextKey: SEEDS.length + 1,
 };
+
+/** Where the loop starts when the step first comes into view: the next event, at its first stage (the feed keeps its rows). */
+const RESTART: State = { ...INITIAL, story: 1 % STORIES.length, phase: 0, fresh: false };
+
+type Action = 'advance' | 'restart';
+
+const reduce = (state: State, action: Action): State => (action === 'restart' ? RESTART : advance(state));
 
 function advance(state: State): State {
   if (state.phase === 3)
@@ -211,13 +218,18 @@ function useStory(): Story {
 
 /** The clock and its pause rules, around the two halves (laid out by the caller). */
 export function SignalStory({ className, children }: { className?: string; children: ReactNode }) {
-  const [state, step] = useReducer(advance, INITIAL);
+  const [state, dispatch] = useReducer(reduce, INITIAL);
   // `animated` is false on the server and under reduced motion: the finished first frame stays put.
-  const { ref, animated, running, paused, togglePaused, hold } = useAutoplay<HTMLDivElement>();
+  const { ref, animated, running, started, paused, togglePaused } = useAutoplay<HTMLDivElement>();
+
+  // The first time it comes into view, the loop starts over, so it runs from the beginning in view.
+  useEffect(() => {
+    if (started) dispatch('restart');
+  }, [started]);
 
   useEffect(() => {
     if (!running) return;
-    const timer = window.setTimeout(step, HOLD[state.phase]);
+    const timer = window.setTimeout(() => dispatch('advance'), HOLD[state.phase]);
     return () => window.clearTimeout(timer);
   }, [running, state]);
 
@@ -233,7 +245,7 @@ export function SignalStory({ className, children }: { className?: string; child
 
   return (
     <StoryContext.Provider value={value}>
-      <div ref={ref} className={className} {...hold}>
+      <div ref={ref} className={className}>
         <p className="sr-only">{SIGNAL_STORY_DESCRIPTION}</p>
         {children}
       </div>
@@ -281,11 +293,12 @@ function Stage({ index, label, aside, last = false, children }: { index: number;
         <span
           className={cn(
             'relative mt-0.5 inline-flex size-4 shrink-0 items-center justify-center rounded-full transition-colors duration-300',
-            done ? 'bg-primary text-primary-foreground' : active ? 'border-2 border-primary bg-card' : 'border-2 border-border bg-card',
+            done ? 'bg-primary text-primary-foreground' : active ? 'bg-card text-primary' : 'border-2 border-border bg-card',
           )}
         >
           {done && <Icons.Check className="size-2.5" strokeWidth={3.5} />}
-          {active && <span className="size-1 rounded-full bg-primary motion-safe:animate-pulse" />}
+          {/* The stage being worked on: a loader (a still ring under reduced motion). */}
+          {active && <Icons.LoaderCircle className="size-4 motion-safe:animate-spin" strokeWidth={2.5} />}
         </span>
         {!last && (
           <span className="relative mt-1.5 mb-0.5 w-px flex-1 bg-border">
@@ -372,7 +385,7 @@ export function SignalExplainer({ className }: { className?: string }) {
                 className="pointer-events-none absolute inset-x-0 h-10 bg-linear-to-b from-transparent via-[color-mix(in_oklab,var(--primary)_14%,transparent)] to-transparent"
                 initial={{ top: '-2.5rem' }}
                 animate={{ top: '100%' }}
-                transition={{ duration: 1.3, ease: 'easeInOut' }}
+                transition={{ duration: 0.9, ease: 'easeInOut' }}
               />
             )}
           </div>
@@ -410,7 +423,7 @@ export function SignalExplainer({ className }: { className?: string }) {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{
                         duration: 0.3,
-                        delay: phase === 2 ? 0.15 + index * 0.2 : 0,
+                        delay: phase === 2 ? 0.1 + index * 0.15 : 0,
                         ease: EASE,
                       }}
                       className={cn('truncate', term === 'Document' ? 'font-mono text-[10.5px] text-foreground' : 'font-medium text-foreground')}

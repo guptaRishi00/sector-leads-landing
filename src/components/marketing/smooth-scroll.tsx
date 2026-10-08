@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 
 /**
  * Lenis smooth scrolling for the public pages, driven by GSAP's ticker so the scroll-linked GSAP
- * animations (ScrollTrigger, see HeroStage and ArcDraw) read the same smoothed position every frame.
+ * animations (ScrollTrigger, see HeroStage) read the same smoothed position every frame.
  * Off under reduced motion. `anchors` makes in-page links (the nav, "Join the waitlist", the step
  * rail, the skip link) glide too; Lenis honours each target's scroll-margin-top, so the sticky header
  * never covers a heading. It doesn't cancel the click, so the hash and focus still move natively.

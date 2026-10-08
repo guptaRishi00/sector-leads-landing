@@ -5,9 +5,7 @@ import { Reveal } from '../reveal';
 import { Tabs } from '../tabs';
 import { AppWindow, ActionLink, CONTENT_GAP, FrameTitle, Section, SectionHeader } from './ui';
 
-const PackChip = ({ children }: { children: string }) => (
-  <li className="rounded-md border bg-card px-2 py-1 text-[13px] text-foreground">{children}</li>
-);
+const PackChip = ({ children }: { children: string }) => <li className="rounded-md border bg-card px-2 py-1 text-[13px] text-foreground">{children}</li>;
 
 export function Industries() {
   const packs = livePacks();
@@ -17,7 +15,8 @@ export function Industries() {
       <SectionHeader
         eyebrow="Industries"
         titleId="industries-title"
-        title="Fifteen industries, each with its own rules"
+        title="Fifteen industries,"
+        accent="each with its own rules"
         lead="A pack decides which signals count for your industry, which sources to read and which companies to leave out, such as your competitors and staffing firms."
         action={<ActionLink href="#join">Join the waitlist</ActionLink>}
       />

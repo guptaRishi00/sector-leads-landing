@@ -10,8 +10,7 @@ export const CONTAINER = 'mx-auto w-full max-w-[84rem] px-5 sm:px-8';
 export const GUTTER = 'px-3 sm:px-6';
 export const FRAME = 'mx-auto w-full max-w-[84rem]';
 
-const FOCUS =
-  'rounded-sm outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid focus-visible:outline-ring';
+const FOCUS = 'rounded-sm outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid focus-visible:outline-ring';
 
 const NAV: readonly { href: string; label: string }[] = [
   { href: '/#how-it-works', label: 'How it works' },
@@ -34,11 +33,12 @@ export function BrandMark({ className }: { className?: string }) {
 
 function SiteHeader({ showNav }: { showNav: boolean }) {
   return (
-    // A full-width glass bar with a hairline under it, as on Attio: the logo and the section nav on
-    // the left, the two actions on the right. Its content spans FRAME, the same width as the
-    // sections' rails, so the logo and the last button sit on the rail lines. The sections' scroll-margin
-    // (scroll-mt-18) meets its 4.5rem.
-    <header className={cn('glass sticky top-0 z-40 border-b border-border/80', GUTTER)}>
+    // Leadistry's bar: plain page colour with a hairline under it, the logo and the section nav on
+    // the left, "Sign in" (outlined) and the call to action (ink) on the right, both with the site's
+    // 10px button corners. Its
+    // content spans FRAME, the sections' width, so the logo and the pill line up with the content.
+    // The sections' scroll-margin (scroll-mt-18) meets its 4.5rem.
+    <header className={cn('sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/85', GUTTER)}>
       <div className={cn(FRAME, 'relative flex h-18 items-center justify-between gap-3 sm:gap-6')}>
         <div className="flex items-center gap-10">
           <BrandMark />
@@ -47,7 +47,7 @@ function SiteHeader({ showNav }: { showNav: boolean }) {
               <ul className="flex items-center gap-7">
                 {NAV.map((item) => (
                   <li key={item.href}>
-                    <a href={item.href} className={cn('text-sm font-medium text-foreground/75 transition-colors hover:text-foreground', FOCUS)}>
+                    <a href={item.href} className={cn('text-sm text-foreground/75 transition-colors hover:text-foreground', FOCUS)}>
                       {item.label}
                     </a>
                   </li>
@@ -92,23 +92,34 @@ const FOOTER_COLUMNS: readonly { title: string; links: readonly { href: string; 
   },
 ];
 
+/** Leadistry's footer caption: small mono capitals. */
+const FOOTER_LABEL = 'font-mono text-[11px] leading-none font-medium tracking-[0.14em] uppercase';
+
 function SiteFooter() {
   const year = new Date().getFullYear();
   return (
-    <footer className="border-t">
-      <div className={cn(CONTAINER, 'flex flex-col gap-12 pt-14 pb-10 sm:pt-16')}>
-        <div className="grid grid-cols-1 gap-10 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)] sm:gap-8">
-          <div className="flex max-w-sm flex-col gap-3">
+    // Leadistry's dark footer: the same tokens scoped dark, the brand with its line and the call to
+    // action on the left, link columns under mono captions, then the legal line in mono.
+    <footer data-theme="dark" className="bg-sidebar text-foreground">
+      <div className={cn(CONTAINER, 'flex flex-col gap-14 pt-16 pb-10 sm:pt-20')}>
+        <div className="grid grid-cols-1 gap-12 sm:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)] sm:gap-8">
+          <div className="flex max-w-sm flex-col gap-5">
             <BrandMark />
-            <p className="text-sm text-pretty text-muted-foreground">{BRAND_TAGLINE}</p>
+            <p className="text-sm leading-6 text-pretty text-muted-foreground">{BRAND_TAGLINE}</p>
+            <Button asChild size="sm" className="group/cta h-9 w-fit rounded-lg bg-foreground px-3.5 text-background shadow-none hover:bg-foreground/85">
+              <a href="/#join">
+                Join the waitlist
+                <Icons.ArrowRight aria-hidden="true" className="transition-transform duration-200 group-hover/cta:translate-x-0.5" />
+              </a>
+            </Button>
           </div>
           {FOOTER_COLUMNS.map((column) => (
-            <nav key={column.title} aria-label={`Footer: ${column.title}`} className="flex flex-col gap-3.5">
-              <h2 className="text-[13px] font-[510] text-foreground">{column.title}</h2>
-              <ul className="flex flex-col gap-2.5 text-[13px]">
+            <nav key={column.title} aria-label={`Footer: ${column.title}`} className="flex flex-col gap-5">
+              <h2 className={cn(FOOTER_LABEL, 'text-muted-foreground')}>{column.title}</h2>
+              <ul className="flex flex-col gap-3 text-sm">
                 {column.links.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href} className={cn('text-muted-foreground transition-colors hover:text-foreground', FOCUS)}>
+                    <Link href={link.href} className={cn('text-foreground/80 transition-colors hover:text-foreground', FOCUS)}>
                       {link.label}
                     </Link>
                   </li>
@@ -118,7 +129,7 @@ function SiteFooter() {
           ))}
         </div>
         <div className="flex flex-col-reverse items-start justify-between gap-4 border-t pt-6 sm:flex-row sm:items-center">
-          <p className="text-[13px] text-muted-foreground">
+          <p className="font-mono text-[11px] tracking-[0.04em] text-muted-foreground">
             © {year} {BRAND_NAME}
           </p>
           <ThemeToggle />

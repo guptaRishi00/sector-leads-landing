@@ -1,9 +1,8 @@
 import { cn, Icons } from '@sl/ui';
 import { EXAMPLE_LEAD, EXAMPLE_SCORE, SEND_GATES, STEPS } from '@/lib/marketing/content';
 import { EvidenceStory } from '../evidence-story';
-import { Reveal } from '../reveal';
 import { SignalExplainer, SignalFeed, SignalStory } from '../signal-story';
-import { StepRail } from '../step-rail';
+import { StepCards } from '../step-cards';
 import { AppWindow, CONTENT_GAP, FrameTitle, Line, Section, SectionHeader, sentence, Tag } from './ui';
 
 const STEP_ICONS = {
@@ -115,53 +114,36 @@ export function HowItWorks() {
       <SectionHeader
         eyebrow="How it works"
         titleId="how-title"
-        title="From public event to approved email"
+        title="From public event"
+        accent="to approved email"
         lead="Five steps, in this order. A person decides at every point that matters."
       />
       <div className={CONTENT_GAP}>
-        <StepRail
+        <StepCards
           label="How it works, step by step"
-          items={STEPS.map((step) => ({
-            id: step.id,
-            title: step.title.split(',')[0] ?? step.title,
-          }))}
-        >
-          {STEPS.map((step) => {
+          steps={STEPS.map((step) => {
             const Icon = STEP_ICONS[step.icon];
-            return (
-              <article key={step.id} id={`step-${step.id}`} data-step="" aria-labelledby={`step-${step.id}-title`} className="scroll-mt-28">
-                <Reveal className="flex flex-col gap-7">
-                  <div className="flex max-w-2xl flex-col gap-4">
-                    {/* A quiet marker, not a badge: the muted glyph alone, flush with the heading. -ml-0.5 takes
-                        up the icon set's built-in 2px inset so the drawn shape meets the heading's edge. */}
-                    <Icon aria-hidden="true" className="-ml-0.5 size-5 shrink-0 text-muted-foreground" />
-                    <h3 id={`step-${step.id}-title`} className="text-[1.375rem] leading-[1.25] font-medium tracking-[-0.01em] text-balance sm:text-[1.75rem] sm:leading-[1.2]">
-                      <span className="text-foreground">{sentence(step.title)}</span>
-                      <span className="text-muted-foreground"> {step.body}</span>
-                    </h3>
-                  </div>
-                  {step.id === 'signal' ? (
-                    // The first step, drawn and then shown working, in one window: the three stages
-                    // as a panel beside a feed that runs by itself, on one clock (side by side from
-                    // xl, stacked below).
-                    <SignalStory>
-                      <AppWindow innerClassName="grid grid-cols-1 xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)]">
-                        <SignalExplainer className="border-b xl:border-r xl:border-b-0" />
-                        <div className="flex min-w-0">
-                          <SignalFeed />
-                        </div>
-                      </AppWindow>
-                    </SignalStory>
-                  ) : (
-                    <AppWindow>
-                      <StepVisual id={step.id} />
-                    </AppWindow>
-                  )}
-                </Reveal>
-              </article>
-            );
+            return { id: step.id, short: step.title.split(',')[0] ?? step.title, title: sentence(step.title), body: step.body, icon: <Icon className="size-[18px]" /> };
           })}
-        </StepRail>
+          views={STEPS.map((step) =>
+            step.id === 'signal' ? (
+              // The first step, drawn and then shown working, in one window: the three stages as a
+              // panel beside a feed that runs by itself, on one clock (side by side from xl, stacked below).
+              <SignalStory key={step.id}>
+                <AppWindow innerClassName="grid grid-cols-1 xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)]">
+                  <SignalExplainer className="border-b xl:border-r xl:border-b-0" />
+                  <div className="flex min-w-0">
+                    <SignalFeed />
+                  </div>
+                </AppWindow>
+              </SignalStory>
+            ) : (
+              <AppWindow key={step.id}>
+                <StepVisual id={step.id} />
+              </AppWindow>
+            ),
+          )}
+        />
       </div>
     </Section>
   );

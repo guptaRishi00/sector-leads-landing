@@ -5,7 +5,7 @@ import { HeroIntro } from '../hero-intro';
 import { HeroStage } from '../hero-stage';
 import { GUTTER } from '../marketing-shell';
 import { AppSidebar, HERO_FEED, LeadWindow } from './product';
-import { AppWindow, BUTTON, BUTTON_INK, BUTTON_PLAIN, INTRO } from './ui';
+import { AppWindow, BUTTON, BUTTON_PLAIN, BUTTON_PRIMARY, INTRO, TrustRow } from './ui';
 
 type Surface = 'glass' | 'liquid';
 
@@ -146,7 +146,8 @@ function HeroVisual() {
  * colour stays behind the window while HeroStage pins it; HeroStage eases the veil back
  * (`[data-stage=veil]`) as the window rises.
  */
-const WASH = 'radial-gradient(90% 80% at 50% 100%, color-mix(in oklab, var(--primary) 12%, var(--background)) 0%, color-mix(in oklab, var(--primary) 30%, var(--background)) 45%, color-mix(in oklab, var(--primary) 55%, var(--background)) 100%)';
+const WASH =
+  'radial-gradient(90% 80% at 50% 100%, color-mix(in oklab, var(--primary) 12%, var(--background)) 0%, color-mix(in oklab, var(--primary) 30%, var(--background)) 45%, color-mix(in oklab, var(--primary) 55%, var(--background)) 100%)';
 
 const LINES = 'repeating-linear-gradient(90deg, color-mix(in oklab, var(--background) 78%, transparent) 0 1px, transparent 1px 8px)';
 
@@ -171,7 +172,12 @@ export function Hero() {
     // backdrop and the content share one grid cell, as on Attio.
     <section aria-labelledby="hero-title" className="relative isolate grid overflow-x-clip border-b">
       <HeroBackdrop />
-      <HeroIntro className={cn(GUTTER, 'relative z-10 col-start-1 row-start-1 flex flex-col items-center pt-[clamp(4.5rem,16svh,10rem)] pb-(--hero-pb) text-center [--hero-pb:2.5rem] sm:[--hero-pb:3rem] lg:[--hero-pb:5rem]')}>
+      <HeroIntro
+        className={cn(
+          GUTTER,
+          'relative z-10 col-start-1 row-start-1 flex flex-col items-center pt-[clamp(4.5rem,16svh,10rem)] pb-(--hero-pb) text-center [--hero-pb:2.5rem] sm:[--hero-pb:3rem] lg:[--hero-pb:5rem]',
+        )}
+      >
         {/* The copy, as one block HeroStage fades and lifts away on scroll (its children keep their own intro). */}
         <div data-stage="copy" className="flex flex-col items-center">
           <a
@@ -191,20 +197,23 @@ export function Hero() {
             data-intro=""
             id="hero-title"
             className={cn(
-              'mt-8 max-w-[16ch] text-[2.5rem] leading-[1] font-semibold tracking-[-0.02em] text-balance text-foreground sm:max-w-[20ch] sm:text-6xl lg:max-w-none lg:text-[clamp(3rem,min(7.5svh,5vw),4.5rem)] lg:leading-[0.95] lg:whitespace-nowrap',
+              'mt-8 max-w-[16ch] font-display text-[2.75rem] leading-[1] font-medium tracking-[-0.025em] text-balance text-foreground sm:max-w-[20ch] sm:text-[4rem] lg:max-w-none lg:text-[clamp(3rem,min(9svh,6vw),5.75rem)] lg:leading-[0.95] lg:whitespace-nowrap',
               INTRO,
             )}
           >
-            Leads with the proof attached.
+            Leads with <span className="text-primary">the proof attached.</span>
           </h1>
-          <p data-intro="" className={cn('mt-6 max-w-[34rem] text-base leading-7 font-medium text-pretty text-muted-foreground sm:text-lg sm:leading-[1.55]', INTRO)}>
+          <p data-intro="" className={cn('mt-6 max-w-[34rem] text-base leading-7 text-pretty text-muted-foreground sm:text-lg sm:leading-[1.55]', INTRO)}>
             Tenders, filings, new directors, hiring and funding become leads you can check. Only what you approve is sent.
           </p>
+          <div data-intro="" className={cn('mt-5', INTRO)}>
+            <TrustRow className="justify-center" />
+          </div>
           <div data-intro="" className={cn('mt-9 flex flex-wrap items-center justify-center gap-2.5', INTRO)}>
             <Button asChild variant="outline" className={cn('h-10 px-4', BUTTON, BUTTON_PLAIN)}>
               <a href="#how-it-works">How it works</a>
             </Button>
-            <Button asChild className={cn('group/cta h-10 px-4', BUTTON, BUTTON_INK)}>
+            <Button asChild className={cn('group/cta h-10 px-4', BUTTON, BUTTON_PRIMARY)}>
               <a href="#join">
                 Join the waitlist
                 <Icons.ArrowRight aria-hidden="true" className="transition-transform duration-200 group-hover/cta:translate-x-0.5" />
@@ -217,7 +226,11 @@ export function Hero() {
               space above this wrapper) to the hero's bottom edge (--hero-pb below it, less the
               --rise the wrapper hands back), inside the gutter. Invisible; HeroStage reads it as
               the drag bounds. */}
-          <div aria-hidden="true" data-drag-zone="" className="pointer-events-none absolute inset-x-0 top-[calc(-1*var(--hero-gap))] bottom-[calc(-1*var(--hero-pb)_+_var(--rise,0px))]" />
+          <div
+            aria-hidden="true"
+            data-drag-zone=""
+            className="pointer-events-none absolute inset-x-0 top-[calc(-1*var(--hero-gap))] bottom-[calc(-1*var(--hero-pb)_+_var(--rise,0px))]"
+          />
           <HeroVisual />
         </div>
       </HeroIntro>
