@@ -3,7 +3,7 @@ import { cn } from '@sl/ui';
 import { SIGNAL_TYPES, type SignalType } from '@/lib/marketing/content';
 import * as Iconoir from '../iconoir';
 import { LINE_ART } from '../iconoir';
-import { Reveal } from '../reveal';
+import { Reveal, RevealGroup, RevealItem } from '../reveal';
 import { ActionLink, CONTENT_GAP, ICON_TILE, LEAD, NIGHT, NIGHT_MUTED, Section, SectionHeader, SIGNAL_ICONS } from './ui';
 
 // A bento after Aceternity's wobble-card demo (still, no hover), with the page's own signals: a wide
@@ -67,72 +67,70 @@ export function Signals() {
         <p className={cn(LEAD, 'mx-auto')}>Each signal is a dated record in a public source. The examples describe kinds of companies, not real ones.</p>
         <ActionLink href="#evidence">See how a lead is scored</ActionLink>
       </Reveal>
-      <Reveal className={CONTENT_GAP}>
-        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {featured !== undefined && (
-            <li className="sm:col-span-2">
-              <BentoCard noise containerClassName={cn('bg-primary text-primary-foreground', LIFT)} className={cn(GLOW, 'flex min-h-[24rem] flex-col p-7 sm:p-10 lg:min-h-[22rem]')}>
-                <div className="relative z-10 flex max-w-sm flex-col gap-4">
-                  <span className="inline-flex size-10 items-center justify-center rounded-lg bg-primary-foreground/15">
-                    <SignalIcon signal={featured} />
-                  </span>
-                  <h3 className={cn(TITLE, 'text-2xl lg:text-3xl')}>{featured.name}</h3>
-                  <p className="max-w-[36ch] text-base/6 font-medium text-primary-foreground/85">{featured.example}</p>
-                  <p className="font-mono text-[12px] text-primary-foreground/75">{featured.sources}</p>
-                </div>
-                {/* Supabase-style line art: a large outlined bank (the lender behind the registered charge), cropped by the corner. */}
-                <Iconoir.Bank className={cn(LINE_ART, '-right-10 -bottom-16 size-[20rem] text-primary-foreground/30 lg:size-[24rem]')} />
-              </BentoCard>
-            </li>
-          )}
-          {side !== undefined && (
-            <li className="sm:col-span-2 lg:col-span-1">
-              <BentoCard noise containerClassName={cn(NIGHT, LIFT)} className={cn(GLOW, 'flex min-h-[18rem] flex-col gap-4 p-7 sm:p-10')}>
-                {/* Supabase-style line art: a large outlined megaphone, cropped by the card's corner. */}
-                <Iconoir.Megaphone className={cn(LINE_ART, '-right-12 -bottom-14 size-72 text-background/30 dark:text-foreground/20')} />
+      <RevealGroup as="ul" className={cn(CONTENT_GAP, 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3')}>
+        {featured !== undefined && (
+          <RevealItem as="li" className="sm:col-span-2">
+            <BentoCard noise containerClassName={cn('bg-primary text-primary-foreground', LIFT)} className={cn(GLOW, 'flex min-h-[24rem] flex-col p-7 sm:p-10 lg:min-h-[22rem]')}>
+              <div className="relative z-10 flex max-w-sm flex-col gap-4">
+                <span className="inline-flex size-10 items-center justify-center rounded-lg bg-primary-foreground/15">
+                  <SignalIcon signal={featured} />
+                </span>
+                <h3 className={cn(TITLE, 'text-2xl lg:text-3xl')}>{featured.name}</h3>
+                <p className="max-w-[36ch] text-base/6 font-medium text-primary-foreground/85">{featured.example}</p>
+                <p className="font-mono text-[12px] text-primary-foreground/75">{featured.sources}</p>
+              </div>
+              {/* Supabase-style line art: a large outlined bank (the lender behind the registered charge), cropped by the corner. */}
+              <Iconoir.Bank className={cn(LINE_ART, '-right-10 -bottom-16 size-[20rem] text-primary-foreground/30 lg:size-[24rem]')} />
+            </BentoCard>
+          </RevealItem>
+        )}
+        {side !== undefined && (
+          <RevealItem as="li" className="sm:col-span-2 lg:col-span-1">
+            <BentoCard noise containerClassName={cn(NIGHT, LIFT)} className={cn(GLOW, 'flex min-h-[18rem] flex-col gap-4 p-7 sm:p-10')}>
+              {/* Supabase-style line art: a large outlined megaphone, cropped by the card's corner. */}
+              <Iconoir.Megaphone className={cn(LINE_ART, '-right-12 -bottom-14 size-72 text-background/30 dark:text-foreground/20')} />
+              <span className="inline-flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <Iconoir.Megaphone className="size-5" />
+              </span>
+              <h3 className={cn(TITLE, 'text-xl lg:text-2xl')}>{side.name}</h3>
+              <p className={cn('text-base/6 font-medium', NIGHT_MUTED)}>{side.example}</p>
+              <p className={cn('mt-auto font-mono text-[12px]', NIGHT_MUTED)}>{side.sources}</p>
+            </BentoCard>
+          </RevealItem>
+        )}
+        {rest.map((item) => (
+          <RevealItem as="li" key={item.id}>
+            <BentoCard containerClassName={cn('border bg-card', LIFT)} className="flex min-h-[15rem] flex-col gap-4 p-7">
+              <span className={ICON_TILE}>
+                <SignalIcon signal={item} />
+              </span>
+              <div className="flex flex-col gap-1.5">
+                <h3 className={cn(TITLE, 'text-lg text-foreground')}>{item.name}</h3>
+                <p className="text-[15px] leading-6 font-medium text-pretty text-muted-foreground">{item.example}</p>
+              </div>
+              <p className="mt-auto pt-1 font-mono text-[11px] text-muted-foreground">{item.sources}</p>
+            </BentoCard>
+          </RevealItem>
+        ))}
+        {closing !== undefined && (
+          <RevealItem as="li" className="sm:col-span-2 lg:col-span-3">
+            <BentoCard noise containerClassName={cn(NIGHT, LIFT)} className={cn(GLOW, 'min-h-[24rem] p-7 sm:p-10 lg:min-h-[18rem]')}>
+              {/* Supabase-style line art: a large outlined contract with a star (awarded), cropped by the card's bottom edge. */}
+              <Iconoir.PageStar
+                className={cn(LINE_ART, '-right-10 -bottom-20 size-[20rem] text-background/30 dark:text-foreground/20 lg:right-[8%] lg:-bottom-28 lg:size-[26rem]')}
+              />
+              <div className="relative z-10 flex max-w-sm flex-col gap-4 xl:max-w-md">
                 <span className="inline-flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                  <Iconoir.Megaphone className="size-5" />
+                  <Iconoir.CheckCircle className="size-5" />
                 </span>
-                <h3 className={cn(TITLE, 'text-xl lg:text-2xl')}>{side.name}</h3>
-                <p className={cn('text-base/6 font-medium', NIGHT_MUTED)}>{side.example}</p>
-                <p className={cn('mt-auto font-mono text-[12px]', NIGHT_MUTED)}>{side.sources}</p>
-              </BentoCard>
-            </li>
-          )}
-          {rest.map((item) => (
-            <li key={item.id}>
-              <BentoCard containerClassName={cn('border bg-card', LIFT)} className="flex min-h-[15rem] flex-col gap-4 p-7">
-                <span className={ICON_TILE}>
-                  <SignalIcon signal={item} />
-                </span>
-                <div className="flex flex-col gap-1.5">
-                  <h3 className={cn(TITLE, 'text-lg text-foreground')}>{item.name}</h3>
-                  <p className="text-[15px] leading-6 font-medium text-pretty text-muted-foreground">{item.example}</p>
-                </div>
-                <p className="mt-auto pt-1 font-mono text-[11px] text-muted-foreground">{item.sources}</p>
-              </BentoCard>
-            </li>
-          ))}
-          {closing !== undefined && (
-            <li className="sm:col-span-2 lg:col-span-3">
-              <BentoCard noise containerClassName={cn(NIGHT, LIFT)} className={cn(GLOW, 'min-h-[24rem] p-7 sm:p-10 lg:min-h-[18rem]')}>
-                {/* Supabase-style line art: a large outlined contract with a star (awarded), cropped by the card's bottom edge. */}
-                <Iconoir.PageStar
-                  className={cn(LINE_ART, '-right-10 -bottom-20 size-[20rem] text-background/30 dark:text-foreground/20 lg:right-[8%] lg:-bottom-28 lg:size-[26rem]')}
-                />
-                <div className="relative z-10 flex max-w-sm flex-col gap-4 xl:max-w-md">
-                  <span className="inline-flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                    <Iconoir.CheckCircle className="size-5" />
-                  </span>
-                  <h3 className={cn(TITLE, 'text-2xl lg:text-3xl')}>{closing.name}</h3>
-                  <p className={cn('max-w-[40ch] text-base/6 font-medium', NIGHT_MUTED)}>{closing.example}</p>
-                  <p className={cn('font-mono text-[12px]', NIGHT_MUTED)}>{closing.sources}</p>
-                </div>
-              </BentoCard>
-            </li>
-          )}
-        </ul>
-      </Reveal>
+                <h3 className={cn(TITLE, 'text-2xl lg:text-3xl')}>{closing.name}</h3>
+                <p className={cn('max-w-[40ch] text-base/6 font-medium', NIGHT_MUTED)}>{closing.example}</p>
+                <p className={cn('font-mono text-[12px]', NIGHT_MUTED)}>{closing.sources}</p>
+              </div>
+            </BentoCard>
+          </RevealItem>
+        )}
+      </RevealGroup>
     </Section>
   );
 }

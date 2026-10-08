@@ -14,6 +14,18 @@ const subscribeMotion = (onChange: () => void) => {
 };
 
 /**
+ * Reduced motion, hydration-safe: false on the server and during hydration (so the client's first
+ * render matches the server HTML), then the visitor's setting. Framer's useReducedMotion reads the
+ * setting on the first client render instead, which made the charts render during hydration.
+ */
+export const usePrefersReducedMotion = () =>
+  useSyncExternalStore(
+    subscribeMotion,
+    () => window.matchMedia(REDUCE).matches,
+    () => false,
+  );
+
+/**
  * The rules every self-playing illustration on the page follows (How it works' steps, Automation):
  * it plays only with motion allowed (`animated` is false on the server and under reduced motion, so
  * the server's frame stays put), only while it is in view (at least IN_VIEW of it on screen), and

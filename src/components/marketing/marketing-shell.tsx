@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Button, Icons, ThemeToggle, cn } from '@sl/ui';
 import { BRAND_NAME, BRAND_TAGLINE } from '@/lib/marketing/brand';
 import { MobileNav } from './mobile-nav';
+import { RevealGroup, RevealItem } from './reveal';
 import { SmoothScroll } from './smooth-scroll';
 
 export const CONTAINER = 'mx-auto w-full max-w-[84rem] px-5 sm:px-8';
@@ -102,8 +103,8 @@ function SiteFooter() {
     // action on the left, link columns under mono captions, then the legal line in mono.
     <footer data-theme="dark" className="bg-sidebar text-foreground">
       <div className={cn(CONTAINER, 'flex flex-col gap-14 pt-16 pb-10 sm:pt-20')}>
-        <div className="grid grid-cols-1 gap-12 sm:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)] sm:gap-8">
-          <div className="flex max-w-sm flex-col gap-5">
+        <RevealGroup className="grid grid-cols-1 gap-12 sm:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)] sm:gap-8">
+          <RevealItem className="flex max-w-sm flex-col gap-5">
             <BrandMark />
             <p className="text-sm leading-6 text-pretty text-muted-foreground">{BRAND_TAGLINE}</p>
             <Button asChild size="sm" className="group/cta h-9 w-fit rounded-lg bg-foreground px-3.5 text-background shadow-none hover:bg-foreground/85">
@@ -112,22 +113,24 @@ function SiteFooter() {
                 <Icons.ArrowRight aria-hidden="true" className="transition-transform duration-200 group-hover/cta:translate-x-0.5" />
               </a>
             </Button>
-          </div>
+          </RevealItem>
           {FOOTER_COLUMNS.map((column) => (
-            <nav key={column.title} aria-label={`Footer: ${column.title}`} className="flex flex-col gap-5">
-              <h2 className={cn(FOOTER_LABEL, 'text-muted-foreground')}>{column.title}</h2>
-              <ul className="flex flex-col gap-3 text-sm">
-                {column.links.map((link) => (
-                  <li key={link.href}>
-                    <Link href={link.href} className={cn('text-foreground/80 transition-colors hover:text-foreground', FOCUS)}>
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
+            <RevealItem key={column.title}>
+              <nav aria-label={`Footer: ${column.title}`} className="flex flex-col gap-5">
+                <h2 className={cn(FOOTER_LABEL, 'text-muted-foreground')}>{column.title}</h2>
+                <ul className="flex flex-col gap-3 text-sm">
+                  {column.links.map((link) => (
+                    <li key={link.href}>
+                      <Link href={link.href} className={cn('text-foreground/80 transition-colors hover:text-foreground', FOCUS)}>
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            </RevealItem>
           ))}
-        </div>
+        </RevealGroup>
         <div className="flex flex-col-reverse items-start justify-between gap-4 border-t pt-6 sm:flex-row sm:items-center">
           <p className="font-mono text-[11px] tracking-[0.04em] text-muted-foreground">
             © {year} {BRAND_NAME}

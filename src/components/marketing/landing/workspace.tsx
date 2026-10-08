@@ -2,7 +2,7 @@ import { EXAMPLE_LEAD, EXAMPLE_SCORE, SEND_GATES, SIGNAL_TYPES } from '@/lib/mar
 import { Reveal } from '../reveal';
 import { ResultsChart } from '../results-chart';
 import { AppSidebar } from './product';
-import { ActionLink, AppWindow, CONTENT_GAP, Section, SectionHeader, Tag } from './ui';
+import { ActionLink, AppWindow, CONTENT_GAP, Painting, PAINTINGS, Section, SectionHeader, Tag } from './ui';
 
 /* ------------------------------------------------------------------------------------------------
  * Workspace: a dashboard mock-up of the product. Every figure is from the content (the three
@@ -23,10 +23,10 @@ const KPIS: readonly { label: string; value: string; note: string }[] = [
   { label: 'Send gates', value: String(SEND_GATES.length), note: 'checked on every send' },
 ];
 
-// Two example series, no values: the contacted group against the holdout, the comparison Results makes.
-const CONTACTED = '0,78 14,70 28,66 42,54 56,48 70,36 84,30 100,20';
-
-const HOLDOUT = '0,80 14,78 28,75 42,74 56,70 70,68 84,66 100,62';
+// Two example series, shape only (the chart shows no values): the contacted group against the holdout, the comparison Results makes.
+const CONTACTED = [12, 20, 24, 36, 42, 54, 60, 70];
+const HOLDOUT = [10, 12, 15, 16, 20, 22, 24, 28];
+const RESULTS = CONTACTED.map((value, index) => ({ week: `W${index + 1}`, Contacted: value, Holdout: HOLDOUT[index] ?? 0 }));
 
 export function Workspace() {
   return (
@@ -40,44 +40,49 @@ export function Workspace() {
         action={<ActionLink href="#join">Join the waitlist</ActionLink>}
       />
       <Reveal className={CONTENT_GAP}>
-        <AppWindow shadow innerClassName="flex">
-          <div aria-hidden="true" className="flex w-full">
-            <AppSidebar className="hidden md:flex" />
-            <div className="flex min-w-0 flex-1 flex-col gap-4 p-4 sm:gap-5 sm:p-6">
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-base font-medium text-foreground">Approval queue</p>
-                <Tag>Example workspace</Tag>
-              </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                {KPIS.map((kpi) => (
-                  <div key={kpi.label} className="flex flex-col gap-1 rounded-lg border p-3.5">
-                    <span className="text-[12px] text-muted-foreground">{kpi.label}</span>
-                    <span className="font-mono text-2xl font-medium tracking-tight text-foreground tabular-nums">{kpi.value}</span>
-                    <span className="text-[11px] text-muted-foreground">{kpi.note}</span>
-                  </div>
-                ))}
-              </div>
-              {/* Results, full width: contacted accounts against the holdout, drawn in on view. */}
-              <div className="flex flex-col gap-3 rounded-lg border p-3.5 sm:p-4">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-[13px] font-medium text-foreground">Results: meetings</p>
-                  <span className="flex gap-3 text-[11px] text-muted-foreground">
-                    <span className="inline-flex items-center gap-1.5">
-                      <span className="h-0.5 w-3 rounded-full bg-primary" />
-                      Contacted
-                    </span>
-                    <span className="inline-flex items-center gap-1.5">
-                      <span className="h-0.5 w-3 rounded-full bg-muted-foreground/60" />
-                      Holdout
-                    </span>
-                  </span>
+        <Painting src={PAINTINGS.valley}>
+          <AppWindow innerClassName="flex">
+            <div aria-hidden="true" className="flex w-full">
+              <AppSidebar className="hidden md:flex" />
+              <div className="flex min-w-0 flex-1 flex-col gap-4 p-4 sm:gap-5 sm:p-6">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-base font-medium text-foreground">Approval queue</p>
+                  <Tag>Example workspace</Tag>
                 </div>
-                <ResultsChart contacted={CONTACTED} holdout={HOLDOUT} className="h-44 pr-1.5 sm:h-52" />
-                <p className="text-[11px] text-muted-foreground">The gap between the lines is the lift outreach added. Example shape, no real data.</p>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  {KPIS.map((kpi) => (
+                    <div
+                      key={kpi.label}
+                      className="flex flex-col gap-1 rounded-lg border border-selected-border/60 bg-linear-to-br from-selected via-selected/50 to-card p-3.5 shadow-none"
+                    >
+                      <span className="text-[12px] text-muted-foreground">{kpi.label}</span>
+                      <span className="font-mono text-2xl font-medium tracking-tight text-foreground tabular-nums">{kpi.value}</span>
+                      <span className="text-[11px] text-muted-foreground">{kpi.note}</span>
+                    </div>
+                  ))}
+                </div>
+                {/* Results, full width: contacted accounts against the holdout, drawn in on view. */}
+                <div className="flex flex-col gap-3 rounded-lg border p-3.5 sm:p-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-[13px] font-medium text-foreground">Results: meetings</p>
+                    <span className="flex gap-3 text-[11px] text-muted-foreground">
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="h-0.5 w-3 rounded-full bg-primary" />
+                        Contacted
+                      </span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="h-0.5 w-3 rounded-full bg-muted-foreground/60" />
+                        Holdout
+                      </span>
+                    </span>
+                  </div>
+                  <ResultsChart data={RESULTS} className="h-44 sm:h-52" />
+                  <p className="text-[11px] text-muted-foreground">The gap between the lines is the lift outreach added. Example shape, no real data.</p>
+                </div>
               </div>
             </div>
-          </div>
-        </AppWindow>
+          </AppWindow>
+        </Painting>
       </Reveal>
     </Section>
   );

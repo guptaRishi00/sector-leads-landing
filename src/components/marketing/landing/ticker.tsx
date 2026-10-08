@@ -1,6 +1,7 @@
 import { cn } from '@sl/ui';
 import { GUTTER } from '../marketing-shell';
 import { Marquee } from '../marquee';
+import { Reveal } from '../reveal';
 import { SOURCES, STATS } from './proof-bar';
 import { MONO_LABEL, TRUST } from './ui';
 
@@ -21,7 +22,9 @@ export function Ticker() {
   ];
   return (
     <section aria-label="In short" data-theme="dark" className={cn('border-b bg-sidebar text-foreground', GUTTER)}>
-      <Marquee items={items} className="min-h-10" itemClassName={cn(MONO_LABEL, 'px-6 text-muted-foreground sm:px-8 motion-reduce:py-2')} />
+      <Reveal rise={false}>
+        <Marquee items={items} className="min-h-10" itemClassName={cn(MONO_LABEL, 'px-6 text-muted-foreground sm:px-8 motion-reduce:py-2')} />
+      </Reveal>
     </section>
   );
 }

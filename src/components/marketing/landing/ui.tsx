@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import type { ReactNode } from 'react';
 import { Button, cn, Icons } from '@sl/ui';
 import { FRAME, GUTTER } from '../marketing-shell';
@@ -55,8 +56,8 @@ export const EDGE = 'dark:shadow-[inset_0_1px_0_color-mix(in_oklab,var(--foregro
 /** The content frame: the header's width. */
 export const RAIL = FRAME;
 
-/** Leadistry's wide inner margin between the frame's edge and the content. */
-export const INNER = 'px-5 sm:px-10 lg:px-24';
+/** The inner margin between the frame's edge and the content: none, so sections span the header's width (the logo to the last button). */
+export const INNER = '';
 
 /** Three promises, each stated elsewhere on the page (How it works and Compliance). */
 export const TRUST: readonly string[] = ['A person approves every lead and email', 'Every lead links to its public source', 'Sent from your own mailbox'];
@@ -199,6 +200,22 @@ export function AppWindow({ shadow = false, className, innerClassName, children 
         <span className="size-3 rounded-full bg-[color-mix(in_oklab,var(--success)_75%,var(--card))]" />
       </div>
       <div className={cn('min-h-0 flex-1 overflow-hidden rounded-xl border bg-card', shadow && EDGE, innerClassName)}>{children}</div>
+    </div>
+  );
+}
+
+/** The paintings behind product windows, as in How it works (public/how-it-works/; 1 and 4 are the same picture). */
+export const PAINTINGS = { sunset: '/how-it-works/1.webp', lake: '/how-it-works/2.webp', valley: '/how-it-works/3.webp' } as const;
+
+/**
+ * A painting as the ground of a product window, the way How it works sets its demos: the picture
+ * fills a rounded panel and the window sits on it with a margin. Decoration only (empty alt).
+ */
+export function Painting({ src, className, children }: { src: string; className?: string; children: ReactNode }) {
+  return (
+    <div className={cn('relative isolate overflow-hidden rounded-2xl border p-3 sm:p-6 lg:p-10', className)}>
+      <Image src={src} alt="" fill sizes="(min-width: 1344px) 1344px, 100vw" className="-z-10 object-cover" />
+      {children}
     </div>
   );
 }

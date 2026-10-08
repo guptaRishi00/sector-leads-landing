@@ -1,7 +1,9 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useReducer, type ReactNode } from 'react';
+import { Handle, Position, ReactFlow, getSmoothStepPath, useReactFlow, useStore, type Edge, type EdgeProps, type Node, type NodeProps } from '@xyflow/react';
+import '@xyflow/react/dist/base.css';
+import { createContext, useContext, useEffect, useReducer, type ReactNode } from 'react';
 import { cn, Icons } from '@sl/ui';
 import { EXAMPLE_LEAD, EXAMPLE_SCORE, SEND_GATES } from '@/lib/marketing/content';
 import { useAutoplay } from './use-autoplay';
@@ -19,9 +21,11 @@ import { useAutoplay } from './use-autoplay';
  * runs again. The server renders the frame where the run waits for your approval (and it stays there
  * under reduced motion); it plays under the page's autoplay rules (useAutoplay).
  *
- * The diagram is one SVG with a fixed coordinate system (cards are HTML in <foreignObject>), so it
- * scales as one picture; below lg the same steps and statuses show as a stacked list. Illustration
- * only: role="img" with a text description, inner markup aria-hidden.
+ * The diagram is a React Flow canvas (@xyflow/react): custom step-card nodes and connector edges on
+ * its smooth-step routing, laid out in flow units and fitted to the window; every interaction (drag,
+ * select, pan, zoom, focus) is off and the page scrolls through it. Below lg the same steps and
+ * statuses show as a stacked list. Illustration only: role="img" with a text description, inner
+ * markup aria-hidden.
  * ---------------------------------------------------------------------------------------------- */
 
 type Tone = 'blue' | 'green' | 'amber' | 'coral';
@@ -96,7 +100,7 @@ const LONG_LINK = 0.75;
 const HOLD: Record<Stage, number> = { idle: 350, run: RUN * 1000, wait: 1300, link: LINK * 1000, end: 1800, fade: 450 };
 
 /** The connector into node `to` from the one before it is the long elbow when they sit on different rows. */
-const longLinkInto = (to: number) => cardTop(to) !== cardTop(to - 1);
+const longLinkInto = (to: number) => row(to) !== row(to - 1);
 
 /** Where the run starts when the canvas first comes into view: idle, every step queued. */
 const RESTART: FlowState = { at: -1, stage: 'idle' };
@@ -145,65 +149,6 @@ function wireInto(to: number, state: FlowState): Wire {
   return 'idle';
 }
 
-// The canvas, in SVG user units: two rows of four cards.
-const VIEW_W = 1200;
-const VIEW_H = 520;
-const CARD_W = 248;
-const CARD_H = 92;
-const PILL_H = 30;
-const PAD = 6; // room around each card for its focus-like ring
-const ROW_TOP = [96, 380] as const;
-const COL_GAP = (VIEW_W - 80 - 4 * CARD_W) / 3;
-const RADIUS = 12;
-
-function cardX(index: number) {
-  return 40 + (index % 4) * (CARD_W + COL_GAP);
-}
-function cardTop(index: number) {
-  return ROW_TOP[index < 4 ? 0 : 1];
-}
-const portY = (index: number) => cardTop(index) + CARD_H / 2;
-
-/** The connector into node `to` from the node before it: straight along a row, or the long elbowed run from the top row back under it. */
-function connectorPath(to: number) {
-  const from = to - 1;
-  const sx = cardX(from) + CARD_W;
-  const sy = portY(from);
-  const tx = cardX(to) - 1;
-  const ty = portY(to);
-  if (sy === ty) return `M ${sx} ${sy} H ${tx}`;
-  const right = sx + 22;
-  const left = 18;
-  const mid = (cardTop(from) + CARD_H + cardTop(to) - PILL_H) / 2;
-  const r = RADIUS;
-  return [
-    `M ${sx} ${sy}`,
-    `H ${right - r} Q ${right} ${sy} ${right} ${sy + r}`,
-    `V ${mid - r} Q ${right} ${mid} ${right - r} ${mid}`,
-    `H ${left + r} Q ${left} ${mid} ${left} ${mid + r}`,
-    `V ${ty - r} Q ${left} ${ty} ${left + r} ${ty}`,
-    `H ${tx}`,
-  ].join(' ');
-}
-
-/** A card's outline as one path from its top-left corner, clockwise (the trigger's top-left corner is square). */
-function outlinePath(index: number) {
-  const x = cardX(index) + 0.5;
-  const y = cardTop(index) + 0.5;
-  const w = CARD_W - 1;
-  const h = CARD_H - 1;
-  const r = RADIUS;
-  const tl = index === 0 ? 0 : r;
-  return [
-    `M ${x + tl} ${y}`,
-    `H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r}`,
-    `V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h}`,
-    `H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r}`,
-    `V ${y + tl}`,
-    tl > 0 ? `Q ${x} ${y} ${x + tl} ${y}` : '',
-  ].join(' ');
-}
-
 function StatusPill({ status, className }: { status: Status; className?: string }) {
   const style = STATUS[status];
   return (
@@ -250,102 +195,202 @@ function IconTile({ node, className }: { node: FlowNode; className?: string }) {
   );
 }
 
-/** One step card with its pill row (and the Trigger tab on the first), as HTML inside the SVG. */
-function FlowCard({ node, index, status }: { node: FlowNode; index: number; status: Status }) {
+// The canvas, in flow units: two rows of four step cards (a pill row above each card), laid out and
+// scaled by React Flow (fitView), joined by its smooth-step connectors.
+const CARD_W = 248;
+const CARD_H = 92;
+const PILL_H = 30;
+const COL_GAP = 48;
+const ROW_GAP = 290;
+const RADIUS = 12;
+
+const row = (index: number) => (index < 4 ? 0 : 1);
+
+/** A card's outline, in its own box, from its top-left corner clockwise (the trigger's top-left corner is square). */
+function outline(trigger: boolean) {
+  const [x, y, w, h, r] = [0.5, 0.5, CARD_W - 1, CARD_H - 1, RADIUS];
+  const tl = trigger ? 0 : r;
+  return [
+    `M ${x + tl} ${y}`,
+    `H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r}`,
+    `V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h}`,
+    `H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r}`,
+    `V ${y + tl}`,
+    tl > 0 ? `Q ${x} ${y} ${x + tl} ${y}` : '',
+  ].join(' ');
+}
+
+type StepData = { node: FlowNode; index: number };
+type LabelData = { text: string };
+type WireData = { to: number };
+
+/**
+ * The run's state, read by the step and wire components through context. React Flow is handed one
+ * fixed set of nodes and edges (below) and never sees the state change: when it was carried in node
+ * and edge data, every tick gave React Flow new nodes to re-process and it dropped every connector
+ * for one frame while re-reading their handles, which showed as a flicker in a real browser.
+ */
+const RunContext = createContext<FlowState>(INITIAL);
+
+/** The handles React Flow joins, at the card's middle height, invisible (the port dot is drawn by the card). */
+const HANDLE = { top: PILL_H + CARD_H / 2, width: 1, height: 1, minWidth: 0, minHeight: 0, border: 0, background: 'transparent' } as const;
+
+/** One step: the pill row (with the Trigger tab on the first) over the card, a blue trace round it while it runs. */
+function StepNode({ data }: NodeProps<Node<StepData, 'step'>>) {
+  const { node, index } = data;
+  const state = useContext(RunContext);
+  const status = statusOf(index, state);
+  const tracing = state.stage === 'run' && state.at === index;
+  const port = index === LAST ? 'none' : wireInto(index + 1, state) === 'idle' ? 'idle' : 'live';
   const trigger = index === 0;
   return (
-    <foreignObject x={cardX(index) - PAD} y={cardTop(index) - PILL_H} width={CARD_W + PAD * 2} height={CARD_H + PILL_H + PAD}>
-      <div className="flex h-full flex-col px-1.5 pb-1.5">
-        <div className="flex h-[30px] shrink-0 items-end justify-between">
-          {trigger ? (
-            <span className="inline-flex h-6 items-center gap-1 rounded-t-md bg-primary px-2 text-xs font-medium text-primary-foreground">
-              <Icons.Play className="size-3" />
-              Trigger
-            </span>
-          ) : (
-            <span />
-          )}
-          <Pill status={status} className="mb-1.5" />
-        </div>
-        <div
-          className={cn(
-            'flex flex-1 flex-col justify-center gap-1.5 rounded-xl border bg-card px-3.5 transition-[border-color,box-shadow] duration-300',
-            trigger && 'rounded-tl-none',
-            STATUS[status].card,
-          )}
-        >
-          <div className="flex min-w-0 items-center gap-2.5">
-            <IconTile node={node} />
-            <span className="truncate text-[15px] font-medium text-foreground">{node.label}</span>
-          </div>
-          <p className="truncate text-[13px] text-muted-foreground">{node.detail}</p>
-        </div>
+    <div className="flex flex-col" style={{ width: CARD_W, height: PILL_H + CARD_H }}>
+      <Handle type="target" position={Position.Left} isConnectable={false} style={HANDLE} />
+      <div className="flex h-[30px] shrink-0 items-end justify-between">
+        {trigger ? (
+          <span className="inline-flex h-6 items-center gap-1 rounded-t-md bg-primary px-2 text-xs font-medium text-primary-foreground">
+            <Icons.Play className="size-3" />
+            Trigger
+          </span>
+        ) : (
+          <span />
+        )}
+        <Pill status={status} className="mb-1.5" />
       </div>
-    </foreignObject>
+      <div
+        className={cn(
+          'relative flex flex-1 flex-col justify-center gap-1.5 rounded-xl border bg-card px-3.5 transition-[border-color,box-shadow] duration-300',
+          trigger && 'rounded-tl-none',
+          STATUS[status].card,
+        )}
+      >
+        <div className="flex min-w-0 items-center gap-2.5">
+          <IconTile node={node} />
+          <span className="truncate text-[15px] font-medium text-foreground">{node.label}</span>
+        </div>
+        <p className="truncate text-[13px] text-muted-foreground">{node.detail}</p>
+        {tracing && (
+          <svg className="pointer-events-none absolute -inset-px overflow-visible" width={CARD_W} height={CARD_H}>
+            <motion.path
+              d={outline(trigger)}
+              fill="none"
+              strokeWidth={1.5}
+              strokeLinecap="round"
+              className="stroke-primary"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: RUN, ease: 'linear' }}
+            />
+          </svg>
+        )}
+        {port !== 'none' && (
+          <span
+            className={cn(
+              'absolute top-1/2 -right-[5px] size-2.5 -translate-y-1/2 rounded-full border-2 border-card transition-colors duration-300',
+              port === 'live' ? 'bg-primary' : 'bg-control/60',
+            )}
+          />
+        )}
+      </div>
+      <Handle type="source" position={Position.Right} isConnectable={false} style={HANDLE} />
+    </div>
   );
 }
 
+function LabelNode({ data }: NodeProps<Node<LabelData, 'label'>>) {
+  return <span className="text-[13px] font-medium whitespace-nowrap text-muted-foreground">{data.text}</span>;
+}
+
+/** A connector: React Flow's smooth-step route, grey, with the live blue line drawn along it and its arrowhead on arrival. */
+function WireEdge({ sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, data }: EdgeProps<Edge<WireData, 'wire'>>) {
+  const [path] = getSmoothStepPath({ sourceX, sourceY, sourcePosition, targetX, targetY, targetPosition, borderRadius: RADIUS, offset: 22 });
+  const to = data?.to ?? 0;
+  const wire = wireInto(to, useContext(RunContext));
+  const arrow = `M ${targetX - 6} ${targetY - 4.5} L ${targetX} ${targetY} L ${targetX - 6} ${targetY + 4.5}`;
+  return (
+    <g fill="none" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+      <path d={path} className="stroke-control/50" />
+      <path d={arrow} className="stroke-control/50" />
+      <motion.path
+        d={path}
+        className="stroke-primary"
+        animate={{ pathLength: wire === 'idle' ? 0 : 1, opacity: wire === 'idle' ? 0 : 1 }}
+        transition={wire === 'drawing' ? { duration: longLinkInto(to) ? LONG_LINK : LINK, ease: 'easeInOut' } : { duration: 0 }}
+      />
+      <motion.path d={arrow} className="stroke-primary" animate={{ opacity: wire === 'drawn' ? 1 : 0 }} transition={{ duration: wire === 'drawn' ? 0.15 : 0 }} />
+    </g>
+  );
+}
+
+const NODE_TYPES = { step: StepNode, label: LabelNode };
+const EDGE_TYPES = { wire: WireEdge };
+
+/** Keeps the whole run in frame when the window (and so the canvas) changes width. */
+function FitOnResize() {
+  const { fitView } = useReactFlow();
+  const width = useStore((store) => store.width);
+  useEffect(() => {
+    if (width > 0) void fitView({ padding: 0.05 });
+  }, [width, fitView]);
+  return null;
+}
+
+/** The canvas's nodes and edges: built once and never changed (the run state reaches them through RunContext). */
+const NODES: Node[] = [
+  { id: 'label-automated', type: 'label', position: { x: 0, y: -44 }, width: 200, height: 20, data: { text: 'Automated' } satisfies LabelData },
+  { id: 'label-after', type: 'label', position: { x: 0, y: ROW_GAP - 44 }, width: 200, height: 20, data: { text: 'After your approval' } satisfies LabelData },
+  ...FLOW_NODES.map((node, index) => ({
+    id: node.id,
+    type: 'step',
+    position: { x: (index % 4) * (CARD_W + COL_GAP), y: row(index) * ROW_GAP },
+    width: CARD_W,
+    height: PILL_H + CARD_H,
+    data: { node, index } satisfies StepData,
+  })),
+];
+
+const EDGES: Edge[] = FLOW_NODES.slice(1).map((node, offset) => ({
+  id: `wire-${node.id}`,
+  source: FLOW_NODES[offset]?.id ?? '',
+  target: node.id,
+  type: 'wire',
+  data: { to: offset + 1 } satisfies WireData,
+}));
+
 function FlowCanvas({ state }: { state: FlowState }) {
   return (
-    <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} className="block h-auto w-full">
-      {/* The whole run fades out before it resets. */}
-      <motion.g animate={{ opacity: state.stage === 'fade' ? 0.15 : 1 }} transition={{ duration: HOLD.fade / 1000, ease: 'easeInOut' }}>
-        <text x={40} y={36} className="fill-muted-foreground text-[13px] font-medium">
-          Automated
-        </text>
-        <text x={40} y={ROW_TOP[1] - PILL_H - 12} className="fill-muted-foreground text-[13px] font-medium">
-          After your approval
-        </text>
-        {FLOW_NODES.slice(1).map((node, offset) => {
-          const to = offset + 1;
-          const tx = cardX(to) - 1;
-          const ty = portY(to);
-          const wire = wireInto(to, state);
-          const arrow = `M ${tx - 6} ${ty - 4.5} L ${tx} ${ty} L ${tx - 6} ${ty + 4.5}`;
-          return (
-            <g key={node.id} fill="none" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-              <path d={connectorPath(to)} className="stroke-control/50" />
-              <path d={arrow} className="stroke-control/50" />
-              {/* The live line, drawn from the port along the connector, then its arrowhead. */}
-              <motion.path
-                d={connectorPath(to)}
-                className="stroke-primary"
-                animate={{ pathLength: wire === 'idle' ? 0 : 1, opacity: wire === 'idle' ? 0 : 1 }}
-                transition={wire === 'drawing' ? { duration: longLinkInto(to) ? LONG_LINK : LINK, ease: 'easeInOut' } : { duration: 0 }}
-              />
-              <motion.path d={arrow} className="stroke-primary" animate={{ opacity: wire === 'drawn' ? 1 : 0 }} transition={{ duration: wire === 'drawn' ? 0.15 : 0 }} />
-            </g>
-          );
-        })}
-        {FLOW_NODES.slice(0, -1).map((node, index) => (
-          <circle
-            key={node.id}
-            cx={cardX(index) + CARD_W}
-            cy={portY(index)}
-            r={4}
-            strokeWidth={2}
-            className={cn('stroke-card transition-[fill] duration-300', wireInto(index + 1, state) === 'idle' ? 'fill-control/60' : 'fill-primary')}
-          />
-        ))}
-        {FLOW_NODES.map((node, index) => (
-          <FlowCard key={node.id} node={node} index={index} status={statusOf(index, state)} />
-        ))}
-        {/* The step running: a blue line traces its border once round. */}
-        {state.stage === 'run' && (
-          <motion.path
-            key={`trace-${state.at}`}
-            d={outlinePath(state.at)}
-            fill="none"
-            strokeWidth={1.5}
-            strokeLinecap="round"
-            className="stroke-primary"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: RUN, ease: 'linear' }}
-          />
-        )}
-      </motion.g>
-    </svg>
+    // The whole run fades out before it resets.
+    <motion.div className="aspect-[1200/560] w-full" animate={{ opacity: state.stage === 'fade' ? 0.15 : 1 }} transition={{ duration: HOLD.fade / 1000, ease: 'easeInOut' }}>
+      <RunContext.Provider value={state}>
+        <ReactFlow
+          nodes={NODES}
+          edges={EDGES}
+          nodeTypes={NODE_TYPES}
+          edgeTypes={EDGE_TYPES}
+          fitView
+          fitViewOptions={{ padding: 0.05 }}
+          minZoom={0.2}
+          maxZoom={1.5}
+          // An illustration, not an editor: nothing to drag, select, connect, focus, pan or zoom, and the
+          // page scrolls through it.
+          nodesDraggable={false}
+          nodesConnectable={false}
+          nodesFocusable={false}
+          edgesFocusable={false}
+          elementsSelectable={false}
+          panOnDrag={false}
+          panOnScroll={false}
+          zoomOnScroll={false}
+          zoomOnPinch={false}
+          zoomOnDoubleClick={false}
+          preventScrolling={false}
+          proOptions={{ hideAttribution: true }}
+          style={{ background: 'transparent' }}
+        >
+          <FitOnResize />
+        </ReactFlow>
+      </RunContext.Provider>
+    </motion.div>
   );
 }
 

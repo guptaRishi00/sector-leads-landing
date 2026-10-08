@@ -2,7 +2,7 @@ import { cn } from '@sl/ui';
 import { BRAND_NAME } from '@/lib/marketing/brand';
 import { EXAMPLE_SCORE, INDUSTRY_PACKS, SEND_GATES, SIGNAL_TYPES } from '@/lib/marketing/content';
 import { GUTTER } from '../marketing-shell';
-import { Reveal } from '../reveal';
+import { RevealGroup, RevealItem } from '../reveal';
 import { INNER, MONO_LABEL, RAIL } from './ui';
 
 // Counted from the content itself, so a figure can't drift from the list it describes.
@@ -27,16 +27,14 @@ export function ProofBar() {
         <h2 id="proof-bar-title" className="sr-only">
           {BRAND_NAME} at a glance
         </h2>
-        <Reveal>
-          <dl className={cn(INNER, 'grid grid-cols-2 gap-y-12 py-20 sm:py-24 lg:grid-cols-4')}>
-            {STATS.map((stat, index) => (
-              <div key={stat.label} className={cn('flex flex-col items-center gap-4 px-4 text-center', index % 2 === 1 && 'border-l', index === 2 && 'lg:border-l')}>
-                <dt className={cn(MONO_LABEL, 'order-2 max-w-[22ch] leading-[1.5] text-muted-foreground')}>{stat.label}</dt>
-                <dd className="order-1 font-display text-6xl leading-none font-medium tracking-[-0.03em] text-foreground tabular-nums sm:text-7xl">{stat.value}</dd>
-              </div>
-            ))}
-          </dl>
-        </Reveal>
+        <RevealGroup as="dl" className={cn(INNER, 'grid grid-cols-2 gap-y-12 py-20 sm:py-24 lg:grid-cols-4')}>
+          {STATS.map((stat, index) => (
+            <RevealItem key={stat.label} className={cn('flex flex-col items-center gap-4 px-4 text-center', index % 2 === 1 && 'border-l', index === 2 && 'lg:border-l')}>
+              <dt className={cn(MONO_LABEL, 'order-2 max-w-[22ch] leading-[1.5] text-muted-foreground')}>{stat.label}</dt>
+              <dd className="order-1 font-display text-6xl leading-none font-medium tracking-[-0.03em] text-foreground tabular-nums sm:text-7xl">{stat.value}</dd>
+            </RevealItem>
+          ))}
+        </RevealGroup>
       </div>
     </section>
   );
