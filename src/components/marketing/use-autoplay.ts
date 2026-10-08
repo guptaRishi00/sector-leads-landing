@@ -17,7 +17,7 @@ const subscribeMotion = (onChange: () => void) => {
  * The rules every self-playing illustration on the page follows (How it works' steps, Automation):
  * it plays only with motion allowed (`animated` is false on the server and under reduced motion, so
  * the server's frame stays put), only while it is in view (at least IN_VIEW of it on screen), and
- * not while the visitor has paused it with its button (WCAG 2.2.2). It does not hold on hover or
+ * there is no pause button (removed at the user's request). It does not hold on hover or
  * focus: scrolling with the wheel brings it under a resting pointer, which froze it before it
  * started, and focus stayed on the play button after a resume. `started` turns true the first time
  * it comes into view with motion allowed: the caller restarts its loop from the beginning then, so
@@ -26,7 +26,6 @@ const subscribeMotion = (onChange: () => void) => {
  */
 export function useAutoplay<T extends HTMLElement>() {
   const ref = useRef<T>(null);
-  const [paused, setPaused] = useState(false);
   const [visible, setVisible] = useState(false);
   const [seen, setSeen] = useState(false);
   const animated = useSyncExternalStore(
@@ -55,9 +54,7 @@ export function useAutoplay<T extends HTMLElement>() {
   return {
     ref,
     animated,
-    running: animated && visible && !paused,
+    running: animated && visible,
     started: animated && seen,
-    paused,
-    togglePaused: () => setPaused((on) => !on),
   };
 }

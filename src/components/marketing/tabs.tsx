@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useId, useRef, useState, type FocusEvent, type KeyboardEvent, type ReactNode } from 'react';
-import { Button, Icons, cn } from '@sl/ui';
+import { cn } from '@sl/ui';
 
-type Autoplay = 'off' | 'on' | 'paused';
+type Autoplay = 'off' | 'on';
 
 /**
  * WAI-ARIA tabs with roving focus (Arrow keys, Home, End). The panels are rendered on the server
@@ -14,9 +14,9 @@ type Autoplay = 'off' | 'on' | 'paused';
  * Web Animation draws it (vertical tabs: a border tracing round the tab, clockwise from its top
  * left; horizontal tabs: a bar) and the next tab opens when it completes, so pausing it pauses the
  * rotation. It holds while keyboard focus is in the panel (not on hover: resting the pointer on the
- * panel while reading must not freeze it), while the tabs are off screen and
- * while the page is hidden; the button pauses it (WCAG 2.2.2); choosing a tab stops it for good;
- * reduced motion never starts it.
+ * panel while reading must not freeze it), while the tabs are off screen and while the page is
+ * hidden; choosing a tab stops it for good; reduced motion never starts it. There is no pause
+ * button (removed at the user's request).
  */
 export function Tabs({
   label,
@@ -220,17 +220,6 @@ export function Tabs({
             );
           })}
         </div>
-        {autoplay !== 'off' && (
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={() => setAutoplay(autoplay === 'on' ? 'paused' : 'on')}
-            aria-label={autoplay === 'on' ? `Pause: ${label} changes on its own` : `Play: let ${label} change on its own`}
-            className={cn('shrink-0 text-muted-foreground', vertical ? 'lg:self-start' : 'mb-1.5')}
-          >
-            {autoplay === 'on' ? <Icons.Pause aria-hidden="true" /> : <Icons.Play aria-hidden="true" />}
-          </Button>
-        )}
       </div>
       <div className={cn(vertical && 'lg:h-full')} onFocus={() => setHolds((value) => ({ ...value, focus: true }))} onBlur={onPanelBlur}>
         {panels.map((panel, index) => (

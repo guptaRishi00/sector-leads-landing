@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useReducer, type ReactNode } from 'react';
-import { Button, cn, Icons } from '@sl/ui';
+import { cn, Icons } from '@sl/ui';
 import { EXAMPLE_LEAD, EXAMPLE_SCORE, SEND_GATES } from '@/lib/marketing/content';
 import { useAutoplay } from './use-autoplay';
 
@@ -382,23 +382,9 @@ function FlowList({ state }: { state: FlowState }): ReactNode {
   );
 }
 
-function PauseButton({ paused, onClick, className }: { paused: boolean; onClick: () => void; className?: string }) {
-  return (
-    <Button
-      variant="ghost"
-      size="icon-sm"
-      onClick={onClick}
-      aria-label={paused ? 'Play the example run' : 'Pause the example run'}
-      className={cn('size-8 rounded-lg bg-card/80 text-muted-foreground ring-1 ring-border [&_svg]:size-3.5', className)}
-    >
-      {paused ? <Icons.Play aria-hidden="true" /> : <Icons.Pause aria-hidden="true" />}
-    </Button>
-  );
-}
-
 export function AutomationFlow() {
   const [state, dispatch] = useReducer(reduce, INITIAL);
-  const { ref, animated, running, started, paused, togglePaused } = useAutoplay<HTMLDivElement>();
+  const { ref, running, started } = useAutoplay<HTMLDivElement>();
 
   // The first time it comes into view, the run starts over from the trigger, in view.
   useEffect(() => {
@@ -419,15 +405,12 @@ export function AutomationFlow() {
           <FlowCanvas state={state} />
         </div>
       </div>
-      {animated && <PauseButton paused={paused} onClick={togglePaused} className="absolute top-4 right-4 hidden lg:inline-flex" />}
       <div className="lg:hidden">
         <p className="sr-only">{FLOW_DESCRIPTION}</p>
-        {/* A fixed-height row, so the button's arrival after hydration moves nothing. */}
-        <div className="flex h-11 items-end justify-between px-3">
+        <div className="flex h-11 items-end px-3">
           <span aria-hidden="true" className="pb-1.5 text-[13px] font-medium text-muted-foreground">
             Example run
           </span>
-          {animated && <PauseButton paused={paused} onClick={togglePaused} />}
         </div>
         <div aria-hidden="true">
           <FlowList state={state} />

@@ -2,7 +2,7 @@
 
 import { animate, AnimatePresence, motion, useMotionValue, useTransform } from 'framer-motion';
 import { useEffect, useReducer, type ReactNode } from 'react';
-import { Button, cn, Icons } from '@sl/ui';
+import { cn, Icons } from '@sl/ui';
 import { EXAMPLE_LEAD, EXAMPLE_SCORE, REJECT_EXAMPLES, SIGNAL_TYPES } from '@/lib/marketing/content';
 import { useAutoplay } from './use-autoplay';
 
@@ -225,7 +225,7 @@ function RejectResult({ code }: { code: RuleCode }) {
 
 export function EvidenceStory() {
   const [state, dispatch] = useReducer(reduce, INITIAL);
-  const { ref, animated, running, started, paused, togglePaused } = useAutoplay<HTMLDivElement>();
+  const { ref, animated, running, started } = useAutoplay<HTMLDivElement>();
 
   // The first time it comes into view, the loop starts over, so it runs from the beginning in view.
   useEffect(() => {
@@ -265,17 +265,6 @@ export function EvidenceStory() {
               Rejected <span className="font-medium text-foreground tabular-nums">{state.rejected}</span>
             </span>
           </p>
-          {animated && (
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              onClick={togglePaused}
-              aria-label={paused ? 'Play the example scoring' : 'Pause the example scoring'}
-              className="size-7 rounded-lg text-muted-foreground [&_svg]:size-3.5"
-            >
-              {paused ? <Icons.Play aria-hidden="true" /> : <Icons.Pause aria-hidden="true" />}
-            </Button>
-          )}
         </div>
       </div>
       <div aria-hidden="true" className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">

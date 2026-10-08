@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { createContext, useContext, useEffect, useReducer, type ReactNode } from 'react';
-import { Button, cn, Icons } from '@sl/ui';
+import { cn, Icons } from '@sl/ui';
 import { BRAND_NAME } from '@/lib/marketing/brand';
 import { SIGNAL_TYPES } from '@/lib/marketing/content';
 import { useAutoplay } from './use-autoplay';
@@ -12,8 +12,8 @@ import { useAutoplay } from './use-autoplay';
  * source records it, we read it), on the right the product doing it on its own (a feed the events
  * land in). One clock drives both, so each event walks down the three stages and then drops into
  * the feed. The server renders the finished first event (nothing shifts when the loop starts);
- * from then on it advances every few seconds, pausing on hover or focus, while off screen and via
- * the pause button (WCAG 2.2.2). Under reduced motion it stays on that first, finished frame.
+ * from then on it advances every few seconds while it is in view (useAutoplay), starting over the
+ * first time it comes into view. Under reduced motion it stays on that first, finished frame.
  * Illustration only: the moving parts are aria-hidden and a sentence describes them.
  */
 
@@ -204,8 +204,6 @@ interface Story extends State {
   item: FeedItem;
   animated: boolean;
   running: boolean;
-  paused: boolean;
-  togglePaused: () => void;
 }
 
 const StoryContext = createContext<Story | null>(null);
@@ -220,7 +218,7 @@ function useStory(): Story {
 export function SignalStory({ className, children }: { className?: string; children: ReactNode }) {
   const [state, dispatch] = useReducer(reduce, INITIAL);
   // `animated` is false on the server and under reduced motion: the finished first frame stays put.
-  const { ref, animated, running, started, paused, togglePaused } = useAutoplay<HTMLDivElement>();
+  const { ref, animated, running, started } = useAutoplay<HTMLDivElement>();
 
   // The first time it comes into view, the loop starts over, so it runs from the beginning in view.
   useEffect(() => {
@@ -239,8 +237,6 @@ export function SignalStory({ className, children }: { className?: string; child
     item,
     animated,
     running,
-    paused,
-    togglePaused,
   };
 
   return (
@@ -498,7 +494,7 @@ function FeedRow({ item, status, fresh = false }: { item: FeedItem; status: 'rea
  * the page. The tabs and sidebar are pictures of controls, not controls: all aria-hidden.
  */
 export function SignalFeed() {
-  const { item, phase, feed, fresh, nextKey, animated, running, paused, togglePaused } = useStory();
+  const { item, phase, feed, fresh, nextKey, running } = useStory();
   const waiting = phase < 3;
   const reading = phase === 1 || phase === 2;
   return (
@@ -538,17 +534,6 @@ export function SignalFeed() {
               <span className={cn('relative inline-flex size-1.5 rounded-full', running ? 'bg-primary' : 'bg-control')} />
             </span>
           </p>
-          {animated && (
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              onClick={togglePaused}
-              aria-label={paused ? 'Play the example feed' : 'Pause the example feed'}
-              className="size-7 shrink-0 rounded-lg text-muted-foreground [&_svg]:size-3.5"
-            >
-              {paused ? <Icons.Play aria-hidden="true" /> : <Icons.Pause aria-hidden="true" />}
-            </Button>
-          )}
         </div>
         <div aria-hidden="true" className="flex h-8 shrink-0 items-end justify-between gap-3 border-b px-3 sm:px-4">
           <div className="flex items-end gap-3.5 text-[11.5px] font-medium">
