@@ -1,6 +1,7 @@
 export {
   ArrowLeft,
   ArrowRight,
+  ArrowUpRight,
   Ban,
   Building2,
   CalendarCheck,

@@ -1,4 +1,4 @@
-import { cn } from '@sl/ui';
+import { cn, Icons } from '@sl/ui';
 import { BRAND_NAME } from '@/lib/marketing/brand';
 import { EXAMPLE_SCORE, INDUSTRY_PACKS, SEND_GATES, SIGNAL_TYPES } from '@/lib/marketing/content';
 import { GUTTER } from '../marketing-shell';
@@ -31,7 +31,11 @@ export function ProofBar() {
           {STATS.map((stat, index) => (
             <RevealItem key={stat.label} className={cn('flex flex-col items-center gap-4 px-4 text-center', index % 2 === 1 && 'border-l', index === 2 && 'lg:border-l')}>
               <dt className={cn(MONO_LABEL, 'order-2 max-w-[22ch] leading-[1.5] text-muted-foreground')}>{stat.label}</dt>
-              <dd className="order-1 font-display text-6xl leading-none font-medium tracking-[-0.03em] text-foreground tabular-nums sm:text-7xl">{stat.value}</dd>
+              <dd className="order-1 inline-flex items-start font-display text-6xl leading-none font-medium tracking-[-0.03em] text-foreground tabular-nums sm:text-7xl">
+                {stat.value}
+                {/* A plus in the accent, beside the figure: decoration, so screen readers read the exact count. */}
+                <Icons.Plus aria-hidden="true" className="ml-[0.04em] size-[0.45em] text-primary" strokeWidth={2.5} />
+              </dd>
             </RevealItem>
           ))}
         </RevealGroup>
