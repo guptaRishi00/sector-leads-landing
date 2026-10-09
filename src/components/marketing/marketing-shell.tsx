@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Button, Icons, ThemeToggle, cn } from '@sl/ui';
 import { BRAND_NAME, BRAND_TAGLINE } from '@/lib/marketing/brand';
 import { FooterWordmark } from './footer-motion';
+import { HeaderScrollState } from './header-scroll-state';
 import { MobileNav } from './mobile-nav';
 import { RevealGroup, RevealItem } from './reveal';
 import { SmoothScroll } from './smooth-scroll';
@@ -28,7 +29,8 @@ export function BrandMark({ className }: { className?: string }) {
       <span aria-hidden="true" className="inline-flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
         <Icons.Radar className="size-4" strokeWidth={2.25} />
       </span>
-      <span className="text-[15px] font-[560] tracking-[-0.01em]">{BRAND_NAME}</span>
+      {/* One line always; on the narrowest phones (under 360px) only the mark shows, so the header fits. */}
+      <span className="text-[15px] font-[560] tracking-[-0.01em] whitespace-nowrap max-[22.5rem]:sr-only">{BRAND_NAME}</span>
     </Link>
   );
 }
@@ -40,8 +42,24 @@ function SiteHeader({ showNav }: { showNav: boolean }) {
     // 10px button corners. Its
     // content spans FRAME, the sections' width, so the logo and the pill line up with the content.
     // The sections' scroll-margin (scroll-mt-18) meets its 4.5rem.
-    <header className={cn('sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/85', GUTTER)}>
-      <div className={cn(FRAME, 'relative flex h-18 items-center justify-between gap-3 sm:gap-6')}>
+    // Past 80px of scroll (HeaderScrollState sets data-scrolled) it shrinks like SoftexEdge's navbar:
+    // the bar's ground and hairline fade out and the content draws in to a floating frosted pill,
+    // narrower (62rem at most) and shorter, with rounded corners. The header keeps its height, so
+    // nothing below it moves.
+    <header
+      className={cn(
+        'group/header sticky top-0 z-40 h-[calc(4.5rem+1px)] border-b bg-background/95 backdrop-blur transition-[background-color,border-color,backdrop-filter] duration-300 ease-out supports-[backdrop-filter]:bg-background/85 data-scrolled:border-transparent data-scrolled:bg-transparent data-scrolled:backdrop-blur-none motion-reduce:transition-none',
+        GUTTER,
+      )}
+    >
+      <HeaderScrollState />
+      <div
+        className={cn(
+          FRAME,
+          'relative flex h-18 items-center justify-between gap-3 transition-[max-width,height,margin,padding,border-radius,background-color,box-shadow] duration-300 ease-out sm:gap-6 motion-reduce:transition-none',
+          'group-data-scrolled/header:mt-2 group-data-scrolled/header:h-14 group-data-scrolled/header:max-w-[62rem] group-data-scrolled/header:rounded-[14px] group-data-scrolled/header:border group-data-scrolled/header:bg-background/80 group-data-scrolled/header:px-2 group-data-scrolled/header:shadow-[0_8px_30px_-12px_var(--shadow-color)] group-data-scrolled/header:backdrop-blur-xl sm:group-data-scrolled/header:px-4',
+        )}
+      >
         <div className="flex items-center gap-10">
           <BrandMark />
           {showNav && (

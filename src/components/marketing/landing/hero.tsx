@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { Button, cn, Icons } from '@sl/ui';
 import { EXAMPLE_SCORE, SEND_GATES } from '@/lib/marketing/content';
+import { CloudShader } from '../cloud-shader';
 import { HeroIntro } from '../hero-intro';
 import { HeroStage } from '../hero-stage';
 import { GUTTER } from '../marketing-shell';
@@ -153,15 +154,63 @@ const LINES = 'repeating-linear-gradient(90deg, color-mix(in oklab, var(--backgr
 
 const VEIL = 'radial-gradient(70% 106.6667% at 50% 0%, var(--background) 32%, transparent 64%)';
 
-function HeroBackdrop() {
+/**
+ * Which hero background is live. 'clouds' (2026-10-09) is Aceternity's cloud shader under white copy;
+ * 'classic' is the earlier one, kept intact for a quick revert if the client prefers it: the blue
+ * wash, the fine vertical lines and the white veil HeroStage eases back on scroll, under the
+ * theme's dark copy. Switching this one word swaps both the backdrop and the copy colours. (`as`
+ * keeps the type wide: with a plain annotation TypeScript narrows it, and the comparison below
+ * fails to compile once the value is changed.)
+ */
+const HERO_BACKGROUND = 'clouds' as 'clouds' | 'classic';
+const ON_SKY = HERO_BACKGROUND === 'clouds';
+
+/** The backdrop's frame: one screen tall and sticky, behind the content in the same grid cell. */
+const BACKDROP = 'pointer-events-none sticky top-[calc(4.5rem+1px)] z-0 col-start-1 row-start-1 h-[calc(100svh-4.5rem-1px)] self-start overflow-hidden';
+
+function ClassicBackdrop() {
   return (
-    <div aria-hidden="true" className="pointer-events-none sticky top-[calc(4.5rem+1px)] z-0 col-start-1 row-start-1 h-[calc(100svh-4.5rem-1px)] self-start overflow-hidden">
+    <div aria-hidden="true" className={BACKDROP}>
       <div className="absolute inset-0 opacity-40" style={{ backgroundImage: WASH }} />
       <div className="absolute inset-0 opacity-40" style={{ backgroundImage: LINES }} />
       <div data-stage="veil" className="absolute top-0 left-[-150%] h-[150%] w-[400%] origin-top will-change-transform" style={{ backgroundImage: VEIL }} />
     </div>
   );
 }
+
+/** A soft blue shade behind the copy, so the white text holds when a cloud drifts behind it. */
+const SKY_SHADE = 'radial-gradient(70% 50% at 50% 34%, rgb(24 64 120 / 0.32) 0%, rgb(24 64 120 / 0.12) 55%, transparent 80%)';
+
+/**
+ * Drifting clouds in a blue sky, rendered at 1x (soft clouds lose nothing, and it's a per-pixel
+ * shader). It sticks at the very top, so the sky shows around the header once that shrinks to a
+ * pill, and its lower third fades into the page colour: at the hero's end that's where the next
+ * section begins, so the sky melts into it instead of stopping at a line.
+ */
+function CloudBackdrop() {
+  return (
+    <div aria-hidden="true" className="pointer-events-none sticky top-0 z-0 col-start-1 row-start-1 h-svh self-start overflow-hidden">
+      <CloudShader maxDpr={1} className="absolute inset-0 min-h-0" />
+      <div className="absolute inset-0 max-sm:[background-size:100%_120%]" style={{ backgroundImage: SKY_SHADE }} />
+      <div className="absolute inset-x-0 bottom-0 h-[38%] bg-linear-to-b from-transparent via-background/60 to-background" />
+    </div>
+  );
+}
+
+const HeroBackdrop = ON_SKY ? CloudBackdrop : ClassicBackdrop;
+
+/**
+ * The copy's colours on each background. The sky is the same in both themes, so on it the copy is
+ * white (as in Aceternity's demo) with a soft shadow for the clouds drifting behind it.
+ */
+const COPY = ON_SKY
+  ? {
+      title: 'text-white drop-shadow-[0_2px_12px_rgb(15_40_80/0.35)]',
+      accent: 'text-white/75',
+      lead: 'text-white/90 drop-shadow-[0_1px_8px_rgb(15_40_80/0.35)]',
+      trust: 'text-white/85 [&_svg]:text-white drop-shadow-[0_1px_6px_rgb(15_40_80/0.3)]',
+    }
+  : { title: 'text-foreground', accent: 'text-primary', lead: 'text-muted-foreground', trust: '' };
 
 export function Hero() {
   return (
@@ -170,7 +219,7 @@ export function Hero() {
     // window before the next section. overflow-x-clip only (it doesn't make a scroll container, so
     // the backdrop can still stick), and the side cards can drift sideways without a scrollbar. The
     // backdrop and the content share one grid cell, as on Attio.
-    <section aria-labelledby="hero-title" className="relative isolate grid overflow-x-clip border-b">
+    <section aria-labelledby="hero-title" className={cn('relative isolate grid overflow-x-clip', !ON_SKY && 'border-b')}>
       <HeroBackdrop />
       <HeroIntro
         className={cn(
@@ -197,17 +246,18 @@ export function Hero() {
             data-intro=""
             id="hero-title"
             className={cn(
-              'mt-8 max-w-[16ch] font-display text-[2.75rem] leading-[1] font-medium tracking-[-0.025em] text-balance text-foreground sm:max-w-[20ch] sm:text-[4rem] lg:max-w-none lg:text-[clamp(3rem,min(9svh,6vw),5.75rem)] lg:leading-[0.95] lg:whitespace-nowrap',
+              'mt-8 max-w-[16ch] font-display text-[2.75rem] leading-[1] font-medium tracking-[-0.025em] text-balance sm:max-w-[20ch] sm:text-[4rem] lg:max-w-none lg:text-[clamp(3rem,min(9svh,6vw),5.75rem)] lg:leading-[0.95] lg:whitespace-nowrap',
+              COPY.title,
               INTRO,
             )}
           >
-            Leads with <span className="text-primary">the proof attached.</span>
+            Leads with <span className={COPY.accent}>the proof attached.</span>
           </h1>
-          <p data-intro="" className={cn('mt-6 max-w-[34rem] text-base leading-7 text-pretty text-muted-foreground sm:text-lg sm:leading-[1.55]', INTRO)}>
+          <p data-intro="" className={cn('mt-6 max-w-[34rem] text-base leading-7 text-pretty sm:text-lg sm:leading-[1.55]', COPY.lead, INTRO)}>
             Tenders, filings, new directors, hiring and funding become leads you can check. Only what you approve is sent.
           </p>
           <div data-intro="" className={cn('mt-5', INTRO)}>
-            <TrustRow className="justify-center" />
+            <TrustRow className={cn('justify-center', COPY.trust)} />
           </div>
           <div data-intro="" className={cn('mt-9 flex flex-wrap items-center justify-center gap-2.5', INTRO)}>
             <Button asChild variant="outline" className={cn('h-10 px-4', BUTTON, BUTTON_PLAIN)}>

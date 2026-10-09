@@ -59,11 +59,14 @@ export function HeroStage({ className, children }: { className?: string; childre
         scrollTrigger: { trigger: hero, start: 'top top', end: '+=300', scrub: 0.6 },
       });
       // The backdrop's white veil eases back while the window rises, so more of the colour shows.
-      gsap.to('[data-stage="veil"]', {
-        scaleY: 0.72,
-        ease: 'none',
-        scrollTrigger: { trigger: hero, start: 'top top', endTrigger: stage, end: `top ${PIN_TOP}px`, scrub: 0.6 },
-      });
+      // Only the classic backdrop has a veil (hero.tsx HERO_BACKGROUND); GSAP warns on a missing target.
+      if (hero.querySelector('[data-stage="veil"]') !== null) {
+        gsap.to('[data-stage="veil"]', {
+          scaleY: 0.72,
+          ease: 'none',
+          scrollTrigger: { trigger: hero, start: 'top top', endTrigger: stage, end: `top ${PIN_TOP}px`, scrub: 0.6 },
+        });
+      }
       gsap.to(win, {
         y: -RISE,
         ease: 'none',
