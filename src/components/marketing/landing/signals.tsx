@@ -80,7 +80,9 @@ export function Signals() {
                 <p className="font-mono text-[12px] text-primary-foreground/75">{featured.sources}</p>
               </div>
               {/* Supabase-style line art: a large outlined bank (the lender behind the registered charge), cropped by the corner. */}
-              <Iconoir.Bank className={cn(LINE_ART, '-right-10 -bottom-16 size-[20rem] text-primary-foreground/30 lg:size-[24rem]')} />
+              <Iconoir.Bank
+                className={cn(LINE_ART, '-right-10 -bottom-16 size-[20rem] text-primary-foreground/30 max-sm:-right-8 max-sm:-bottom-12 max-sm:size-64 lg:size-[24rem]')}
+              />
             </BentoCard>
           </RevealItem>
         )}
@@ -88,7 +90,9 @@ export function Signals() {
           <RevealItem as="li" className="sm:col-span-2 lg:col-span-1">
             <BentoCard noise containerClassName={cn(NIGHT, LIFT)} className={cn(GLOW, 'flex min-h-[18rem] flex-col gap-4 p-7 sm:p-10')}>
               {/* Supabase-style line art: a large outlined megaphone, cropped by the card's corner. */}
-              <Iconoir.Megaphone className={cn(LINE_ART, '-right-12 -bottom-14 size-72 text-background/30 dark:text-foreground/20')} />
+              <Iconoir.Megaphone
+                className={cn(LINE_ART, '-right-12 -bottom-14 size-72 text-background/30 max-sm:-right-8 max-sm:-bottom-14 max-sm:size-56 dark:text-foreground/20')}
+              />
               <span className="inline-flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                 <Iconoir.Megaphone className="size-5" />
               </span>
@@ -117,7 +121,10 @@ export function Signals() {
             <BentoCard noise containerClassName={cn(NIGHT, LIFT)} className={cn(GLOW, 'min-h-[24rem] p-7 sm:p-10 lg:min-h-[18rem]')}>
               {/* Supabase-style line art: a large outlined contract with a star (awarded), cropped by the card's bottom edge. */}
               <Iconoir.PageStar
-                className={cn(LINE_ART, '-right-10 -bottom-20 size-[20rem] text-background/30 dark:text-foreground/20 lg:right-[8%] lg:-bottom-28 lg:size-[26rem]')}
+                className={cn(
+                  LINE_ART,
+                  '-right-6 -bottom-8 size-44 text-background/30 sm:-right-12 sm:-bottom-12 sm:size-60 dark:text-foreground/20 lg:right-[8%] lg:-bottom-28 lg:size-[26rem]',
+                )}
               />
               <div className="relative z-10 flex max-w-sm flex-col gap-4 xl:max-w-md">
                 <span className="inline-flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">

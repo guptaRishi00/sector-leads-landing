@@ -205,8 +205,10 @@ const HeroBackdrop = ON_SKY ? CloudBackdrop : ClassicBackdrop;
  */
 const COPY = ON_SKY
   ? {
-      title: 'text-white drop-shadow-[0_2px_12px_rgb(15_40_80/0.35)]',
-      accent: 'text-white/75',
+      // On phones (below sm) the title is solid white, accent included, with a small crisp text
+      // shadow instead of the soft glow, so it stays sharp over the clouds.
+      title: 'text-white drop-shadow-[0_2px_12px_rgb(15_40_80/0.35)] max-sm:drop-shadow-none max-sm:text-shadow-sm max-sm:text-shadow-[rgb(15_40_80/0.4)]',
+      accent: 'text-white/75 max-sm:text-white',
       lead: 'text-white/90 drop-shadow-[0_1px_8px_rgb(15_40_80/0.35)]',
       trust: 'text-white/85 [&_svg]:text-white drop-shadow-[0_1px_6px_rgb(15_40_80/0.3)]',
     }
