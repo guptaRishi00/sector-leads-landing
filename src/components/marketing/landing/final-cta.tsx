@@ -9,9 +9,9 @@ export function FinalCta({ token }: { token: string }) {
     // The page's one form (the hero links here), as Leadistry's closing: a large centred heading
     // with its closing word in the accent, the lead, the email-first form in a card, and the promises as mono
     // fine print.
-    <section id="join" aria-labelledby="final-title" className={cn('scroll-mt-18 border-b', GUTTER)}>
+    <section id="join" aria-labelledby="final-title" data-tone="light" className={cn('scroll-mt-18 border-b max-sm:border-b-0', GUTTER)}>
       <div className={RAIL}>
-        <div className={cn(INNER, 'flex flex-col items-center gap-10 py-24 sm:gap-12 sm:py-32 lg:py-40')}>
+        <div data-section-pad="" className={cn(INNER, 'flex flex-col items-center gap-10 py-24 sm:gap-12 sm:py-32 lg:py-40')}>
           <Reveal className="flex max-w-3xl flex-col items-center gap-5 text-center">
             <Chip>Join the waitlist</Chip>
             <h2 id="final-title" className="font-display text-[2.75rem] leading-[1] font-medium tracking-[-0.025em] text-balance text-foreground sm:text-6xl lg:text-[4.5rem]">
@@ -22,7 +22,7 @@ export function FinalCta({ token }: { token: string }) {
             </p>
           </Reveal>
           <Reveal delay={0.08} className="w-full max-w-2xl">
-            <div className={cn('rounded-2xl border bg-card p-5 text-left sm:p-8', SCREEN_SHADOW, EDGE)}>
+            <div className={cn('rounded-2xl border bg-card p-7 text-left sm:p-8', SCREEN_SHADOW, EDGE)}>
               <WaitlistForm token={token} source="landing-final" compact />
             </div>
           </Reveal>

@@ -342,15 +342,16 @@ function DraftDemo({ tick }: { tick: number }) {
         {writing && <span className="ml-px inline-block h-3.5 w-px translate-y-0.5 bg-foreground motion-safe:animate-pulse" />}
       </p>
       <div className="flex items-center justify-between gap-3 border-t px-3.5 py-2">
-        <span className={cn('inline-flex items-center gap-1 text-[10.5px] text-muted-foreground transition-opacity duration-300', writing ? 'opacity-0' : 'opacity-100')}>
-          <Icons.FileText className="size-3" />
-          Cites {EXAMPLE_LEAD.evidence.title}
+        {/* The citation gives way (truncates) on narrow screens; the two buttons never shrink or wrap. */}
+        <span className={cn('inline-flex min-w-0 items-center gap-1 text-[10.5px] text-muted-foreground transition-opacity duration-300', writing ? 'opacity-0' : 'opacity-100')}>
+          <Icons.FileText className="size-3 shrink-0" />
+          <span className="truncate">Cites {EXAMPLE_LEAD.evidence.title}</span>
         </span>
-        <span className="flex gap-1.5">
-          <span className="inline-flex h-6 items-center rounded-md border bg-card px-2 text-[11px] font-medium">Edit</span>
+        <span className="flex shrink-0 gap-1.5">
+          <span className="inline-flex h-6 items-center rounded-md border bg-card px-2 text-[11px] font-medium whitespace-nowrap">Edit</span>
           <span
             className={cn(
-              'inline-flex h-6 items-center rounded-md px-2 text-[11px] font-medium transition-colors duration-300',
+              'inline-flex h-6 items-center rounded-md px-2 text-[11px] font-medium whitespace-nowrap transition-colors duration-300',
               writing ? 'bg-muted text-muted-foreground' : 'bg-primary text-primary-foreground',
             )}
           >

@@ -185,14 +185,16 @@ const SKY_SHADE = 'radial-gradient(70% 50% at 50% 34%, rgb(24 64 120 / 0.32) 0%,
  * Drifting clouds in a blue sky, rendered at 1x (soft clouds lose nothing, and it's a per-pixel
  * shader). It sticks at the very top, so the sky shows around the header once that shrinks to a
  * pill, and its lower third fades into the page colour: at the hero's end that's where the next
- * section begins, so the sky melts into it instead of stopping at a line.
+ * section begins, so the sky melts into it instead of stopping at a line. The fade is solid for its
+ * last 10% and overshoots the bottom edge by 4px (clipped), so no row of sky can survive at the
+ * boundary on high-density screens, where it read as a hairline.
  */
 function CloudBackdrop() {
   return (
     <div aria-hidden="true" className="pointer-events-none sticky top-0 z-0 col-start-1 row-start-1 h-svh self-start overflow-hidden">
       <CloudShader maxDpr={1} className="absolute inset-0 min-h-0" />
       <div className="absolute inset-0 max-sm:[background-size:100%_120%]" style={{ backgroundImage: SKY_SHADE }} />
-      <div className="absolute inset-x-0 bottom-0 h-[38%] bg-linear-to-b from-transparent via-background/60 to-background" />
+      <div className="absolute inset-x-0 -bottom-1 h-[calc(38%+0.25rem)] bg-linear-to-b from-transparent via-background/60 via-45% to-background to-90%" />
     </div>
   );
 }

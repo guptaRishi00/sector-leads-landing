@@ -208,7 +208,13 @@ export function WaitlistForm({ token, source, compact = false, className }: { to
   );
 
   return (
-    <form ref={formRef} noValidate onSubmit={(event) => void submit(event)} data-testid={`waitlist-form-${source}`} className={cn('relative flex flex-col gap-4', className)}>
+    <form
+      ref={formRef}
+      noValidate
+      onSubmit={(event) => void submit(event)}
+      data-testid={`waitlist-form-${source}`}
+      className={cn('relative flex flex-col gap-4 max-sm:gap-5', className)}
+    >
       <div
         ref={errorRef}
         tabIndex={-1}
@@ -257,8 +263,8 @@ export function WaitlistForm({ token, source, compact = false, className }: { to
         <input id={`${id}-hp`} name={WAITLIST_HONEYPOT_FIELD} type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
-      <div className={cn('flex flex-col gap-1.5', compact && 'border-t pt-4')}>
-        <div className="flex items-start gap-2.5">
+      <div className={cn('flex flex-col gap-1.5', compact && 'border-t pt-4 max-sm:pt-5')}>
+        <div className="flex items-start gap-2.5 max-sm:gap-3">
           <input
             id={fieldId('consent')}
             type="checkbox"
@@ -269,7 +275,8 @@ export function WaitlistForm({ token, source, compact = false, className }: { to
             aria-describedby={errors.consent === undefined ? undefined : consentErrorId}
             className="mt-0.5 size-4 shrink-0 accent-primary"
           />
-          <label htmlFor={fieldId('consent')} className="text-[13px] leading-snug text-pretty text-muted-foreground">
+          {/* flex-1 + min-w-0: the text always fills the row beside the box (some phone browsers sized it to half the width with text-pretty, now from sm only). */}
+          <label htmlFor={fieldId('consent')} className="min-w-0 flex-1 text-[13px] leading-snug text-muted-foreground max-sm:leading-relaxed sm:text-pretty">
             {WAITLIST_CONSENT_TEXT}
           </label>
         </div>

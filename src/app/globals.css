@@ -2,6 +2,25 @@
 /* In the main app this line is `@import '@sl/ui/theme.css';` (the shared UI package). */
 @import '../components/ui/theme.css';
 
+/*
+ * Phones: one section rhythm, after Infrantic and SoftexEdge. Sections have no dividers there; each
+ * section's padded box (data-section-pad) gets 5rem above and below, and where the next section has
+ * the same ground (data-tone: light, band or dark) the upper one drops its bottom padding, so two
+ * matching sections are one 5rem apart and a change of ground keeps both. Unlayered, so it beats the
+ * sections' own py-* utilities. sm and up are unchanged.
+ */
+@media (width < 40rem) {
+  [data-tone] [data-section-pad] {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+  [data-tone='light']:has(+ [data-tone='light']) [data-section-pad],
+  [data-tone='band']:has(+ [data-tone='band']) [data-section-pad],
+  [data-tone='dark']:has(+ [data-tone='dark']) [data-section-pad] {
+    padding-bottom: 0;
+  }
+}
+
 /* Leadistry's display face for headings (font-display), set on <html> by the root layout. */
 @theme inline {
   --font-display: var(--font-inter-tight), var(--font-sans);

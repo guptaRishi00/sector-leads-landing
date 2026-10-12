@@ -64,16 +64,20 @@ export function RevealGroup({
   stagger = 0.08,
   className,
   children,
+  ...data
 }: {
   as?: keyof typeof GROUP_TAGS;
   delay?: number;
   stagger?: number;
   className?: string;
   children: ReactNode;
+  /** Marks the box the phone section rhythm pads (globals.css). */
+  'data-section-pad'?: boolean;
 }) {
   const Tag = GROUP_TAGS[as];
   return (
     <Tag
+      {...data}
       className={className}
       initial="hidden"
       whileInView="shown"

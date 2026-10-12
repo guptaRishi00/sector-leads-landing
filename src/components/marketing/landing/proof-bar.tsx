@@ -22,19 +22,19 @@ export const SOURCES: readonly string[] = [...new Set(SIGNAL_TYPES.flatMap((sign
  */
 export function ProofBar() {
   return (
-    <section aria-labelledby="proof-bar-title" className={cn('border-b bg-muted', GUTTER)}>
+    <section aria-labelledby="proof-bar-title" data-tone="band" className={cn('border-b bg-muted max-sm:border-b-0', GUTTER)}>
       <div className={RAIL}>
         <h2 id="proof-bar-title" className="sr-only">
           {BRAND_NAME} at a glance
         </h2>
-        <RevealGroup as="dl" className={cn(INNER, 'grid grid-cols-2 gap-y-12 py-20 sm:py-24 lg:grid-cols-4')}>
+        <RevealGroup as="dl" data-section-pad className={cn(INNER, 'grid grid-cols-2 gap-y-12 py-20 sm:py-24 lg:grid-cols-4')}>
           {STATS.map((stat, index) => (
             <RevealItem key={stat.label} className={cn('flex flex-col items-center gap-4 px-4 text-center', index % 2 === 1 && 'border-l', index === 2 && 'lg:border-l')}>
               <dt className={cn(MONO_LABEL, 'order-2 max-w-[22ch] leading-[1.5] text-muted-foreground')}>{stat.label}</dt>
-              <dd className="order-1 inline-flex items-start font-display text-6xl leading-none font-medium tracking-[-0.03em] text-foreground tabular-nums sm:text-7xl">
+              <dd className="order-1 inline-flex items-center font-display text-6xl leading-none font-medium tracking-[-0.03em] text-foreground tabular-nums sm:text-7xl">
                 {stat.value}
                 {/* A plus in the accent, beside the figure: decoration, so screen readers read the exact count. */}
-                <Icons.Plus aria-hidden="true" className="ml-[0.04em] size-[0.45em] text-primary" strokeWidth={2.5} />
+                <Icons.Plus aria-hidden="true" className="ml-[0.06em] size-[0.6em] text-primary" strokeWidth={2.25} />
               </dd>
             </RevealItem>
           ))}

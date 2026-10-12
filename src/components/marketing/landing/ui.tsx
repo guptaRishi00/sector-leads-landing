@@ -104,10 +104,13 @@ export function Section({
       id={id}
       aria-labelledby={labelledBy}
       data-theme={dark ? 'dark' : undefined}
-      className={cn('scroll-mt-18 border-b', GUTTER, band && 'bg-muted', dark && 'bg-sidebar text-foreground', className)}
+      data-tone={dark ? 'dark' : band ? 'band' : 'light'}
+      className={cn('scroll-mt-18 border-b max-sm:border-b-0', GUTTER, band && 'bg-muted', dark && 'bg-sidebar text-foreground', className)}
     >
       <div className={RAIL}>
-        <div className={cn(INNER, 'py-20 sm:py-28 lg:py-32', innerClassName)}>{children}</div>
+        <div data-section-pad="" className={cn(INNER, 'py-20 sm:py-28 lg:py-32', innerClassName)}>
+          {children}
+        </div>
       </div>
     </section>
   );
@@ -214,7 +217,7 @@ export const PAINTINGS = { sunset: '/how-it-works/1.webp', lake: '/how-it-works/
  */
 export function Painting({ src, className, children }: { src: string; className?: string; children: ReactNode }) {
   return (
-    <div className={cn('relative isolate overflow-hidden rounded-2xl border p-3 sm:p-6 lg:p-10', className)}>
+    <div className={cn('relative isolate overflow-hidden rounded-2xl border p-6 lg:p-10', className)}>
       <Image src={src} alt="" fill sizes="(min-width: 1344px) 1344px, 100vw" className="-z-10 object-cover" />
       {children}
     </div>
