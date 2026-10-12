@@ -146,7 +146,7 @@ function SiteFooter() {
       <div className={FRAME}>
         <div className="flex flex-col pt-12 pb-8 md:pt-20 lg:pt-24">
           <RevealGroup className="grid grid-cols-1 gap-12 pb-12 md:pb-16 lg:grid-cols-12">
-            <div className="grid grid-cols-2 gap-10 lg:col-span-7 lg:flex lg:gap-28">
+            <div className="grid grid-cols-2 gap-10 max-sm:grid-cols-1 max-sm:gap-8 lg:col-span-7 lg:flex lg:gap-28">
               {FOOTER_COLUMNS.map((column) => (
                 <RevealItem key={column.title}>
                   <nav aria-label={`Footer: ${column.title}`} className="flex flex-col gap-3">
