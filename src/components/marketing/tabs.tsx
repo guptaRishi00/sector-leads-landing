@@ -169,9 +169,9 @@ export function Tabs({
                   vertical
                     ? cn(
                         'rounded-lg px-3 py-2 text-left lg:whitespace-normal',
-                        selected ? 'bg-card font-medium text-foreground shadow-xs ring-1 ring-border' : 'text-muted-foreground hover:bg-card/60 hover:text-foreground',
+                        selected ? 'bg-card font-medium text-foreground shadow-xs ring-1 ring-border' : 'text-muted-foreground hover:bg-selected hover:text-primary',
                       )
-                    : cn('snap-start px-3 pt-2 pb-3.5 sm:px-4 lg:flex-1', selected ? 'font-medium text-foreground' : 'text-muted-foreground hover:text-foreground'),
+                    : cn('snap-start px-3 pt-2 pb-3.5 sm:px-4 lg:flex-1', selected ? 'font-medium text-foreground' : 'text-muted-foreground hover:text-primary'),
                 )}
               >
                 {tab}

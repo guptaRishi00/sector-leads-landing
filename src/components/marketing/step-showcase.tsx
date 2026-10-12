@@ -114,7 +114,7 @@ export function StepShowcase({ label, steps }: { label: string; steps: readonly 
               onKeyDown={(event) => onKeyDown(event, index)}
               className={cn(
                 'inline-flex h-9 shrink-0 items-center rounded-[10px] px-3.5 text-[13px] font-medium whitespace-nowrap transition-colors outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid focus-visible:outline-ring',
-                selected ? 'bg-foreground text-background' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                selected ? 'bg-foreground text-background' : 'text-muted-foreground hover:bg-selected hover:text-primary',
               )}
             >
               {item.tab}
@@ -139,7 +139,7 @@ export function StepShowcase({ label, steps }: { label: string; steps: readonly 
               <button
                 type="button"
                 onClick={() => setReplay((value) => value + 1)}
-                className="inline-flex items-center gap-1.5 rounded-md text-[12px] font-medium text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid focus-visible:outline-ring"
+                className="inline-flex items-center gap-1.5 rounded-md text-[12px] font-medium text-muted-foreground transition-colors outline-none hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid focus-visible:outline-ring"
               >
                 <Icons.RotateCcw aria-hidden="true" className="size-3.5" />
                 Replay demo

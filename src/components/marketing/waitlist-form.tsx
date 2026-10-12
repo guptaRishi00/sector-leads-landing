@@ -1,6 +1,7 @@
 'use client';
 
 import { Button, Field, Icons, Input, cn } from '@sl/ui';
+import { HOVER_PLAIN, HOVER_PRIMARY } from './hover';
 import { useId, useRef, useState, type FormEvent } from 'react';
 import {
   WAITLIST_COMPANY_MAX,
@@ -182,7 +183,8 @@ export function WaitlistForm({ token, source, compact = false, className }: { to
       size="lg"
       loading={pending}
       className={cn(
-        'group/cta w-full rounded-lg bg-primary font-medium text-primary-foreground shadow-none transition-[color,background-color,transform] hover:bg-primary/90 motion-safe:active:scale-[0.98] sm:w-auto sm:self-start',
+        'group/cta w-full rounded-lg bg-primary font-medium text-primary-foreground shadow-none transition-[color,background-color,transform] motion-safe:active:scale-[0.98] sm:w-auto sm:self-start',
+        HOVER_PRIMARY,
         compact && 'h-12 px-6 text-[15px] sm:mt-[calc(1.625rem+1px)]',
       )}
     >
@@ -220,7 +222,7 @@ export function WaitlistForm({ token, source, compact = false, className }: { to
           <div className="flex flex-col items-start gap-2">
             <p>{formError}</p>
             {reload && (
-              <Button variant="outline" size="sm" className="shadow-none" onClick={() => window.location.reload()}>
+              <Button variant="outline" size="sm" className={cn('shadow-none', HOVER_PLAIN)} onClick={() => window.location.reload()}>
                 Reload the page
               </Button>
             )}

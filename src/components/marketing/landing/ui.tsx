@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import type { ReactNode } from 'react';
 import { Button, cn, Icons } from '@sl/ui';
+import { HOVER_INK, HOVER_PLAIN, HOVER_PRIMARY } from '../hover';
 import { FRAME, GUTTER } from '../marketing-shell';
 import { Reveal } from '../reveal';
 
@@ -40,12 +41,12 @@ export const ICON_TILE = 'inline-flex size-9 shrink-0 items-center justify-cente
 /** Leadistry's buttons: 8px corners, 14px medium, a small press. */
 export const BUTTON = 'rounded-lg font-medium transition-[color,background-color,border-color,box-shadow,transform] motion-safe:active:scale-[0.98]';
 
-export const BUTTON_INK = 'bg-foreground text-background shadow-none hover:bg-foreground/85';
+export const BUTTON_INK = cn('bg-foreground text-background shadow-none', HOVER_INK);
 
 /** The main action: the accent, flat (no shadow). */
-export const BUTTON_PRIMARY = 'bg-primary text-primary-foreground shadow-none hover:bg-primary/90';
+export const BUTTON_PRIMARY = cn('bg-primary text-primary-foreground shadow-none', HOVER_PRIMARY);
 
-export const BUTTON_PLAIN = 'border-border bg-card text-foreground shadow-none hover:bg-muted';
+export const BUTTON_PLAIN = cn('border-border bg-card text-foreground shadow-none', HOVER_PLAIN);
 
 /** The product screens' bezel: a translucent hairline tint, so it reads on white, on the tinted bands and in the dark panels. */
 export const BEZEL = 'rounded-2xl border bg-[color-mix(in_oklab,var(--border)_40%,transparent)] p-1.5 sm:p-2';

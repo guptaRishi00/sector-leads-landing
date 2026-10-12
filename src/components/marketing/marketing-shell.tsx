@@ -4,6 +4,7 @@ import { Button, Icons, ThemeToggle, cn } from '@sl/ui';
 import { BRAND_NAME, BRAND_TAGLINE } from '@/lib/marketing/brand';
 import { FooterWordmark } from './footer-motion';
 import { HeaderScrollState } from './header-scroll-state';
+import { HOVER_INK, HOVER_INK_ON_DARK, HOVER_PLAIN } from './hover';
 import { MobileNav } from './mobile-nav';
 import { RevealGroup, RevealItem } from './reveal';
 import { SmoothScroll } from './smooth-scroll';
@@ -48,14 +49,17 @@ function SiteHeader({ showNav }: { showNav: boolean }) {
     // nothing below it moves.
     <header
       className={cn(
-        'group/header sticky top-0 z-40 h-[calc(4.5rem+1px)] border-b bg-background/95 backdrop-blur transition-[background-color,border-color,backdrop-filter] duration-300 ease-out supports-[backdrop-filter]:bg-background/85 data-scrolled:border-transparent data-scrolled:bg-transparent data-scrolled:backdrop-blur-none motion-reduce:transition-none',
+        'group/header sticky top-0 z-40 h-[calc(4.5rem+1px)] border-b bg-background/95 backdrop-blur transition-[background-color,border-color,backdrop-filter] duration-300 ease-out supports-[backdrop-filter]:bg-background/85 data-scrolled:border-transparent data-scrolled:bg-transparent data-scrolled:backdrop-blur-none data-menu-open:border-transparent data-menu-open:bg-transparent data-menu-open:backdrop-blur-none motion-reduce:transition-none',
         GUTTER,
       )}
     >
       <HeaderScrollState />
+      {/* Below lg: SoftexEdge's mobile bar (logo and toggle; it floats into a dark pill and opens as a card). */}
+      {showNav && <MobileNav items={NAV} brand={<BrandMark />} />}
       <div
         className={cn(
           FRAME,
+          showNav && 'max-lg:hidden',
           'relative flex h-18 items-center justify-between gap-3 transition-[max-width,height,margin,padding,border-radius,background-color,box-shadow] duration-300 ease-out sm:gap-6 motion-reduce:transition-none',
           'group-data-scrolled/header:mt-2 group-data-scrolled/header:h-14 group-data-scrolled/header:max-w-[62rem] group-data-scrolled/header:rounded-[14px] group-data-scrolled/header:border group-data-scrolled/header:bg-background/80 group-data-scrolled/header:px-2 group-data-scrolled/header:shadow-[0_8px_30px_-12px_var(--shadow-color)] group-data-scrolled/header:backdrop-blur-xl sm:group-data-scrolled/header:px-4',
         )}
@@ -77,14 +81,17 @@ function SiteHeader({ showNav }: { showNav: boolean }) {
           )}
         </div>
         <div className="flex items-center gap-2">
-          <Button asChild variant="outline" size="sm" className={cn('h-9 rounded-[10px] border-border bg-card px-3 shadow-none', showNav && 'hidden sm:inline-flex')}>
+          <Button asChild variant="outline" size="sm" className={cn('h-9 rounded-[10px] border-border bg-card px-3 shadow-none', HOVER_PLAIN, showNav && 'hidden sm:inline-flex')}>
             <Link href="/sign-in">Sign in</Link>
           </Button>
           {showNav && (
             <Button
               asChild
               size="sm"
-              className="group/cta h-9 rounded-[10px] bg-foreground px-3 text-background shadow-none transition-[color,background-color,transform] hover:bg-foreground/85 motion-safe:active:scale-[0.98]"
+              className={cn(
+                'group/cta h-9 rounded-[10px] bg-foreground px-3 text-background shadow-none transition-[color,background-color,transform] motion-safe:active:scale-[0.98]',
+                HOVER_INK,
+              )}
             >
               <a href="#join">
                 Join the waitlist
@@ -92,7 +99,6 @@ function SiteHeader({ showNav }: { showNav: boolean }) {
               </a>
             </Button>
           )}
-          {showNav && <MobileNav items={NAV} />}
         </div>
       </div>
     </header>
@@ -119,12 +125,12 @@ const FOOTER_LABEL = 'font-mono text-[11px] leading-none font-medium tracking-[0
 const FOOTER_LINK =
   'relative w-fit text-[15px] font-medium tracking-tight text-foreground/85 transition-colors hover:text-foreground after:absolute after:inset-x-0 after:-bottom-1 after:h-px after:origin-right after:scale-x-0 after:bg-foreground after:transition-transform after:duration-300 after:ease-out hover:after:origin-left hover:after:scale-x-100 motion-reduce:after:transition-none';
 
-/** SoftexEdge's arrow swap: on hover the arrow leaves to the top right and an accent one arrives from the bottom left. */
+/** SoftexEdge's arrow swap: on hover the arrow leaves to the top right and a fresh one arrives from the bottom left (in the text colour, as the button turns brand blue). */
 function ArrowSwap() {
   return (
     <span aria-hidden="true" className="relative inline-flex size-4 overflow-hidden">
       <Icons.ArrowUpRight className="absolute inset-0 size-4 transition-transform duration-300 group-hover/cta:translate-x-4 group-hover/cta:-translate-y-4 motion-reduce:transition-none" />
-      <Icons.ArrowUpRight className="absolute inset-0 size-4 -translate-x-4 translate-y-4 text-primary transition-transform duration-300 group-hover/cta:translate-x-0 group-hover/cta:translate-y-0 motion-reduce:transition-none" />
+      <Icons.ArrowUpRight className="absolute inset-0 size-4 -translate-x-4 translate-y-4 transition-transform duration-300 group-hover/cta:translate-x-0 group-hover/cta:translate-y-0 motion-reduce:transition-none" />
     </span>
   );
 }
@@ -159,7 +165,10 @@ function SiteFooter() {
               <p className="max-w-sm text-sm leading-6 text-pretty text-muted-foreground">{BRAND_TAGLINE}</p>
               <Button
                 asChild
-                className="group/cta h-11 rounded-[10px] bg-foreground px-4 text-[15px] text-background shadow-none hover:bg-foreground/90 motion-safe:active:scale-[0.98]"
+                className={cn(
+                  'group/cta h-11 rounded-[10px] bg-foreground px-4 text-[15px] text-background shadow-none transition-[color,background-color,transform] motion-safe:active:scale-[0.98]',
+                  HOVER_INK_ON_DARK,
+                )}
               >
                 <a href="/#join">
                   Join the waitlist
@@ -189,7 +198,9 @@ function SiteFooter() {
 /** The public pages' frame: header, main landmark and footer. */
 export function MarketingShell({ children, showNav = false }: { children: ReactNode; showNav?: boolean }) {
   return (
-    <div className="flex min-h-dvh flex-col bg-background text-foreground">
+    // `--brand` carries the page's primary into dark-scoped surfaces (the footer), whose own
+    // `--primary` is the dark palette's pale blue (see HOVER_INK_ON_DARK).
+    <div className="flex min-h-dvh flex-col bg-background text-foreground [--brand-foreground:var(--primary-foreground)] [--brand:var(--primary)]">
       <a
         href="#main"
         className="sr-only z-50 rounded-md bg-background px-3 py-2 text-sm font-medium focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:outline-2 focus:outline-ring focus:outline-solid"
