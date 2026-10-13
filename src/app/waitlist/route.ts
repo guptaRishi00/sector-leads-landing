@@ -1,11 +1,4 @@
-import {
-  WAITLIST_BODY_MAX_BYTES,
-  WAITLIST_CONSENT_VERSION,
-  WAITLIST_MESSAGES,
-  waitlistFieldErrors,
-  waitlistSchema,
-  type WaitlistReply,
-} from '@/lib/marketing/waitlist-schema';
+import { WAITLIST_BODY_MAX_BYTES, WAITLIST_CONSENT_VERSION, WAITLIST_MESSAGES, waitlistFieldErrors, waitlistSchema, type WaitlistReply } from '@/lib/marketing/waitlist-schema';
 
 /*
  * MOCK waitlist endpoint for design previews. Nothing is stored and no email is sent.
@@ -63,6 +56,10 @@ export async function POST(request: Request): Promise<Response> {
     name: field(fields, 'name'),
     company: field(fields, 'company'),
     role: field(fields, 'role'),
+    companySize: field(fields, 'companySize'),
+    industry: field(fields, 'industry'),
+    country: field(fields, 'country'),
+    useCase: field(fields, 'useCase'),
     consent: field(fields, 'consent'),
   });
   if (!parsed.success) {

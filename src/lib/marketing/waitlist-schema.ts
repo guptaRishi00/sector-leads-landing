@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { BRAND_NAME } from './brand';
+import { INDUSTRY_PACKS } from './content';
 
 // Shared by the waitlist form (browser) and its route handler (server). Nothing here reads
 // secrets or Node APIs.
@@ -8,6 +9,7 @@ export const WAITLIST_EMAIL_MAX = 254;
 export const WAITLIST_NAME_MAX = 120;
 export const WAITLIST_COMPANY_MAX = 120;
 export const WAITLIST_ROLE_MAX = 80;
+export const WAITLIST_USE_CASE_MAX = 500;
 export const WAITLIST_TAG_MAX = 100;
 export const WAITLIST_BODY_MAX_BYTES = 4 * 1024;
 export const WAITLIST_HONEYPOT_FIELD = 'website';
@@ -30,7 +32,37 @@ export type WaitlistSource = (typeof WAITLIST_SOURCES)[number];
 export const WAITLIST_UTM_KEYS = ['source', 'medium', 'campaign', 'term', 'content'] as const;
 export type WaitlistUtmKey = (typeof WAITLIST_UTM_KEYS)[number];
 
-export const WAITLIST_FIELDS = ['email', 'name', 'company', 'role', 'consent'] as const;
+/*
+ * Optional profile fields (added 2026-10-13; contract change, see the session log's handoff note).
+ * Each is a fixed list: the form offers these values and the schema accepts nothing else.
+ */
+/** The industry packs, by id (the form shows their names). */
+export const WAITLIST_INDUSTRIES = INDUSTRY_PACKS.map((pack) => ({ value: pack.id, label: pack.name }));
+
+export const WAITLIST_COMPANY_SIZES = [
+  { value: '1-10', label: '1–10 people' },
+  { value: '11-50', label: '11–50 people' },
+  { value: '51-200', label: '51–200 people' },
+  { value: '201-1000', label: '201–1,000 people' },
+  { value: '1000+', label: 'More than 1,000' },
+] as const;
+
+/** The countries whose legal basis and public holidays are built in, then everywhere else. */
+export const WAITLIST_COUNTRIES = [
+  { value: 'GB', label: 'United Kingdom' },
+  { value: 'US', label: 'United States' },
+  { value: 'IE', label: 'Ireland' },
+  { value: 'CA', label: 'Canada' },
+  { value: 'AU', label: 'Australia' },
+  { value: 'DE', label: 'Germany' },
+  { value: 'FR', label: 'France' },
+  { value: 'IN', label: 'India' },
+  { value: 'SG', label: 'Singapore' },
+  { value: 'AE', label: 'United Arab Emirates' },
+  { value: 'other', label: 'Somewhere else' },
+] as const;
+
+export const WAITLIST_FIELDS = ['email', 'name', 'company', 'role', 'companySize', 'industry', 'country', 'useCase', 'consent'] as const;
 export type WaitlistField = (typeof WAITLIST_FIELDS)[number];
 
 export const WAITLIST_MESSAGES = {
@@ -38,6 +70,10 @@ export const WAITLIST_MESSAGES = {
   name: `Keep your name to ${WAITLIST_NAME_MAX} characters, without special characters.`,
   company: `Keep the company name to ${WAITLIST_COMPANY_MAX} characters, without special characters.`,
   role: `Keep your role to ${WAITLIST_ROLE_MAX} characters, without special characters.`,
+  companySize: 'Choose a company size from the list.',
+  industry: 'Choose an industry from the list.',
+  country: 'Choose a country from the list.',
+  useCase: `Keep it to ${WAITLIST_USE_CASE_MAX} characters, without special characters.`,
   consent: 'Tick the box to join. It is how we know you want these emails.',
   invalid: 'Some answers need another look. Fix the ones marked and try again.',
   tooMany: "We've had a lot of requests from you in a short time. Wait a few minutes and try again.",
@@ -56,7 +92,7 @@ export const WAITLIST_SUCCESS = {
 // C0 and C1 controls, and bidirectional overrides that could disguise text in the admin table.
 const UNSAFE_TEXT = /[\u0000-\u001f\u007f-\u009f‪-‮⁦-⁩]/;
 
-function optionalText(max: number, message: string) {
+function optionalText(max: number, message: string, { multiline = false }: { multiline?: boolean } = {}) {
   return z
     .unknown()
     .optional()
@@ -66,13 +102,30 @@ function optionalText(max: number, message: string) {
         ctx.addIssue({ code: 'custom', message });
         return z.NEVER;
       }
-      const text = value.normalize('NFC').trim();
+      // A text area may hold line breaks; they are stored as single spaces (other controls still fail).
+      const flat = multiline ? value.replace(/\r\n|\r|\n/g, ' ').replace(/ {2,}/g, ' ') : value;
+      const text = flat.normalize('NFC').trim();
       if (text === '') return null;
       if (text.length > max || UNSAFE_TEXT.test(text)) {
         ctx.addIssue({ code: 'custom', message });
         return z.NEVER;
       }
       return text;
+    });
+}
+
+/** One of a fixed list of values, or nothing (an empty choice is no answer). */
+function optionalChoice(values: readonly string[], message: string) {
+  return z
+    .unknown()
+    .optional()
+    .transform((value, ctx) => {
+      if (value === undefined || value === null || value === '') return null;
+      if (typeof value !== 'string' || !values.includes(value)) {
+        ctx.addIssue({ code: 'custom', message });
+        return z.NEVER;
+      }
+      return value;
     });
 }
 
@@ -87,11 +140,7 @@ export const waitlistSchema = z.object({
     .optional()
     .transform((value, ctx) => {
       const text = typeof value === 'string' ? normaliseEmail(value) : '';
-      const ok =
-        text.length >= 3 &&
-        text.length <= WAITLIST_EMAIL_MAX &&
-        !UNSAFE_TEXT.test(text) &&
-        z.email().safeParse(text).success;
+      const ok = text.length >= 3 && text.length <= WAITLIST_EMAIL_MAX && !UNSAFE_TEXT.test(text) && z.email().safeParse(text).success;
       if (!ok) {
         ctx.addIssue({ code: 'custom', message: WAITLIST_MESSAGES.email });
         return z.NEVER;
@@ -101,7 +150,23 @@ export const waitlistSchema = z.object({
   name: optionalText(WAITLIST_NAME_MAX, WAITLIST_MESSAGES.name),
   company: optionalText(WAITLIST_COMPANY_MAX, WAITLIST_MESSAGES.company),
   role: optionalText(WAITLIST_ROLE_MAX, WAITLIST_MESSAGES.role),
-  consent: z.unknown().optional().refine((value) => value === true, { message: WAITLIST_MESSAGES.consent }),
+  companySize: optionalChoice(
+    WAITLIST_COMPANY_SIZES.map((size) => size.value),
+    WAITLIST_MESSAGES.companySize,
+  ),
+  industry: optionalChoice(
+    WAITLIST_INDUSTRIES.map((industry) => industry.value),
+    WAITLIST_MESSAGES.industry,
+  ),
+  country: optionalChoice(
+    WAITLIST_COUNTRIES.map((country) => country.value),
+    WAITLIST_MESSAGES.country,
+  ),
+  useCase: optionalText(WAITLIST_USE_CASE_MAX, WAITLIST_MESSAGES.useCase, { multiline: true }),
+  consent: z
+    .unknown()
+    .optional()
+    .refine((value) => value === true, { message: WAITLIST_MESSAGES.consent }),
 });
 
 export type WaitlistForm = z.output<typeof waitlistSchema>;
@@ -119,9 +184,7 @@ export function waitlistFieldErrors(error: z.ZodError): Partial<Record<WaitlistF
 
 /** A source tag, kept only when it is one of ours. */
 export function readSource(value: unknown): WaitlistSource | null {
-  return typeof value === 'string' && (WAITLIST_SOURCES as readonly string[]).includes(value)
-    ? (value as WaitlistSource)
-    : null;
+  return typeof value === 'string' && (WAITLIST_SOURCES as readonly string[]).includes(value) ? (value as WaitlistSource) : null;
 }
 
 /** One UTM value, kept only when it is short, printable text; anything else is dropped, not cut. */

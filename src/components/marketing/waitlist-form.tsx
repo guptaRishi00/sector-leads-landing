@@ -2,18 +2,22 @@
 
 import { Button, Field, Icons, Input, cn } from '@sl/ui';
 import { HOVER_PLAIN, HOVER_PRIMARY } from './hover';
-import { useId, useRef, useState, type FormEvent } from 'react';
+import { useId, useRef, useState, type ComponentProps, type FormEvent } from 'react';
 import {
   WAITLIST_COMPANY_MAX,
+  WAITLIST_COMPANY_SIZES,
   WAITLIST_CONSENT_TEXT,
   WAITLIST_CONSENT_VERSION,
   WAITLIST_EMAIL_MAX,
+  WAITLIST_COUNTRIES,
   WAITLIST_FIELDS,
   WAITLIST_HONEYPOT_FIELD,
+  WAITLIST_INDUSTRIES,
   WAITLIST_MESSAGES,
   WAITLIST_NAME_MAX,
   WAITLIST_ROLE_MAX,
   WAITLIST_SUCCESS,
+  WAITLIST_USE_CASE_MAX,
   WAITLIST_UTM_KEYS,
   type WaitlistField,
   type WaitlistReply,
@@ -53,6 +57,23 @@ function utmFromLocation(): Record<string, string> {
   return utm;
 }
 
+/** The ui Input's look, for the native select and textarea (the ui package has neither). */
+const CONTROL =
+  'w-full min-w-0 rounded-md border border-input bg-card px-3 text-base shadow-xs transition-[color,box-shadow,border-color] outline-none md:text-sm dark:bg-input/30 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/20 aria-invalid:border-destructive aria-invalid:ring-[3px] aria-invalid:ring-destructive/15 dark:aria-invalid:ring-destructive/25';
+
+function Choice({ name, options, ...rest }: { name: string; options: readonly { value: string; label: string }[] } & Omit<ComponentProps<'select'>, 'name' | 'children'>) {
+  return (
+    <select name={name} defaultValue="" className={cn(CONTROL, 'h-11 pr-8 text-foreground')} {...rest}>
+      <option value="">Choose one</option>
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+  );
+}
+
 function Optional({ children }: { children: string }) {
   return (
     <>
@@ -62,11 +83,12 @@ function Optional({ children }: { children: string }) {
 }
 
 /**
- * The waitlist form. `compact` (the closing call to action) is Leadistry's email-first form: a large
- * work-email field with the button beside it, the optional name, company and role tucked into a
- * disclosure, and the consent under a hairline. The fields, their names and the JSON body are
- * identical either way (closed <details> content still submits), and the disclosure opens itself
- * when one of its fields has an error.
+ * The waitlist form: every field in view, in a two-column grid from sm (one column on phones). The
+ * work email is the only required field and leads, full width; then name and company, role and
+ * company size, industry and country (fixed lists from the schema), what they would use it for,
+ * the consent under a hairline, and a full-width button. `compact` (the closing call to action)
+ * only enlarges the email field and the button. Field names and the JSON body follow
+ * waitlist-schema.ts (the profile fields were added on 2026-10-13: a contract change).
  */
 export function WaitlistForm({ token, source, compact = false, className }: { token: string; source: WaitlistSource; compact?: boolean; className?: string }) {
   const id = useId();
@@ -79,13 +101,11 @@ export function WaitlistForm({ token, source, compact = false, className }: { to
   const [reload, setReload] = useState(false);
   const [pending, setPending] = useState(false);
   const [done, setDone] = useState<'joined' | 'already' | null>(null);
-  const [moreOpen, setMoreOpen] = useState(false);
   const fieldId = (name: WaitlistField) => `${id}-${name}`;
 
   function show(next: FieldErrors, message: string) {
     setErrors(next);
     setFormError(message);
-    if (next.name !== undefined || next.company !== undefined || next.role !== undefined) setMoreOpen(true);
     const first = WAITLIST_FIELDS.find((name) => next[name] !== undefined);
     requestAnimationFrame(() => {
       (first === undefined ? errorRef.current : document.getElementById(fieldId(first)))?.focus();
@@ -117,6 +137,10 @@ export function WaitlistForm({ token, source, compact = false, className }: { to
           name: text(data, 'name'),
           company: text(data, 'company'),
           role: text(data, 'role'),
+          companySize: text(data, 'companySize'),
+          industry: text(data, 'industry'),
+          country: text(data, 'country'),
+          useCase: text(data, 'useCase'),
           consent,
           consentVersion: WAITLIST_CONSENT_VERSION,
           source,
@@ -183,9 +207,9 @@ export function WaitlistForm({ token, source, compact = false, className }: { to
       size="lg"
       loading={pending}
       className={cn(
-        'group/cta w-full rounded-lg bg-primary font-medium text-primary-foreground shadow-none transition-[color,background-color,transform] motion-safe:active:scale-[0.98] sm:w-auto sm:self-start',
+        'group/cta w-full rounded-lg bg-primary font-medium text-primary-foreground shadow-none transition-[color,background-color,transform] motion-safe:active:scale-[0.98]',
         HOVER_PRIMARY,
-        compact && 'h-12 px-6 text-[15px] sm:mt-[calc(1.625rem+1px)]',
+        compact && 'h-12 px-6 text-[15px]',
       )}
     >
       Join the waitlist
@@ -193,18 +217,36 @@ export function WaitlistForm({ token, source, compact = false, className }: { to
     </Button>
   );
 
-  const optional = (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+  const profile = (
+    <>
       <Field label={<Optional>Name</Optional>} error={errors.name} id={fieldId('name')}>
-        <Input name="name" autoComplete="name" maxLength={WAITLIST_NAME_MAX} className="bg-card" />
+        <Input name="name" autoComplete="name" maxLength={WAITLIST_NAME_MAX} className="h-11 bg-card" />
       </Field>
       <Field label={<Optional>Company</Optional>} error={errors.company} id={fieldId('company')}>
-        <Input name="company" autoComplete="organization" maxLength={WAITLIST_COMPANY_MAX} className="bg-card" />
+        <Input name="company" autoComplete="organization" maxLength={WAITLIST_COMPANY_MAX} className="h-11 bg-card" />
       </Field>
       <Field label={<Optional>Role</Optional>} error={errors.role} id={fieldId('role')}>
-        <Input name="role" autoComplete="organization-title" maxLength={WAITLIST_ROLE_MAX} className="bg-card" />
+        <Input name="role" autoComplete="organization-title" placeholder="Head of sales" maxLength={WAITLIST_ROLE_MAX} className="h-11 bg-card" />
       </Field>
-    </div>
+      <Field label={<Optional>Company size</Optional>} error={errors.companySize} id={fieldId('companySize')}>
+        <Choice name="companySize" options={WAITLIST_COMPANY_SIZES} />
+      </Field>
+      <Field label={<Optional>Industry</Optional>} error={errors.industry} id={fieldId('industry')}>
+        <Choice name="industry" options={WAITLIST_INDUSTRIES} />
+      </Field>
+      <Field label={<Optional>Country</Optional>} error={errors.country} id={fieldId('country')}>
+        <Choice name="country" options={WAITLIST_COUNTRIES} />
+      </Field>
+      <Field label={<Optional>What would you use it for?</Optional>} error={errors.useCase} id={fieldId('useCase')} className="sm:col-span-2">
+        <textarea
+          name="useCase"
+          rows={3}
+          maxLength={WAITLIST_USE_CASE_MAX}
+          placeholder="The signals you'd watch, the companies you sell to…"
+          className={cn(CONTROL, 'min-h-24 resize-y py-2.5 placeholder:text-muted-foreground')}
+        />
+      </Field>
+    </>
   );
 
   return (
@@ -236,34 +278,17 @@ export function WaitlistForm({ token, source, compact = false, className }: { to
         )}
       </div>
 
-      {compact ? (
-        // Email and the button on one line from sm (the button drops by the label's 15px line plus
-        // the field's 12px gap, measured, so it lines up with the input); stacked on phones.
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:gap-2">
-          {emailField}
-          {submitButton}
-        </div>
-      ) : (
-        emailField
-      )}
-      {compact ? (
-        <details open={moreOpen} onToggle={(event) => setMoreOpen(event.currentTarget.open)} className="group">
-          <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 rounded-sm text-[13px] font-medium text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid focus-visible:outline-ring [&::-webkit-details-marker]:hidden">
-            <Icons.Plus aria-hidden="true" className="size-3.5 transition-transform duration-200 group-open:rotate-45 motion-reduce:transition-none" />
-            Add your name, company and role (optional)
-          </summary>
-          <div className="mt-3">{optional}</div>
-        </details>
-      ) : (
-        optional
-      )}
+      <div className="grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-2">
+        <div className="sm:col-span-2">{emailField}</div>
+        {profile}
+      </div>
 
       <div aria-hidden="true" className="absolute top-auto -left-[10000px] size-px overflow-hidden">
         <label htmlFor={`${id}-hp`}>Leave this field empty</label>
         <input id={`${id}-hp`} name={WAITLIST_HONEYPOT_FIELD} type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
-      <div className={cn('flex flex-col gap-1.5', compact && 'border-t pt-4 max-sm:pt-5')}>
+      <div className="flex flex-col gap-1.5 border-t pt-5">
         <div className="flex items-start gap-2.5 max-sm:gap-3">
           <input
             id={fieldId('consent')}
@@ -287,7 +312,7 @@ export function WaitlistForm({ token, source, compact = false, className }: { to
         )}
       </div>
 
-      {!compact && submitButton}
+      {submitButton}
     </form>
   );
 }

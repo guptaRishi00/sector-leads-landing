@@ -184,9 +184,27 @@ function SiteFooter() {
 
           {/* Not revealed: the page's last line can't scroll clear of the reveal's bottom margin, so it would never appear. */}
           <div className="flex flex-col-reverse items-start justify-between gap-4 border-t pt-6 sm:flex-row sm:items-center">
-            <p className="font-mono text-[11px] tracking-[0.04em] text-muted-foreground">
-              © {year} {BRAND_NAME}. All rights reserved.
-            </p>
+            {/* The credit line, as on Infrantic: "Made with ❤️ by Softexedge", linking to softexedge.com. */}
+            <div className="flex flex-col gap-2 font-mono text-[11px] tracking-[0.04em] text-muted-foreground sm:flex-row sm:items-center sm:gap-6">
+              <p>
+                © {year} {BRAND_NAME}. All rights reserved.
+              </p>
+              <p>
+                Made with{' '}
+                <span role="img" aria-label="love">
+                  ❤️
+                </span>{' '}
+                by{' '}
+                <a
+                  href="https://softexedge.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn('text-foreground/80 underline-offset-2 transition-colors hover:text-foreground hover:underline', FOCUS)}
+                >
+                  Softexedge
+                </a>
+              </p>
+            </div>
             <ThemeToggle />
           </div>
         </div>
